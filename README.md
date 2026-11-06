@@ -1,16 +1,16 @@
 # AI Handwashing Tracker Blueprint & Specification
 
 ## 1. Project Overview
-- **Core Purpose:** A zero-clutter, landscape-locked Progressive Web App (PWA) that guides workers through the 6 core WHO handwashing motions (18 seconds total, 3s per step) using real-time front-camera AI hand pose and velocity tracking to gate timer progression.
+- **Core Purpose:** A zero-clutter, installable/downloadable Progressive Web App (PWA) supporting both **portrait and landscape** modes on phones, tablets, and wash-station kiosks, guiding workers through the 6 core WHO handwashing motions (18 seconds total, 3s per step) using real-time front-camera AI hand contact and velocity tracking to gate timer progression.
 - **Target User:** Food processing workers, commercial kitchen staff, and quality control (QC) hygiene supervisors operating at wash stations.
 
 ## 2. Tech Stack & Constraints
-- **Frontend:** HTML5 (`index.html`), Tailwind CSS, Custom 2D Anatomical SVG Icon Library, Web App Manifest (`manifest.json` with `"orientation": "landscape"`).
+- **Frontend:** HTML5 (`index.html`), Tailwind CSS, Custom 2D Anatomical SVG Icon Library, Service Worker (`sw.js`), Web App Manifest (`manifest.json` with `"orientation": "any"` and `192x192` / `512x512` PNG icons in `icons/`).
 - **AI Vision Engine:** `@mediapipe/hands`, `@mediapipe/camera_utils`, and `@mediapipe/drawing_utils` running locally in the browser via WebGL/WASM at 30 FPS.
 - **Backend/Database:** Client-side local execution (zero video leaves the device) with `localStorage` and Custom DOM Events (`handwash:complete`) for QC compliance timestamp logging.
 - **State Management:** Reactive `requestAnimationFrame` state machine (`START` → `WASHING` → `COMPLETE`) synchronized with millisecond-precision DOM updates and a `300ms` micro-pause debounce buffer.
 - **Strict Rules:**
-  - Locked strictly to **landscape mode** via Web App Manifest, Screen Orientation API, and CSS `@media (orientation: portrait)` rotation enforcement.
+  - Responsive across **both portrait and landscape modes** and small phone displays with safe-area inset support and installable PWA support (`beforeinstallprompt` + iOS/Android install guide).
   - Zero-clutter Main Wash Interface limited strictly to **5 core UI elements** (Top-Left Step Timer, Top-Right Camera PiP, Center Animated WHO Hand Prompt + Label, Bottom 6-Segment "Just Dance" Progress Bar, Bottom-Left `↺` Reset Button).
   - Timer and progress bar advance **only** when the worker's two hands match the **active step's specific 2D landmark pose geometry** AND frame-to-frame Euclidean + inter-hand relative scrubbing velocity exceeds the step threshold (`isPoseValid && velocity >= velocityThreshold`), freezing at the exact millisecond when motion pauses or the gesture pose is broken.
   - **50/50 Opposite-Hand Split (Steps 2–6):** All steps except Step 1 split their duration equally between the initial hand configuration (first `1.5s`) and the **opposite hand** (remaining `1.5s`), automatically mirroring the central 2D hand illustration, updating all 5 language prompts (`English`, `Chinese`, `Spanish`, `Indian/Hindi`, `Vietnamese`), and requiring the worker to switch hands at the 50% midpoint.
