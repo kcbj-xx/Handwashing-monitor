@@ -14,8 +14,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts (Inter + Noto Sans SC & Devanagari for Multilingual Support) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Noto+Sans+Devanagari:wght@600;700&family=Noto+Sans+SC:wght@600;700&display=swap" rel="stylesheet">
 
     <!-- MediaPipe Hands & Drawing Utils (WebGL / WASM) -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -36,7 +36,7 @@
             overflow: hidden;
             background-color: #090d16;
             color: #f8fafc;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Noto Sans SC', 'Noto Sans Devanagari', sans-serif;
             user-select: none;
             -webkit-user-select: none;
             touch-action: none;
@@ -131,18 +131,175 @@
                 type="button"
                 onclick="startWash()"
                 aria-label="Start Handwashing Session"
-                class="w-full max-w-2xl py-14 sm:py-20 px-12 rounded-[3rem] border-[5px] border-dashed border-slate-200/85 hover:border-emerald-400 hover:bg-emerald-500/5 active:scale-95 transition-all duration-200 flex items-center justify-center cursor-pointer group shadow-[0_0_90px_rgba(0,0,0,0.75)] focus:outline-none"
+                class="w-full max-w-2xl py-10 sm:py-14 px-10 rounded-[3rem] border-[5px] border-dashed border-slate-200/85 hover:border-emerald-400 hover:bg-emerald-500/5 active:scale-95 transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group shadow-[0_0_90px_rgba(0,0,0,0.75)] focus:outline-none"
             >
-                <span class="text-6xl sm:text-8xl md:text-9xl font-black tracking-[0.14em] text-white group-hover:text-emerald-400 transition-colors pl-[0.14em]">
+                <!-- 2 Languages Above START (1. Chinese, 2. Spanish) -->
+                <div class="mb-3 flex flex-col items-center space-y-1 text-sm sm:text-base md:text-lg font-bold tracking-wider text-slate-300 group-hover:text-emerald-200/90 transition-colors">
+                    <span>开始</span>
+                    <span>INICIAR</span>
+                </div>
+
+                <!-- Centered Primary English START -->
+                <span class="text-6xl sm:text-8xl md:text-9xl font-black tracking-[0.14em] text-white group-hover:text-emerald-400 transition-colors pl-[0.14em] leading-none my-1">
                     START
+                </span>
+
+                <!-- 2 Languages Below START (3. Indian/Hindi, 4. Vietnamese) -->
+                <div class="mt-3 flex flex-col items-center space-y-1 text-sm sm:text-base md:text-lg font-bold tracking-wider text-slate-300 group-hover:text-emerald-200/90 transition-colors">
+                    <span>शुरू करें</span>
+                    <span>BẮT ĐẦU</span>
+                </div>
+            </button>
+
+            <!-- Lower-Right Gesture Calibration Button -->
+            <button
+                id="calibrate-open-btn"
+                type="button"
+                onclick="openCalibration(event)"
+                aria-label="Calibrate Handwashing Gestures"
+                class="absolute bottom-5 right-6 sm:bottom-7 sm:right-8 z-40 px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl border-2 border-slate-600/90 bg-slate-900/90 hover:border-emerald-400 hover:bg-slate-800/95 active:scale-95 transition-all duration-150 flex items-center space-x-2.5 text-slate-200 hover:text-white cursor-pointer shadow-[0_0_24px_rgba(0,0,0,0.65)] focus:outline-none"
+            >
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                </svg>
+                <span class="text-xs sm:text-sm font-bold tracking-wider uppercase">
+                    Calibrate Gestures
                 </span>
             </button>
         </section>
 
         <!-- ========================================================= -->
+        <!-- GESTURE CALIBRATION MODAL / SCREEN                        -->
+        <!-- ========================================================= -->
+        <section id="calibration-screen" class="hidden absolute inset-0 z-40 bg-[#090d16] flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-hidden">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <h2 class="text-lg sm:text-xl md:text-2xl font-black tracking-wide text-white uppercase flex items-center gap-2.5">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                        Contact &amp; Motion Calibration
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 font-medium">
+                        Tune hand-to-hand contact detection tolerance and scrubbing velocity threshold.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2.5">
+                    <button
+                        type="button"
+                        onclick="resetCalibrationDefaults()"
+                        class="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm font-bold text-slate-300 hover:text-white transition-colors cursor-pointer"
+                    >
+                        Reset Defaults
+                    </button>
+                    <button
+                        type="button"
+                        onclick="closeCalibration()"
+                        class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-xs sm:text-sm font-black text-slate-950 uppercase tracking-wider transition-colors cursor-pointer"
+                    >
+                        Save &amp; Done
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Calibration Body -->
+            <div class="grid grid-cols-12 gap-4 sm:gap-6 my-auto py-2 items-center">
+                <!-- Left Column (5 cols): Live Camera Feed + Telemetry Badges -->
+                <div class="col-span-5 flex flex-col items-center">
+                    <div id="cal-camera-frame" class="relative w-full aspect-[4/3] max-h-56 sm:max-h-64 rounded-2xl border-4 border-amber-400 bg-slate-900 overflow-hidden shadow-lg">
+                        <video id="cal-video" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 opacity-90" autoplay playsinline muted></video>
+                        <canvas id="cal-canvas" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 pointer-events-none"></canvas>
+                        <div id="cal-pose-badge" class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/85 border border-slate-700 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-400">
+                            WAITING FOR HANDS...
+                        </div>
+                    </div>
+
+                    <!-- Live Velocity Meter -->
+                    <div class="w-full mt-3 bg-slate-900/90 border border-slate-800 rounded-xl p-2.5">
+                        <div class="flex justify-between text-[11px] sm:text-xs font-bold text-slate-300 mb-1">
+                            <span>LIVE SCRUB VELOCITY</span>
+                            <span id="cal-vel-readout" class="tabular-nums text-emerald-400">0.000 / 0.016</span>
+                        </div>
+                        <div class="relative w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                            <div id="cal-vel-bar" class="h-full bg-emerald-400 transition-all duration-75 w-0"></div>
+                            <div id="cal-vel-thresh-marker" class="absolute inset-y-0 w-0.5 bg-white z-10" style="left: 40%;"></div>
+                        </div>
+                        <div id="cal-metrics-line" class="mt-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-400 tabular-nums flex justify-between">
+                            <span>Contact: None</span>
+                            <span>Hands: 0/2</span>
+                            <span>Gap Dist: --</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column (7 cols): 4-Level Hand Contact Tolerance & Velocity Threshold Adjustments -->
+                <div class="col-span-7 flex flex-col justify-center space-y-4">
+                    <!-- 1. Hand Contact Tolerance (4 Levels) -->
+                    <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-4">
+                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-1">
+                            <span>Hand Contact Tolerance</span>
+                            <span id="cal-contact-tol-val" class="text-emerald-400 tabular-nums">Level 3 (Standard)</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-1">
+                            Adjusts how closely both hands must touch to register valid hand-to-hand contact.
+                        </p>
+                        <p class="text-[11px] text-slate-400/90 mb-3">
+                            双手接触容差 • Tolerancia de contacto entre manos • हाथ संपर्क सहनशीलता • Độ nhạy tiếp xúc hai bàn tay
+                        </p>
+                        <input
+                            id="cal-contact-tol-slider"
+                            type="range"
+                            min="1"
+                            max="4"
+                            step="1"
+                            value="3"
+                            oninput="onCalibrationSliderChange()"
+                            class="w-full accent-emerald-400 cursor-pointer"
+                        />
+                        <div class="grid grid-cols-4 gap-2 mt-2">
+                            <button type="button" id="cal-contact-lvl-1" onclick="setContactLevel(1)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">1 • Strict</button>
+                            <button type="button" id="cal-contact-lvl-2" onclick="setContactLevel(2)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">2 • Firm</button>
+                            <button type="button" id="cal-contact-lvl-3" onclick="setContactLevel(3)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">3 • Standard</button>
+                            <button type="button" id="cal-contact-lvl-4" onclick="setContactLevel(4)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">4 • Loose</button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Velocity Threshold (4 Levels) -->
+                    <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-4">
+                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-1">
+                            <span>Velocity Threshold</span>
+                            <span id="cal-vel-tol-val" class="text-emerald-400 tabular-nums">Level 2 (Standard)</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-1">
+                            Adjusts how fast the hands must rub together while in contact for the timer to advance.
+                        </p>
+                        <p class="text-[11px] text-slate-400/90 mb-3">
+                            揉搓速度阈值 • Umbral de velocidad de frotado • रगड़ने की गति सीमा • Ngưỡng tốc độ chà tay
+                        </p>
+                        <input
+                            id="cal-vel-tol-slider"
+                            type="range"
+                            min="1"
+                            max="4"
+                            step="1"
+                            value="2"
+                            oninput="onCalibrationSliderChange()"
+                            class="w-full accent-emerald-400 cursor-pointer"
+                        />
+                        <div class="grid grid-cols-4 gap-2 mt-2">
+                            <button type="button" id="cal-vel-lvl-1" onclick="setVelocityLevel(1)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">1 • Light</button>
+                            <button type="button" id="cal-vel-lvl-2" onclick="setVelocityLevel(2)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">2 • Standard</button>
+                            <button type="button" id="cal-vel-lvl-3" onclick="setVelocityLevel(3)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">3 • Brisk</button>
+                            <button type="button" id="cal-vel-lvl-4" onclick="setVelocityLevel(4)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">4 • Vigorous</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
         <!-- SCREEN 2: MAIN WASH INTERFACE (5 Core Elements Only)      -->
         <!-- ========================================================= -->
-        <section id="wash-screen" class="hidden absolute inset-0 z-20 bg-[#090d16] flex flex-col justify-between p-5 sm:p-8 lg:p-10 overflow-hidden">
+        <section id="wash-screen" class="hidden absolute inset-0 z-20 bg-[#090d16] flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-hidden">
 
             <!-- TOP ROW: [1] Top-Left Step Timer & [2] Top-Right Camera PiP -->
             <div class="flex items-start justify-between w-full z-20">
@@ -153,7 +310,7 @@
                     class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-emerald-400 bg-slate-900/90 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.28)] transition-colors duration-150"
                 >
                     <span id="timer-number" class="text-4xl sm:text-5xl md:text-6xl font-black text-white tabular-nums leading-none">
-                        8
+                        3
                     </span>
                 </div>
 
@@ -183,20 +340,27 @@
                 </div>
             </div>
 
-            <!-- CENTER STAGE: [3] Center Visual Prompt (Animated WHO Hand Icons + Single Concise Label) -->
-            <div id="center-stage" class="my-auto flex flex-col items-center justify-center text-center z-10 px-4 -mt-2 sm:-mt-4">
+            <!-- CENTER STAGE: [3] Center Visual Prompt (Animated WHO Hand Icons + Multilingual Action Labels) -->
+            <div id="center-stage" class="my-auto flex flex-col items-center justify-center text-center z-10 px-4 -mt-4 sm:-mt-6">
                 <div
                     id="gesture-illustration"
-                    class="w-48 h-44 sm:w-64 sm:h-56 md:w-72 md:h-64 flex items-center justify-center transition-all duration-150"
+                    class="w-36 h-32 sm:w-48 sm:h-40 md:w-56 md:h-48 flex items-center justify-center transition-all duration-150"
                 >
                     <!-- Anatomical 2D WHO Hand SVG Injected Dynamically -->
                 </div>
                 <p
                     id="gesture-caption"
-                    class="mt-2 sm:mt-3 text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight"
+                    class="mt-1 sm:mt-1.5 text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight leading-snug"
                 >
                     Palm to palm
                 </p>
+                <!-- Multilingual Sub-Captions: 1. Chinese, 2. Spanish, 3. Indian (Hindi), 4. Vietnamese -->
+                <div id="gesture-translations" class="mt-1 flex flex-col items-center space-y-0.5 text-xs sm:text-sm md:text-base font-semibold text-slate-300 leading-tight">
+                    <span id="lang-zh">掌心对掌心揉搓</span>
+                    <span id="lang-es">Frotar palma contra palma</span>
+                    <span id="lang-hi">हथेली से हथेली रगड़ें</span>
+                    <span id="lang-vi">Chà hai lòng bàn tay vào nhau</span>
+                </div>
             </div>
 
             <!-- BOTTOM ROW: [5] Bottom-Left Reset Button & [4] Bottom Segmented Progress Bar -->
@@ -226,67 +390,174 @@
         <!-- ========================================================= -->
         <!-- SCREEN 3: COMPLETION SCREEN                               -->
         <!-- ========================================================= -->
-        <section id="complete-screen" onclick="resetToStart(event)" class="hidden absolute inset-0 z-30 bg-[#090d16] flex flex-col items-center justify-center text-center p-8 cursor-pointer">
-            <h1 class="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.08em] text-emerald-400 mb-5">
+        <section id="complete-screen" class="hidden absolute inset-0 z-30 bg-[#090d16] flex flex-col items-center justify-center text-center p-6">
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.08em] text-emerald-400 mb-2">
                 COMPLETE
             </h1>
-            <p class="text-lg sm:text-2xl md:text-3xl font-bold tracking-[0.14em] text-slate-200 uppercase">
+            <p class="text-base sm:text-xl md:text-2xl font-bold tracking-[0.12em] text-slate-100 uppercase mb-3">
                 ( PROCEED TO THE NEXT STEP )
             </p>
+            <div class="flex flex-col items-center space-y-1 text-xs sm:text-sm md:text-base font-semibold text-slate-300 mb-6">
+                <span>已完成 —（请进行下一步）</span>
+                <span>COMPLETADO — ( PROCEDA AL SIGUIENTE PASO )</span>
+                <span>पूर्ण — ( अगले चरण पर आगे बढ़ें )</span>
+                <span>HOÀN TẤT — ( TIẾP TỤC BƯỚC TIẾP THEO )</span>
+            </div>
+
+            <!-- Next User Arrow Button (Icon only) -->
+            <button
+                id="next-user-btn"
+                type="button"
+                onclick="resetToStart(event)"
+                aria-label="Return to Start"
+                class="group mt-2 w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/30 active:scale-95 transition-all duration-150 flex items-center justify-center cursor-pointer shadow-[0_0_35px_rgba(16,185,129,0.3)] focus:outline-none"
+            >
+                <span class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-400 text-slate-950 flex items-center justify-center text-3xl sm:text-4xl font-black group-hover:translate-x-0.5 transition-transform leading-none">
+                    &#8594;
+                </span>
+            </button>
         </section>
 
     </div>
 
     <script>
         // ============================================================================
-        // 1. WHO 6 CORE HANDWASHING STEPS (48 Seconds Total -> Within 40–60s Spec)
+        // 1. WHO 6 CORE HANDWASHING STEPS (3 Seconds Per Step = 18 Seconds Total)
+        //    All steps except Step 1 split 50/50 between initial hand & opposite hand
         // ============================================================================
         const WHO_STEPS = [
             {
                 id: 1,
                 whoStep: "Step 2",
+                requiresHandSwitch: false,
                 label: "Palm to palm",
-                duration: 8.0, // 6 x 8.0s = 48.0s total WHO wash duration
+                translations: {
+                    zh: "掌心对掌心揉搓",
+                    es: "Frotar palma contra palma",
+                    hi: "हथेली से हथेली रगड़ें",
+                    vi: "Chà hai lòng bàn tay vào nhau"
+                },
+                duration: 3.0,
                 svgType: "palm-to-palm",
                 velocityThreshold: 0.018
             },
             {
                 id: 2,
                 whoStep: "Step 3",
-                label: "Right palm over back of left hand & vice versa",
-                duration: 8.0,
-                svgType: "dorsum",
-                velocityThreshold: 0.017
-            },
-            {
-                id: 3,
-                whoStep: "Step 4",
-                label: "Palm to palm with fingers interlaced",
-                duration: 8.0,
+                requiresHandSwitch: true,
+                label: "Palm to palm with fingers interlaced (Right hand lead)",
+                translations: {
+                    zh: "掌心相对，十指交叉揉搓（右手在上）",
+                    es: "Palma contra palma con dedos entrelazados (derecha arriba)",
+                    hi: "उंगलियों को आपस में फंसाकर हथेली से हथेली रगड़ें (दायां हाथ आगे)",
+                    vi: "Chà hai lòng bàn tay vào nhau, đan các kẽ ngón tay (tay phải trước)"
+                },
+                secondHalf: {
+                    label: "Switch hands: Palm to palm with fingers interlaced (Left hand lead)",
+                    translations: {
+                        zh: "换手：掌心相对，十指交叉揉搓（左手在上）",
+                        es: "Cambiar: Palma contra palma con dedos entrelazados (izquierda arriba)",
+                        hi: "हाथ बदलें: उंगलियों को आपस में फंसाकर हथेली से हथेली रगड़ें (बायां हाथ आगे)",
+                        vi: "Đổi tay: Chà hai lòng bàn tay vào nhau, đan các kẽ ngón tay (tay trái trước)"
+                    }
+                },
+                duration: 3.0,
                 svgType: "interlaced",
                 velocityThreshold: 0.016
             },
             {
+                id: 3,
+                whoStep: "Step 4",
+                requiresHandSwitch: true,
+                label: "Palm to back with fingers interlaced (Right over Left)",
+                translations: {
+                    zh: "掌心对手背，十指交叉揉搓（右手在上）",
+                    es: "Palma contra dorso con dedos entrelazados (derecha arriba)",
+                    hi: "उंगलियों को आपस में फंसाकर हथेली से हाथ के पीछे रगड़ें (दायां ऊपर)",
+                    vi: "Chà lòng bàn tay lên mu bàn tay, đan các kẽ ngón tay (tay phải trên)"
+                },
+                secondHalf: {
+                    label: "Switch hands: Palm to back with fingers interlaced (Left over Right)",
+                    translations: {
+                        zh: "换手：掌心对手背，十指交叉揉搓（左手在上）",
+                        es: "Cambiar: Palma contra dorso con dedos entrelazados (izquierda arriba)",
+                        hi: "हाथ बदलें: उंगलियों को आपस में फंसाकर हथेली से हाथ के पीछे रगड़ें (बायां ऊपर)",
+                        vi: "Đổi tay: Chà lòng bàn tay lên mu bàn tay, đan các kẽ ngón tay (tay trái trên)"
+                    }
+                },
+                duration: 3.0,
+                svgType: "dorsum",
+                velocityThreshold: 0.017
+            },
+            {
                 id: 4,
                 whoStep: "Step 5",
-                label: "Backs of fingers to opposing palms",
-                duration: 8.0,
+                requiresHandSwitch: true,
+                label: "Backs of fingers to opposing palm (Right over Left)",
+                translations: {
+                    zh: "弯曲手指，右手背在左手掌心揉搓",
+                    es: "Dorso de los dedos derechos contra la palma izquierda",
+                    hi: "दाएं हाथ की उंगलियों के पिछले हिस्से को बाईं हथेली से रगड़ें",
+                    vi: "Chà mặt ngoài các ngón tay phải vào lòng bàn tay trái"
+                },
+                secondHalf: {
+                    label: "Switch hands: Backs of fingers to opposing palm (Left over Right)",
+                    translations: {
+                        zh: "换手：弯曲手指，左手背在右手掌心揉搓",
+                        es: "Cambiar: Dorso de los dedos izquierdos contra la palma derecha",
+                        hi: "हाथ बदलें: बाएं हाथ की उंगलियों के पिछले हिस्से को दाईं हथेली से रगड़ें",
+                        vi: "Đổi tay: Chà mặt ngoài các ngón tay trái vào lòng bàn tay phải"
+                    }
+                },
+                duration: 3.0,
                 svgType: "knuckles",
                 velocityThreshold: 0.016
             },
             {
                 id: 5,
                 whoStep: "Step 6",
-                label: "Rotational rubbing of left & right thumbs",
-                duration: 8.0,
+                requiresHandSwitch: true,
+                label: "Rotational rubbing of left thumb clasped in right palm",
+                translations: {
+                    zh: "右手握住左手大拇指旋转揉搓",
+                    es: "Frotar con rotación el pulgar izquierdo con la palma derecha",
+                    hi: "दाईं हथेली से बाएं अंगूठे को पकड़कर घुमाते हुए रगड़ें",
+                    vi: "Tay phải nắm xoay tròn ngón cái của bàn tay trái"
+                },
+                secondHalf: {
+                    label: "Switch hands: Rotational rubbing of right thumb clasped in left palm",
+                    translations: {
+                        zh: "换手：左手握住右手大拇指旋转揉搓",
+                        es: "Cambiar: Frotar con rotación el pulgar derecho con la palma izquierda",
+                        hi: "हाथ बदलें: बाईं हथेली से दाएं अंगूठे को पकड़कर घुमाते हुए रगड़ें",
+                        vi: "Đổi tay: Tay trái nắm xoay tròn ngón cái của bàn tay phải"
+                    }
+                },
+                duration: 3.0,
                 svgType: "thumbs",
                 velocityThreshold: 0.015
             },
             {
                 id: 6,
                 whoStep: "Step 7",
-                label: "Rotational rubbing of fingertips in palm",
-                duration: 8.0,
+                requiresHandSwitch: true,
+                label: "Rotational rubbing of right fingertips in left palm",
+                translations: {
+                    zh: "右手五指并拢在左手掌心旋转揉搓",
+                    es: "Frotar la punta de los dedos derechos en la palma izquierda",
+                    hi: "दाएं हाथ की उंगलियों के पोरों को बाईं हथेली पर घुमाते हुए रगड़ें",
+                    vi: "Chụm đầu ngón tay phải xoay tròn trong lòng bàn tay trái"
+                },
+                secondHalf: {
+                    label: "Switch hands: Rotational rubbing of left fingertips in right palm",
+                    translations: {
+                        zh: "换手：左手五指并拢在右手掌心旋转揉搓",
+                        es: "Cambiar: Frotar la punta de los dedos izquierdos en la palma derecha",
+                        hi: "हाथ बदलें: बाएं हाथ की उंगलियों के पोरों को दाईं हथेली पर घुमाते हुए रगड़ें",
+                        vi: "Đổi tay: Chụm đầu ngón tay trái xoay tròn trong lòng bàn tay phải"
+                    }
+                },
+                duration: 3.0,
                 svgType: "fingertips",
                 velocityThreshold: 0.015
             }
@@ -307,12 +578,13 @@
             "L 126 148 C 121 156 112 162 100 162 " +
             "L 76 162 C 67 162 62 157 62 152 Z";
 
-        function getGestureSVG(type, isMini = false) {
+        function getGestureSVG(type, isMini = false, isMirrored = false) {
             const sw = isMini ? "5.5" : "3.6";
             const baseHandFill = "#1e293b";
             const baseHandStroke = "#94a3b8";
             const activeHandFill = "rgba(16, 185, 129, 0.30)";
             const activeHandStroke = "#34d399";
+            const mirrorStyle = isMirrored ? 'style="transform: scaleX(-1); transform-origin: center;"' : "";
 
             switch (type) {
                 // --------------------------------------------------------------------
@@ -320,7 +592,7 @@
                 // --------------------------------------------------------------------
                 case "palm-to-palm":
                     return `
-                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible" ${mirrorStyle}>
                         <!-- Rear Left Anatomical Hand -->
                         <g transform="translate(-18, -6) rotate(-8 95 110)">
                             <path d="${ANATOMICAL_HAND_PATH}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
@@ -345,7 +617,7 @@
                 // --------------------------------------------------------------------
                 case "dorsum":
                     return `
-                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible" ${mirrorStyle}>
                         <!-- Bottom Hand (Back of Hand / Dorsum with spread fingers) -->
                         <g transform="translate(4, 6)">
                             <path d="M 56 156 L 50 74 C 49 65 60 64 62 73 L 68 104 L 74 52 C 75 43 87 43 87 52 L 89 100 L 96 46 C 97 37 109 37 109 46 L 108 100 L 117 56 C 119 47 130 49 128 58 L 122 114 L 142 94 C 150 86 160 95 151 106 L 126 146 C 120 156 110 160 94 160 L 68 160 C 60 160 56 158 56 156 Z"
@@ -377,7 +649,7 @@
                 // --------------------------------------------------------------------
                 case "interlaced":
                     return `
-                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible" ${mirrorStyle}>
                         <!-- Left Facing Open Palm with Spread Fingers -->
                         <g transform="translate(-8, 4) rotate(22 85 115)">
                             <path d="M 52 154 L 46 72 C 45 63 56 62 58 71 L 66 104 L 72 52 C 73 43 85 43 85 52 L 88 100 L 96 48 C 97 39 109 39 109 48 L 108 102 L 118 60 C 120 51 131 53 129 62 L 120 116 L 140 98 C 148 90 157 99 148 110 L 122 148 C 116 156 104 160 88 160 L 64 160 Z"
@@ -406,7 +678,7 @@
                 // --------------------------------------------------------------------
                 case "knuckles":
                     return `
-                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible" ${mirrorStyle}>
                         <!-- Left Hand Wrist + Cupped Palm & Curled Fingers Facing Right -->
                         <path d="M 18 118 L 46 112 C 52 84 68 68 94 68 L 114 68 C 126 68 132 76 132 86 C 132 95 124 101 112 101 L 88 101 C 88 108 98 114 114 114 C 124 114 130 120 128 128 C 126 136 116 140 100 140 L 60 142 L 22 146 Z"
                               fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
@@ -428,24 +700,24 @@
                     </svg>`;
 
                 // --------------------------------------------------------------------
-                // SEGMENT 5 (WHO Step 6): Rotational thumb rub (Open hand with extended thumb + clasping hand + rotational arrow)
+                // SEGMENT 5 (WHO Step 6): Rotational thumb rub (Open hand with naturally proportioned thumb + clasping hand + rotational arrow)
                 // --------------------------------------------------------------------
                 case "thumbs":
                     return `
-                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
-                        <!-- Base Hand with Upright Extended Thumb Being Washed -->
-                        <path d="M 108 164 L 146 154 C 158 148 166 134 166 116 L 166 64 C 166 56 156 56 156 64 L 154 94 L 150 56 C 150 48 140 48 140 56 L 138 92 L 134 60 C 134 52 124 52 124 60 L 122 98 L 110 108 L 88 50 C 83 38 66 42 70 56 L 88 122 C 92 140 98 154 108 164 Z"
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible" ${mirrorStyle}>
+                        <!-- Base Hand with Naturally Proportioned Thumb Being Washed -->
+                        <path d="M 108 162 L 148 154 C 160 148 168 134 168 116 L 168 74 C 168 67 159 67 159 74 L 157 98 L 155 58 C 155 50 145 50 145 58 L 143 94 L 141 52 C 141 44 131 44 131 52 L 129 94 L 127 60 C 127 52 117 52 117 60 L 116 102 L 110 106 L 96 78 C 92 69 78 73 81 83 L 90 118 C 94 136 100 150 108 162 Z"
                               fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
                         <!-- Opposing Hand Clasping & Rotating Around the Isolated Thumb -->
                         <g class="${isMini ? "" : "anim-twist"}">
-                            <path class="active-hand-fill" d="M 32 134 L 56 96 C 62 86 74 82 88 84 L 110 88 C 120 90 124 98 120 106 C 118 112 122 120 114 126 C 110 132 102 138 90 138 L 64 138 L 42 154 Z"
+                            <path class="active-hand-fill" d="M 34 132 L 58 94 C 64 84 76 80 90 82 L 110 86 C 118 88 122 96 118 104 C 116 110 120 118 112 124 C 108 130 100 134 88 134 L 64 134 L 42 150 Z"
                                   fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
                             <!-- Wrapped Finger Segments Around Thumb -->
-                            <path d="M 70 96 L 108 98 M 68 110 L 110 112 M 70 124 L 104 125" stroke="#a7f3d0" stroke-width="2.6" stroke-linecap="round"/>
+                            <path d="M 72 95 L 108 97 M 70 108 L 110 110 M 72 121 L 104 122" stroke="#a7f3d0" stroke-width="2.6" stroke-linecap="round"/>
                             ${isMini ? "" : `
                             <!-- Rotational Arrow Wrapping Around Thumb Axis -->
-                            <path class="motion-arrow" d="M 52 68 A 34 18 0 1 1 108 62" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
-                            <polygon class="motion-arrow" points="112,56 108,71 96,61" fill="#ffffff"/>
+                            <path class="motion-arrow" d="M 58 72 A 28 15 0 1 1 108 66" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                            <polygon class="motion-arrow" points="112,60 108,75 96,65" fill="#ffffff"/>
                             `}
                         </g>
                     </svg>`;
@@ -455,7 +727,7 @@
                 // --------------------------------------------------------------------
                 case "fingertips":
                     return `
-                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible" ${mirrorStyle}>
                         <!-- Bottom Open Flat Upturned Anatomical Palm -->
                         <g transform="translate(4, 16)">
                             <path d="M 48 148 L 42 84 C 41 75 52 74 54 83 L 60 110 L 66 64 C 67 55 79 55 79 64 L 82 106 L 90 58 C 91 49 103 49 103 58 L 103 106 L 112 68 C 114 59 125 61 123 70 L 116 118 L 138 102 C 146 95 156 104 146 115 L 120 148 C 112 156 98 160 82 160 L 60 160 C 52 160 48 154 48 148 Z"
@@ -485,43 +757,201 @@
         // 3. MOTION-GATED TIMER & PAUSE ENGINE (300ms Micro-Pause Buffer)
         // ============================================================================
         const MOTION_DEBOUNCE_MS = 300;   // Spec: 300ms smoothing window for direction reversals
-        const OCCLUSION_GRACE_MS = 650;   // Floor calibration: brief 1-hand occlusion grace when hands overlap tightly
-        const COMPLETE_HOLD_MS = 3000;    // Spec: Hold COMPLETE screen for 3 seconds then auto-loop to START
+        const OCCLUSION_GRACE_MS = 450;   // Brief occlusion bridge ONLY after 2 hands are verified in valid step pose
+        const COMPLETE_HOLD_MS = 15000;   // Extended 15s hold before completion menu auto-closes (or Next User clicks arrow)
 
         let appState = "START";           // "START" | "WASHING" | "COMPLETE"
         let currentStepIndex = 0;
-        let stepRemainingMs = 8000;
-        let stepDurationMs = 8000;
+        let stepRemainingMs = 3000;
+        let stepDurationMs = 3000;
+        let isSecondHalfPhase = false;    // Tracks halfway opposite-hand switch for Steps 2-6
+        let firstHalfDominantPolarity = 0;
+        let firstHalfPolaritySum = 0;
+        let firstHalfPolaritySamples = 0;
 
         // Motion & Pose Tracking State
         let lastValidScrubTime = 0;
-        let lastTwoHandsTime = 0;
+        let lastTwoHandValidPoseTime = 0;
+        let lastValidPoseStepIndex = -1;
         let isScrubbingActive = false;    // RUNNING (true) vs PAUSED (false)
         let handsInFrameCount = 0;
         let isPoseValid = false;
         let currentVelocity = 0;
+        let currentMotionVector = { dx: 0, dy: 0 };
 
         // MediaPipe & Camera State
         let handsDetector = null;
         let webcamRunning = false;
-        let cameraHasSeenRealHand = false;
         let prevHandLandmarks = [null, null];
         let rafId = null;
         let lastFrameTime = performance.now();
         let completeTimeoutId = null;
 
+        // 4-Level Discrete Calibration Tables (Persisted in localStorage)
+        const CONTACT_TOLERANCE_LEVELS = {
+            1: { level: 1, label: "Strict", value: 0.45 },
+            2: { level: 2, label: "Firm", value: 0.75 },
+            3: { level: 3, label: "Standard", value: 1.00 },
+            4: { level: 4, label: "Loose", value: 1.35 }
+        };
+
+        const VELOCITY_THRESHOLD_LEVELS = {
+            1: { level: 1, label: "Light", value: 0.65 },
+            2: { level: 2, label: "Standard", value: 1.00 },
+            3: { level: 3, label: "Brisk", value: 1.25 },
+            4: { level: 4, label: "Vigorous", value: 1.50 }
+        };
+
+        const DEFAULT_CALIBRATION = {
+            contactLevel: 3,
+            velocityLevel: 2,
+            contactTolerance: 1.00,
+            velocityMultiplier: 1.00
+        };
+        let calibrationConfig = loadCalibrationConfig();
+        let calSelectedStepIndex = 0;
+        let isAutoSampling = false;
+        let autoSampleBuffer = [];
+        let lastObservedMetrics = {
+            palmDistNorm: 0,
+            avgExt: 0,
+            isTouching: false,
+            contactMetric: 0,
+            surfaceText: "--",
+            touchMode: "None"
+        };
+
         // Key Wrist & MCP (Knuckle) + Fingertip Landmarks for Euclidean Velocity Calculation
         const VELOCITY_LANDMARKS = [0, 5, 9, 13, 17, 4, 8, 12];
 
         // ============================================================================
-        // 4. INITIALIZATION
+        // 4. INITIALIZATION & CALIBRATION MANAGEMENT
         // ============================================================================
         window.addEventListener("DOMContentLoaded", () => {
             renderProgressSegments();
+            renderCalibrationUI();
             setupFallbackScrubListeners();
             initMediaPipeHands();
             startFallbackPiPCanvas();
         });
+
+        function loadCalibrationConfig() {
+            try {
+                const raw = localStorage.getItem("handwash_calibration_v2");
+                if (raw) {
+                    const parsed = Object.assign({}, DEFAULT_CALIBRATION, JSON.parse(raw));
+                    const cEntry = CONTACT_TOLERANCE_LEVELS[parsed.contactLevel] || CONTACT_TOLERANCE_LEVELS[3];
+                    const vEntry = VELOCITY_THRESHOLD_LEVELS[parsed.velocityLevel] || VELOCITY_THRESHOLD_LEVELS[2];
+                    parsed.contactTolerance = cEntry.value;
+                    parsed.velocityMultiplier = vEntry.value;
+                    return parsed;
+                }
+            } catch (e) {}
+            return JSON.parse(JSON.stringify(DEFAULT_CALIBRATION));
+        }
+
+        function saveCalibrationConfig() {
+            try {
+                localStorage.setItem("handwash_calibration_v2", JSON.stringify(calibrationConfig));
+            } catch (e) {}
+        }
+
+        function getEffectiveVelocityThreshold(step) {
+            const base = (step && step.velocityThreshold) || 0.016;
+            return base * (calibrationConfig.velocityMultiplier || 1.0);
+        }
+
+        function renderCalibrationUI() {
+            const contactSlider = document.getElementById("cal-contact-tol-slider");
+            const velSlider = document.getElementById("cal-vel-tol-slider");
+            if (contactSlider) contactSlider.value = calibrationConfig.contactLevel || 3;
+            if (velSlider) velSlider.value = calibrationConfig.velocityLevel || 2;
+            updateCalibrationSliderLabels();
+        }
+
+        function setContactLevel(lvl) {
+            const contactSlider = document.getElementById("cal-contact-tol-slider");
+            if (contactSlider) {
+                contactSlider.value = lvl;
+                onCalibrationSliderChange();
+            }
+        }
+
+        function setVelocityLevel(lvl) {
+            const velSlider = document.getElementById("cal-vel-tol-slider");
+            if (velSlider) {
+                velSlider.value = lvl;
+                onCalibrationSliderChange();
+            }
+        }
+
+        function onCalibrationSliderChange() {
+            const contactSlider = document.getElementById("cal-contact-tol-slider");
+            const velSlider = document.getElementById("cal-vel-tol-slider");
+            const cLvl = contactSlider ? (parseInt(contactSlider.value, 10) || 3) : 3;
+            const vLvl = velSlider ? (parseInt(velSlider.value, 10) || 2) : 2;
+
+            const cEntry = CONTACT_TOLERANCE_LEVELS[cLvl] || CONTACT_TOLERANCE_LEVELS[3];
+            const vEntry = VELOCITY_THRESHOLD_LEVELS[vLvl] || VELOCITY_THRESHOLD_LEVELS[2];
+
+            calibrationConfig.contactLevel = cEntry.level;
+            calibrationConfig.contactTolerance = cEntry.value;
+            calibrationConfig.velocityLevel = vEntry.level;
+            calibrationConfig.velocityMultiplier = vEntry.value;
+
+            updateCalibrationSliderLabels();
+            saveCalibrationConfig();
+        }
+
+        function updateCalibrationSliderLabels() {
+            const cLvl = calibrationConfig.contactLevel || 3;
+            const vLvl = calibrationConfig.velocityLevel || 2;
+            const cEntry = CONTACT_TOLERANCE_LEVELS[cLvl] || CONTACT_TOLERANCE_LEVELS[3];
+            const vEntry = VELOCITY_THRESHOLD_LEVELS[vLvl] || VELOCITY_THRESHOLD_LEVELS[2];
+
+            const contactValEl = document.getElementById("cal-contact-tol-val");
+            const velValEl = document.getElementById("cal-vel-tol-val");
+            if (contactValEl) contactValEl.innerText = `Level ${cEntry.level} (${cEntry.label})`;
+            if (velValEl) velValEl.innerText = `Level ${vEntry.level} (${vEntry.label})`;
+
+            for (let i = 1; i <= 4; i++) {
+                const cBtn = document.getElementById(`cal-contact-lvl-${i}`);
+                if (cBtn) {
+                    cBtn.className = (i === cEntry.level)
+                        ? "py-1.5 rounded-lg border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-xs font-extrabold cursor-pointer transition-all"
+                        : "py-1.5 rounded-lg border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-xs font-bold cursor-pointer transition-all";
+                }
+                const vBtn = document.getElementById(`cal-vel-lvl-${i}`);
+                if (vBtn) {
+                    vBtn.className = (i === vEntry.level)
+                        ? "py-1.5 rounded-lg border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-xs font-extrabold cursor-pointer transition-all"
+                        : "py-1.5 rounded-lg border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-xs font-bold cursor-pointer transition-all";
+                }
+            }
+        }
+
+        function resetCalibrationDefaults() {
+            calibrationConfig = JSON.parse(JSON.stringify(DEFAULT_CALIBRATION));
+            saveCalibrationConfig();
+            renderCalibrationUI();
+        }
+
+        async function openCalibration(event) {
+            if (event) event.stopPropagation();
+            appState = "CALIBRATING";
+            document.getElementById("start-screen").classList.add("hidden");
+            document.getElementById("calibration-screen").classList.remove("hidden");
+            renderCalibrationUI();
+            await startWebcam();
+        }
+
+        function closeCalibration() {
+            saveCalibrationConfig();
+            isAutoSampling = false;
+            appState = "START";
+            document.getElementById("calibration-screen").classList.add("hidden");
+            document.getElementById("start-screen").classList.remove("hidden");
+        }
 
         function renderProgressSegments() {
             const container = document.getElementById("progress-segments");
@@ -534,9 +964,11 @@
                 seg.innerHTML = `
                     <!-- Continuous Left-to-Right Progress Fill -->
                     <div id="segment-fill-${idx}" class="absolute inset-y-0 left-0 bg-emerald-500/85 w-0"></div>
+                    <!-- 50% Halfway Hand-Switch Divider for Steps 2 to 6 -->
+                    ${step.requiresHandSwitch ? '<div class="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-slate-950/70 z-10 pointer-events-none"></div>' : ''}
                     <!-- Static Mini Anatomical Hand Icon -->
                     <div class="relative z-10 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 pointer-events-none">
-                        ${getGestureSVG(step.svgType, true)}
+                        ${getGestureSVG(step.svgType, true, false)}
                     </div>
                 `;
                 container.appendChild(seg);
@@ -586,11 +1018,58 @@
             const step = WHO_STEPS[index];
             stepDurationMs = step.duration * 1000;
             stepRemainingMs = stepDurationMs;
+            isSecondHalfPhase = false;
+            firstHalfDominantPolarity = 0;
+            firstHalfPolaritySum = 0;
+            firstHalfPolaritySamples = 0;
 
-            document.getElementById("gesture-illustration").innerHTML = getGestureSVG(step.svgType, false);
+            // Require worker to form the new step's gesture pose before advancing
+            lastValidScrubTime = 0;
+            lastTwoHandValidPoseTime = 0;
+            lastValidPoseStepIndex = -1;
+            isPoseValid = false;
+            isScrubbingActive = false;
+
+            document.getElementById("gesture-illustration").innerHTML = getGestureSVG(step.svgType, false, false);
             document.getElementById("gesture-caption").innerText = step.label;
+            document.getElementById("lang-zh").innerText = step.translations.zh;
+            document.getElementById("lang-es").innerText = step.translations.es;
+            document.getElementById("lang-hi").innerText = step.translations.hi;
+            document.getElementById("lang-vi").innerText = step.translations.vi;
 
             syncTimerAndBarDOM();
+            updateVisualRunState(false);
+        }
+
+        function triggerOppositeHandSwitch(step) {
+            isSecondHalfPhase = true;
+            stepRemainingMs = stepDurationMs / 2;
+
+            // Lock in first-half hand polarity so second half requires the opposite hand
+            if (firstHalfPolaritySamples > 0) {
+                firstHalfDominantPolarity = firstHalfPolaritySum >= 0 ? 1 : -1;
+            } else {
+                firstHalfDominantPolarity = 0;
+            }
+
+            // Pause progression until the worker switches to the opposite hand
+            lastValidScrubTime = 0;
+            lastTwoHandValidPoseTime = 0;
+            isPoseValid = false;
+            isScrubbingActive = false;
+
+            // Mirror the central 2D hand illustration & update all 5 language prompts to Opposite Hand
+            document.getElementById("gesture-illustration").innerHTML = getGestureSVG(step.svgType, false, true);
+            if (step.secondHalf) {
+                document.getElementById("gesture-caption").innerText = step.secondHalf.label;
+                document.getElementById("lang-zh").innerText = step.secondHalf.translations.zh;
+                document.getElementById("lang-es").innerText = step.secondHalf.translations.es;
+                document.getElementById("lang-hi").innerText = step.secondHalf.translations.hi;
+                document.getElementById("lang-vi").innerText = step.secondHalf.translations.vi;
+            }
+
+            syncTimerAndBarDOM();
+            updateVisualRunState(false);
         }
 
         function washTimerLoop(now) {
@@ -609,11 +1088,20 @@
 
             // Motion-Gated Progression: Advance timer ONLY when in RUNNING state
             if (isScrubbingActive) {
-                stepRemainingMs = Math.max(0, stepRemainingMs - dtMs);
-                syncTimerAndBarDOM();
+                const step = WHO_STEPS[currentStepIndex];
+                const halfMs = stepDurationMs / 2;
+                const nextRemainingMs = Math.max(0, stepRemainingMs - dtMs);
 
-                if (stepRemainingMs <= 0) {
-                    loadStep(currentStepIndex + 1);
+                // For all steps except Step 1: Switch to opposite hand at exact 50% halfway mark
+                if (step.requiresHandSwitch && !isSecondHalfPhase && nextRemainingMs <= halfMs) {
+                    triggerOppositeHandSwitch(step);
+                } else {
+                    stepRemainingMs = nextRemainingMs;
+                    syncTimerAndBarDOM();
+
+                    if (stepRemainingMs <= 0) {
+                        loadStep(currentStepIndex + 1);
+                    }
                 }
             }
 
@@ -740,18 +1228,169 @@
             lastValidScrubTime = performance.now();
         }
 
+        // ============================================================================
+        // 6.0 DIAGONAL DUAL-QUADRANT ANTI-NMS ENGINE FOR CLOSE / TOUCHING HANDS
+        // ============================================================================
+        // Why MediaPipe drops the 2nd hand when two hands get close:
+        // MediaPipe's internal AssociationNormRectCalculator expands each hand's bounding
+        // box by 2.6x and deletes the second hand as soon as the two 2.6x boxes overlap
+        // by >30% IoU (even before the hands actually touch!).
+        //
+        // Fix: We feed MediaPipe a 640x480 (4:3) composite canvas containing TWO diagonally
+        // separated 320x240 viewports:
+        //   - Quadrant 1 (Top-Left [0..320, 0..240]): Dedicated to Hand A (with Hand B masked out when close)
+        //   - Quadrant 2 (Bottom-Right [320..640, 240..480]): Dedicated to Hand B (with Hand A masked out)
+        // Because Quadrant 1 and Quadrant 2 are in opposite corners of the 640x480 frame,
+        // their 2.6x ROI boxes have 0.00 IoU overlap in MediaPipe, so the second hand is NEVER
+        // suppressed when hands are brought close together or touching!
+        const mpCompositeCanvas = document.createElement("canvas");
+        mpCompositeCanvas.width = 640;
+        mpCompositeCanvas.height = 480;
+        const mpCompositeCtx = mpCompositeCanvas.getContext("2d");
+
+        let lastTrackedHands = [];
+        let lastTrackedHandedness = [];
+        let lastDirectTwoHands = null;
+        let lastDirectTwoHandsHandedness = null;
+        let lastDirectTwoHandsTime = 0;
+
+        function sampleFrameCornerBgColor(video) {
+            try {
+                touchProbeCtx.drawImage(video, 0, 0, 64, 48);
+                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+                const coords = [[2, 2], [61, 2], [2, 45], [61, 45]];
+                let r = 0, g = 0, b = 0;
+                for (const [x, y] of coords) {
+                    const off = (y * 64 + x) * 4;
+                    r += img[off];
+                    g += img[off + 1];
+                    b += img[off + 2];
+                }
+                return `rgb(${Math.round(r / 4)}, ${Math.round(g / 4)}, ${Math.round(b / 4)})`;
+            } catch (e) {
+                return "#1e293b";
+            }
+        }
+
+        function traceHandSkeletonCorridor(ctx, offsetX, offsetY, hand, radiusScale) {
+            const palmScale = Math.max(0.06, dist2D(hand[0], hand[9]));
+            const pxRadius = palmScale * 320 * radiusScale;
+            ctx.lineWidth = pxRadius * 2;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            ctx.beginPath();
+            for (let i = 0; i < HAND_FOOTPRINT_SEGMENTS.length; i++) {
+                const [iA, iB] = HAND_FOOTPRINT_SEGMENTS[i];
+                ctx.moveTo(offsetX + hand[iA].x * 320, offsetY + hand[iA].y * 240);
+                ctx.lineTo(offsetX + hand[iB].x * 320, offsetY + hand[iB].y * 240);
+            }
+            // Also include a short forearm extension behind wrist [0] so the masked hand's wrist is fully hidden
+            const axis = computeHandAxisVector(hand);
+            const wristExX = hand[0].x - axis.x * palmScale * 0.45;
+            const wristExY = hand[0].y - axis.y * palmScale * 0.45;
+            ctx.moveTo(offsetX + hand[0].x * 320, offsetY + hand[0].y * 240);
+            ctx.lineTo(offsetX + wristExX * 320, offsetY + wristExY * 240);
+        }
+
+        function maskHandInQuadrant(ctx, video, offsetX, offsetY, handToMask, handToProtect, bgCssColor) {
+            ctx.save();
+            // Clip to the target 320x240 quadrant
+            ctx.beginPath();
+            ctx.rect(offsetX, offsetY, 320, 240);
+            ctx.clip();
+
+            // 1. Paint neutral background mask over handToMask
+            ctx.strokeStyle = bgCssColor;
+            ctx.fillStyle = bgCssColor;
+            traceHandSkeletonCorridor(ctx, offsetX, offsetY, handToMask, handToProtect ? 0.36 : 0.42);
+            ctx.stroke();
+
+            // Fill palm core polygon of handToMask
+            const palmIndices = [0, 1, 2, 5, 9, 13, 17];
+            ctx.beginPath();
+            ctx.moveTo(offsetX + handToMask[0].x * 320, offsetY + handToMask[0].y * 240);
+            for (let i = 1; i < palmIndices.length; i++) {
+                const pt = handToMask[palmIndices[i]];
+                ctx.lineTo(offsetX + pt.x * 320, offsetY + pt.y * 240);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // 2. If handToProtect is known (both hands are close together), restore 100% of handToProtect's
+            // real camera pixels inside its skeleton corridor so handToProtect remains completely intact!
+            if (handToProtect) {
+                const palmScale = Math.max(0.06, dist2D(handToProtect[0], handToProtect[9]));
+                ctx.save();
+                traceHandSkeletonCorridor(ctx, offsetX, offsetY, handToProtect, 0.28);
+                // Convert stroked corridor is not directly clippable in 2D canvas, so fill circles + quads along segments
+                ctx.beginPath();
+                const rPx = palmScale * 320 * 0.27;
+                for (let i = 0; i < 21; i++) {
+                    // Do not unmask directly on top of handToMask's wrist if their wrists are distinct
+                    if (dist2D(handToProtect[i], handToMask[0]) < palmScale * 0.22 && dist2D(handToProtect[0], handToMask[0]) > palmScale * 0.28) {
+                        continue;
+                    }
+                    ctx.moveTo(offsetX + handToProtect[i].x * 320 + rPx, offsetY + handToProtect[i].y * 240);
+                    ctx.arc(offsetX + handToProtect[i].x * 320, offsetY + handToProtect[i].y * 240, rPx, 0, Math.PI * 2);
+                }
+                for (let i = 0; i < HAND_FOOTPRINT_SEGMENTS.length; i++) {
+                    const [iA, iB] = HAND_FOOTPRINT_SEGMENTS[i];
+                    const mx = (handToProtect[iA].x + handToProtect[iB].x) * 0.5;
+                    const my = (handToProtect[iA].y + handToProtect[iB].y) * 0.5;
+                    ctx.moveTo(offsetX + mx * 320 + rPx, offsetY + my * 240);
+                    ctx.arc(offsetX + mx * 320, offsetY + my * 240, rPx, 0, Math.PI * 2);
+                }
+                ctx.clip();
+                ctx.drawImage(video, offsetX, offsetY, 320, 240);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        function prepareDualQuadrantFrame(video) {
+            mpCompositeCtx.fillStyle = "#0f172a";
+            mpCompositeCtx.fillRect(0, 0, 640, 480);
+
+            // Always draw Quadrant 1 (Top-Left: 0, 0, 320, 240)
+            mpCompositeCtx.drawImage(video, 0, 0, 320, 240);
+
+            if (lastTrackedHands.length >= 1) {
+                const bgCss = sampleFrameCornerBgColor(video);
+                const hA = lastTrackedHands[0];
+                const hB = lastTrackedHands[1] || null;
+
+                // Draw Quadrant 2 (Bottom-Right: 320, 240, 320, 240) with Hand A masked out
+                // so MediaPipe independently detects Hand B at IoU = 0.00!
+                mpCompositeCtx.drawImage(video, 320, 240, 320, 240);
+                maskHandInQuadrant(mpCompositeCtx, video, 320, 240, hA, hB, bgCss);
+
+                // If both hands are tracked and approaching each other, also mask Hand B's non-overlapping
+                // regions in Quadrant 1 so Quadrant 1 stays locked onto Hand A
+                if (hB) {
+                    const palmDist = dist2D(computePalmCenter(hA), computePalmCenter(hB));
+                    if (palmDist < 0.48) {
+                        maskHandInQuadrant(mpCompositeCtx, video, 0, 0, hB, hA, bgCss);
+                    }
+                }
+            }
+            return mpCompositeCanvas;
+        }
+
         function initMediaPipeHands() {
             try {
                 if (typeof Hands === "undefined") return;
                 handsDetector = new Hands({
                     locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
                 });
-                // Floor calibration: tuned confidence for wash-station lighting & wet-skin glare
+                // Lowered detection/tracking confidence thresholds + Dual-Quadrant Anti-NMS
+                // so two close or touching hands stay continuously tracked without dropping out
                 handsDetector.setOptions({
                     maxNumHands: 2,
                     modelComplexity: 1,
-                    minDetectionConfidence: 0.45,
-                    minTrackingConfidence: 0.45
+                    minDetectionConfidence: 0.28,
+                    minTrackingConfidence: 0.25
                 });
                 handsDetector.onResults(onMediaPipeResults);
             } catch (err) {
@@ -760,20 +1399,31 @@
         }
 
         async function startWebcam() {
-            if (webcamRunning) return;
             const video = document.getElementById("webcam-video");
+            const calVideo = document.getElementById("cal-video");
+            if (webcamRunning) {
+                if (calVideo && video.srcObject && calVideo.srcObject !== video.srcObject) {
+                    calVideo.srcObject = video.srcObject;
+                    calVideo.play().catch(() => {});
+                }
+                return;
+            }
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: "user",
-                        width: { ideal: 320 },
-                        height: { ideal: 240 },
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
                         frameRate: { ideal: 30 }
                     },
                     audio: false
                 });
                 video.srcObject = stream;
                 await video.play();
+                if (calVideo) {
+                    calVideo.srcObject = stream;
+                    calVideo.play().catch(() => {});
+                }
                 webcamRunning = true;
                 requestAnimationFrame(pumpCameraFrame);
             } catch (err) {
@@ -784,16 +1434,23 @@
         async function pumpCameraFrame() {
             if (!webcamRunning) return;
             const video = document.getElementById("webcam-video");
-            if (appState === "WASHING" && handsDetector && video.readyState >= 2) {
+            if ((appState === "WASHING" || appState === "CALIBRATING") && handsDetector && video.readyState >= 2) {
                 try {
-                    await handsDetector.send({ image: video });
+                    const compositeInput = prepareDualQuadrantFrame(video);
+                    await handsDetector.send({ image: compositeInput });
                 } catch (e) {}
             }
             requestAnimationFrame(pumpCameraFrame);
         }
 
-        function computePalmCenter(hand) {
-            const indices = [0, 5, 9, 13, 17];
+        // ============================================================================
+        // 6A. GEOMETRIC LANDMARK HELPERS FOR 6-STEP WHO GESTURE VERIFICATION
+        // ============================================================================
+        function dist2D(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+
+        function computeClusterCenter(hand, indices) {
             let sx = 0, sy = 0;
             for (const i of indices) {
                 sx += hand[i].x;
@@ -802,27 +1459,492 @@
             return { x: sx / indices.length, y: sy / indices.length };
         }
 
-        function validateTwoHandPose(stepId, hands, now) {
-            if (!hands || hands.length === 0) return false;
+        function computePalmCenter(hand) {
+            return computeClusterCenter(hand, [0, 5, 9, 13, 17]);
+        }
 
-            if (hands.length >= 2) {
-                lastTwoHandsTime = now;
-                const c1 = computePalmCenter(hands[0]);
-                const c2 = computePalmCenter(hands[1]);
-                const palmDist = Math.hypot(c1.x - c2.x, c1.y - c2.y);
+        function computeMCPCenter(hand) {
+            return computeClusterCenter(hand, [5, 9, 13, 17]);
+        }
 
-                // Ensure the two hands are engaged in washing proximity (overlapping or interacting)
-                return palmDist < 0.52;
+        function computePIPClusterCenter(hand) {
+            return computeClusterCenter(hand, [6, 10, 14, 18]);
+        }
+
+        function computeFingertipCenter(hand) {
+            return computeClusterCenter(hand, [8, 12, 16, 20]);
+        }
+
+        // Measures how open/extended the 4 fingers are (Open flat hand ~1.65-2.05; Curled fist/knuckles ~0.85-1.50)
+        function computeFingerExtensionRatio(hand) {
+            const wrist = hand[0];
+            const pairs = [
+                [5, 8],   // Index MCP -> TIP
+                [9, 12],  // Middle MCP -> TIP
+                [13, 16], // Ring MCP -> TIP
+                [17, 20]  // Pinky MCP -> TIP
+            ];
+            let sumRatio = 0;
+            for (const [mcpIdx, tipIdx] of pairs) {
+                const mcpDist = Math.max(0.025, dist2D(wrist, hand[mcpIdx]));
+                const tipDist = dist2D(wrist, hand[tipIdx]);
+                sumRatio += tipDist / mcpDist;
+            }
+            return sumRatio / pairs.length;
+        }
+
+        // Measures fingertip spread normalized by palm size (Clustered tips < 0.65; Spread fingers > 0.35)
+        function computeFingertipSpread(hand) {
+            const palmLen = Math.max(0.04, dist2D(hand[0], hand[9]));
+            const tipCenter = computeFingertipCenter(hand);
+            const tipIndices = [8, 12, 16, 20];
+            let sumSpread = 0;
+            for (const idx of tipIndices) {
+                sumSpread += dist2D(hand[idx], tipCenter);
+            }
+            return (sumSpread / tipIndices.length) / palmLen;
+        }
+
+        // Unit vector from Wrist (0) to Middle MCP (9) representing hand orientation
+        function computeHandAxisVector(hand) {
+            const dx = hand[9].x - hand[0].x;
+            const dy = hand[9].y - hand[0].y;
+            const len = Math.max(0.001, Math.hypot(dx, dy));
+            return { x: dx / len, y: dy / len };
+        }
+
+        // ============================================================================
+        // 6B. PALM (FRONT) VS. DORSUM (BACK OF HAND) SURFACE ORIENTATION DETECTOR
+        // ============================================================================
+        // Uses rotation-invariant 2D cross product of (MiddleMCP - Wrist) x (IndexMCP - PinkyMCP)
+        // combined with front-camera handedness to determine whether the PALM or BACK of the hand
+        // is facing the camera, plus raw winding sign (thumb on left vs thumb on right).
+        function computeHandSurfaceOrientation(hand, handednessLabel, otherHand) {
+            const palmScale = Math.max(0.06, dist2D(hand[0], hand[9]));
+            const ax = hand[9].x - hand[0].x;
+            const ay = hand[9].y - hand[0].y;
+
+            // Cross product 1: Hand Axis x (IndexMCP_5 - PinkyMCP_17)
+            const bx1 = hand[5].x - hand[17].x;
+            const by1 = hand[5].y - hand[17].y;
+            const wKnuckle = (ax * by1 - ay * bx1) / (palmScale * palmScale);
+
+            // Cross product 2: Hand Axis x (ThumbMCP_2 - PinkyMCP_17)
+            const bx2 = hand[2].x - hand[17].x;
+            const by2 = hand[2].y - hand[17].y;
+            const wThumb = (ax * by2 - ay * bx2) / (palmScale * palmScale);
+
+            // Combined rotation-invariant winding number:
+            // For physical Right hand in unflipped front-camera coordinates:
+            //   PALM facing camera -> Thumb/Index has larger X than Pinky -> winding > 0
+            //   BACK facing camera -> Thumb/Index has smaller X than Pinky -> winding < 0
+            const winding = (wKnuckle * 0.65) + (wThumb * 0.35);
+
+            // In unflipped front-camera images (selfieMode: false), MediaPipe labels the user's
+            // physical Right hand as "Left" (and physical Left hand as "Right").
+            // When both hands are present with separated wrists, also anchor to relative wrist X
+            // (in unflipped front-camera space, physical Right wrist has smaller X than physical Left wrist).
+            let isPhysicalRightHand = (handednessLabel === "Left");
+            if (otherHand && Math.abs(hand[0].x - otherHand[0].x) > 0.06) {
+                isPhysicalRightHand = (hand[0].x < otherHand[0].x);
             }
 
-            // Floor Calibration: When two hands tightly overlap (e.g., palm-to-palm or dorsum),
-            // MediaPipe may briefly merge them into 1 skeleton. Allow an occlusion grace window
-            // or central wash-zone overlap so wet-hand glare/occlusion doesn't cause false pauses.
+            const labelSign = isPhysicalRightHand ? 1 : -1;
+            const surfaceScore = winding * labelSign;
+
+            let side = "EDGE";
+            if (surfaceScore > 0.08) {
+                side = "PALM"; // Front / Volar palm surface facing camera
+            } else if (surfaceScore < -0.08) {
+                side = "BACK"; // Back / Dorsal surface facing camera
+            }
+
+            return {
+                winding,       // Sign flips when Left vs Right hand is on top (even with 1 merged skeleton!)
+                surfaceScore,  // > 0 = PALM facing camera, < 0 = BACK (Dorsum) facing camera
+                side           // "PALM" | "BACK" | "EDGE"
+            };
+        }
+
+        // Offscreen canvas to verify two-hand touching mass when MediaPipe NMS merges touching hands into 1 skeleton
+        const touchProbeCanvas = document.createElement("canvas");
+        touchProbeCanvas.width = 64;
+        touchProbeCanvas.height = 48;
+        const touchProbeCtx = touchProbeCanvas.getContext("2d", { willReadFrequently: true });
+
+        // Complete anatomical bone + palm interior segments for skeleton footprint masking & segment-to-segment distance
+        const HAND_FOOTPRINT_SEGMENTS = [
+            // Thumb chain
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            // Index chain
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            // Middle chain
+            [0, 9], [9, 10], [10, 11], [11, 12],
+            // Ring chain
+            [0, 13], [13, 14], [14, 15], [15, 16],
+            // Pinky chain
+            [0, 17], [17, 18], [18, 19], [19, 20],
+            // Palm web & interior cross-braces
+            [1, 5], [5, 9], [9, 13], [13, 17], [2, 5], [0, 7], [0, 11], [0, 15], [5, 17]
+        ];
+
+        const PALM_CORE_SEGMENT_COUNT = 9; // Last 9 segments in HAND_FOOTPRINT_SEGMENTS are palm core braces
+
+        let lastTwoHandContactTime = 0;
+        let lastTwoHandContactCenter = null;
+
+        function distToSegment2D(px, py, ax, ay, bx, by) {
+            const vx = bx - ax;
+            const vy = by - ay;
+            const lenSq = vx * vx + vy * vy;
+            if (lenSq < 1e-8) return Math.hypot(px - ax, py - ay);
+            const t = Math.max(0, Math.min(1, ((px - ax) * vx + (py - ay) * vy) / lenSq));
+            return Math.hypot(px - (ax + t * vx), py - (ay + t * vy));
+        }
+
+        function ccw2D(ax, ay, bx, by, cx, cy) {
+            return (cy - ay) * (bx - ax) > (by - ay) * (cx - ax);
+        }
+
+        function segmentsIntersect2D(ax, ay, bx, by, cx, cy, dx, dy) {
+            return (
+                ccw2D(ax, ay, cx, cy, dx, dy) !== ccw2D(bx, by, cx, cy, dx, dy) &&
+                ccw2D(ax, ay, bx, by, cx, cy) !== ccw2D(ax, ay, bx, by, dx, dy)
+            );
+        }
+
+        function segToSegDist2D(a1, a2, b1, b2) {
+            if (segmentsIntersect2D(a1.x, a1.y, a2.x, a2.y, b1.x, b1.y, b2.x, b2.y)) {
+                return 0;
+            }
+            return Math.min(
+                distToSegment2D(a1.x, a1.y, b1.x, b1.y, b2.x, b2.y),
+                distToSegment2D(a2.x, a2.y, b1.x, b1.y, b2.x, b2.y),
+                distToSegment2D(b1.x, b1.y, a1.x, a1.y, a2.x, a2.y),
+                distToSegment2D(b2.x, b2.y, a1.x, a1.y, a2.x, a2.y)
+            );
+        }
+
+        function minDistPointToHandSkeleton(pt, hand) {
+            let minD = Infinity;
+            for (let i = 0; i < HAND_FOOTPRINT_SEGMENTS.length; i++) {
+                const [iA, iB] = HAND_FOOTPRINT_SEGMENTS[i];
+                const d = distToSegment2D(pt.x, pt.y, hand[iA].x, hand[iA].y, hand[iB].x, hand[iB].y);
+                if (d < minD) minD = d;
+            }
+            return minD;
+        }
+
+        // Verifies there is no background air gap between the closest points of Hand A and Hand B
+        function hasVisualContactBridge(ptA, ptB, hA, hB) {
+            try {
+                const video = document.getElementById("webcam-video");
+                if (!video || video.readyState < 2) return true;
+
+                touchProbeCtx.drawImage(video, 0, 0, 64, 48);
+                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+
+                const sampleHand = [hA[0], hA[5], hA[9], hB[0], hB[5], hB[9]];
+                let sr = 0, sg = 0, sb = 0;
+                for (const p of sampleHand) {
+                    const px = Math.min(63, Math.max(0, Math.round(p.x * 63)));
+                    const py = Math.min(47, Math.max(0, Math.round(p.y * 47)));
+                    const off = (py * 64 + px) * 4;
+                    sr += img[off];
+                    sg += img[off + 1];
+                    sb += img[off + 2];
+                }
+                sr /= sampleHand.length;
+                sg /= sampleHand.length;
+                sb /= sampleHand.length;
+
+                let bridgeMatches = 0;
+                const steps = 5;
+                for (let s = 1; s <= steps; s++) {
+                    const t = s / (steps + 1);
+                    const bx = Math.min(63, Math.max(0, Math.round((ptA.x + (ptB.x - ptA.x) * t) * 63)));
+                    const by = Math.min(47, Math.max(0, Math.round((ptA.y + (ptB.y - ptA.y) * t) * 47)));
+                    const off = (by * 64 + bx) * 4;
+                    const diff = Math.abs(img[off] - sr) + Math.abs(img[off + 1] - sg) + Math.abs(img[off + 2] - sb);
+                    if (diff < 105) {
+                        bridgeMatches++;
+                    }
+                }
+                return bridgeMatches >= 4;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        // Evaluates physical hand-to-hand contact when MediaPipe detects 2 skeletons
+        function evaluateTwoHandContact(hA, hB, palmScale, contactTol) {
+            const cTol = contactTol || 1.0;
+            // Steep quadratic scaling below 1.0 so low settings strictly reject any air gap or light proximity
+            const effTol = cTol < 1.0 ? (cTol * cTol) : cTol;
+
+            // 1. Check relative hand scale similarity (rejects false 2D overlap when one hand is far behind the other)
+            const scaleA = Math.max(0.04, dist2D(hA[0], hA[9]));
+            const scaleB = Math.max(0.04, dist2D(hB[0], hB[9]));
+            const scaleRatio = Math.min(scaleA, scaleB) / Math.max(scaleA, scaleB);
+
+            // 2. Compute exact segment-to-segment distances across all bone segments of Hand A and Hand B
+            const segDists = [];
+            let intersectingSegmentsCount = 0;
+            for (let i = 0; i < HAND_FOOTPRINT_SEGMENTS.length; i++) {
+                const [a1, a2] = HAND_FOOTPRINT_SEGMENTS[i];
+                let minSegForI = Infinity;
+                for (let j = 0; j < HAND_FOOTPRINT_SEGMENTS.length; j++) {
+                    const [b1, b2] = HAND_FOOTPRINT_SEGMENTS[j];
+                    const sd = segToSegDist2D(hA[a1], hA[a2], hB[b1], hB[b2]) / palmScale;
+                    if (sd < minSegForI) minSegForI = sd;
+                    if (sd <= 0.03 * Math.max(0.4, effTol)) {
+                        intersectingSegmentsCount++;
+                    }
+                }
+                segDists.push(minSegForI);
+            }
+            segDists.sort((a, b) => a - b);
+            const minSegDistNorm = segDists[0];
+            const meanTop4SegDistNorm = (segDists[0] + segDists[1] + segDists[2] + segDists[3]) / 4;
+
+            // 3. Compute bidirectional landmark-to-skeleton distances and closest contact pair
+            const crossDists = [];
+            let bestPairDist = Infinity;
+            let bestPtA = hA[9];
+            let bestPtB = hB[9];
+
+            for (let i = 0; i < 21; i++) {
+                const dAtoB = minDistPointToHandSkeleton(hA[i], hB) / palmScale;
+                const dBtoA = minDistPointToHandSkeleton(hB[i], hA) / palmScale;
+                crossDists.push(dAtoB, dBtoA);
+                if (dAtoB < bestPairDist) {
+                    bestPairDist = dAtoB;
+                    bestPtA = hA[i];
+                }
+                if (dBtoA < bestPairDist) {
+                    bestPairDist = dBtoA;
+                    bestPtB = hB[i];
+                }
+            }
+
+            crossDists.sort((a, b) => a - b);
+            const minContactNorm = crossDists[0];
+            const meanTop6ContactNorm = (
+                crossDists[0] + crossDists[1] + crossDists[2] +
+                crossDists[3] + crossDists[4] + crossDists[5]
+            ) / 6;
+
+            const contactPoint = {
+                x: (bestPtA.x + bestPtB.x) / 2,
+                y: (bestPtA.y + bestPtB.y) / 2
+            };
+
+            const requiredIntersections = cTol <= 0.45 ? 4 : (cTol <= 0.85 ? 2 : 0);
+            const visualBridgeOk = hasVisualContactBridge(bestPtA, bestPtB, hA, hB);
+
+            const isTouching =
+                (scaleRatio >= 0.62) &&
+                visualBridgeOk &&
+                (intersectingSegmentsCount >= requiredIntersections) &&
+                (minSegDistNorm <= 0.08 * effTol) &&
+                (meanTop4SegDistNorm <= 0.17 * effTol) &&
+                (meanTop6ContactNorm <= 0.23 * effTol);
+
+            return {
+                isTouching,
+                minContactNorm: minSegDistNorm,
+                meanTop6ContactNorm,
+                contactPoint
+            };
+        }
+
+        // Evaluates physical two-hand contact when MediaPipe NMS merges touching hands into 1 skeleton.
+        // Strictly rejects 1 isolated hand by requiring recent 2-hand contact convergence and masking out
+        // the full single-hand palm/finger width plus forearm!
+        function detectTouchingHandMass(hand, contactTol, now) {
+            const cTol = contactTol || 1.0;
+            const effTol = cTol < 1.0 ? (cTol * cTol) : cTol;
+
+            try {
+                const palmCenter = computePalmCenter(hand);
+                const palmScale = Math.max(0.065, dist2D(hand[0], hand[9]));
+
+                // Check whether 2 hands actually converged into contact recently at this location
+                const hasRecentTwoHandContact =
+                    Boolean(now && lastTwoHandContactTime > 0 && (now - lastTwoHandContactTime) <= 1800 * effTol) &&
+                    Boolean(lastTwoHandContactCenter && dist2D(palmCenter, lastTwoHandContactCenter) <= 0.16 * Math.max(0.5, cTol));
+
+                // Whenever tolerance is <= 1.05x (Standard or Strict), never allow a single unmerged hand
+                // to be counted as touching unless 2 hands actually met in the frame first!
+                if (cTol <= 1.05 && !hasRecentTwoHandContact) {
+                    return { isTouching: false, extraMassRatio: 0 };
+                }
+
+                const video = document.getElementById("webcam-video");
+                if (!video || video.readyState < 2) {
+                    return { isTouching: false, extraMassRatio: 0 };
+                }
+
+                touchProbeCtx.drawImage(video, 0, 0, 64, 48);
+                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+
+                // Sample reference hand skin/glove color across palm & knuckle landmarks
+                const sampleIndices = [0, 1, 5, 9, 13, 17, 6, 10, 14];
+                let sr = 0, sg = 0, sb = 0, count = 0;
+                for (const idx of sampleIndices) {
+                    const px = Math.min(63, Math.max(0, Math.round(hand[idx].x * 63)));
+                    const py = Math.min(47, Math.max(0, Math.round(hand[idx].y * 47)));
+                    const off = (py * 64 + px) * 4;
+                    sr += img[off];
+                    sg += img[off + 1];
+                    sb += img[off + 2];
+                    count++;
+                }
+                sr /= count; sg /= count; sb /= count;
+
+                // Sample corner background color so uniform walls aren't mistaken for skin
+                const bgCoords = [[2, 2], [61, 2], [2, 45], [61, 45]];
+                let br = 0, bg = 0, bb = 0;
+                for (const [bx, by] of bgCoords) {
+                    const off = (by * 64 + bx) * 4;
+                    br += img[off];
+                    bg += img[off + 1];
+                    bb += img[off + 2];
+                }
+                br /= 4; bg /= 4; bb /= 4;
+
+                const axis = computeHandAxisVector(hand);
+                const searchRadius = Math.min(0.36, palmScale * 2.0);
+
+                const minX = Math.max(0, Math.floor((palmCenter.x - searchRadius) * 63));
+                const maxX = Math.min(63, Math.ceil((palmCenter.x + searchRadius) * 63));
+                const minY = Math.max(0, Math.floor((palmCenter.y - searchRadius) * 47));
+                const maxY = Math.min(47, Math.ceil((palmCenter.y + searchRadius) * 47));
+
+                let selfHandPixels = 0;
+                let extraTouchingPixels = 0;
+
+                // Full anatomical radius of 1 isolated hand (0.34*palmScale for fingers, 0.42*palmScale for palm)
+                const fingerRadius = palmScale * 0.34;
+                const palmRadius = palmScale * 0.42;
+                const maxExtraRadius = palmScale * 1.15;
+                const fingerSegEnd = HAND_FOOTPRINT_SEGMENTS.length - PALM_CORE_SEGMENT_COUNT;
+
+                for (let y = minY; y <= maxY; y++) {
+                    const ny = y / 47;
+                    for (let x = minX; x <= maxX; x++) {
+                        const nx = x / 63;
+
+                        // Exclude wrist/forearm pixels behind landmark 0 along the hand axis
+                        const projWrist = (nx - hand[0].x) * axis.x + (ny - hand[0].y) * axis.y;
+                        if (projWrist < -0.03 * palmScale) continue;
+
+                        const off = (y * 64 + x) * 4;
+                        const r = img[off], g = img[off + 1], b = img[off + 2];
+                        const handDiff = Math.abs(r - sr) + Math.abs(g - sg) + Math.abs(b - sb);
+                        const bgDiff = Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb);
+
+                        if (handDiff < 82 && handDiff < bgDiff * 0.80 && bgDiff > 55) {
+                            let isSelf = false;
+                            let minD = Infinity;
+                            for (let i = 0; i < HAND_FOOTPRINT_SEGMENTS.length; i++) {
+                                const [iA, iB] = HAND_FOOTPRINT_SEGMENTS[i];
+                                const d = distToSegment2D(nx, ny, hand[iA].x, hand[iA].y, hand[iB].x, hand[iB].y);
+                                if (d < minD) minD = d;
+                                const rad = i >= fingerSegEnd ? palmRadius : fingerRadius;
+                                if (d <= rad) {
+                                    isSelf = true;
+                                    break;
+                                }
+                            }
+                            if (isSelf) {
+                                selfHandPixels++;
+                            } else if (minD <= maxExtraRadius) {
+                                extraTouchingPixels++;
+                            }
+                        }
+                    }
+                }
+
+                const extraMassRatio = extraTouchingPixels / Math.max(16, selfHandPixels);
+                const requiredRatio = hasRecentTwoHandContact
+                    ? (0.26 / Math.max(0.12, effTol))
+                    : (0.58 / Math.max(0.12, effTol));
+                const isTouching = extraMassRatio >= requiredRatio;
+
+                return {
+                    isTouching,
+                    extraMassRatio
+                };
+            } catch (e) {
+                return { isTouching: false, extraMassRatio: 0 };
+            }
+        }
+
+        // Hand-to-Hand Contact Validator
+        // Progression is gated strictly on physical hand contact + scrubbing motion velocity,
+        // while the UI guides the worker through each WHO gesture step and midpoint hand switch.
+        function validateStepGesture(stepId, hands, handednessList, now) {
+            if (!hands || hands.length === 0) return false;
+
+            const contactTol = calibrationConfig.contactTolerance || 1.0;
+
+            // ====================================================================
+            // CASE 1: 2 Hand Skeletons Detected
+            // ====================================================================
+            if (hands.length >= 2) {
+                const hA = hands[0];
+                const hB = hands[1];
+                const palmA = computePalmCenter(hA);
+                const palmB = computePalmCenter(hB);
+                const palmScale = Math.max(0.07, (dist2D(hA[0], hA[9]) + dist2D(hB[0], hB[9])) / 2);
+
+                const contactInfo = evaluateTwoHandContact(hA, hB, palmScale, contactTol);
+                if (contactInfo.isTouching && now) {
+                    lastTwoHandContactTime = now;
+                    lastTwoHandContactCenter = {
+                        x: (palmA.x + palmB.x) / 2,
+                        y: (palmA.y + palmB.y) / 2
+                    };
+                    lastTwoHandValidPoseTime = now;
+                    lastValidPoseStepIndex = currentStepIndex;
+                } else {
+                    lastTwoHandContactTime = 0;
+                    lastTwoHandContactCenter = null;
+                }
+
+                lastObservedMetrics = {
+                    palmDistNorm: dist2D(palmA, palmB) / palmScale,
+                    avgExt: (computeFingerExtensionRatio(hA) + computeFingerExtensionRatio(hB)) / 2,
+                    isTouching: contactInfo.isTouching,
+                    contactMetric: contactInfo.minContactNorm,
+                    contactPoint: contactInfo.contactPoint,
+                    touchMode: contactInfo.isTouching ? "TOUCHING ✓" : "Separated"
+                };
+
+                return contactInfo.isTouching;
+            }
+
+            // ====================================================================
+            // CASE 2: 1 Merged Skeleton Detected (When Hands Press Closely Together)
+            // ====================================================================
             if (hands.length === 1) {
-                const c1 = computePalmCenter(hands[0]);
-                const inCentralWashZone = c1.x > 0.20 && c1.x < 0.80 && c1.y > 0.15 && c1.y < 0.88;
-                const recentlyHadTwoHands = (now - lastTwoHandsTime) <= OCCLUSION_GRACE_MS;
-                return inCentralWashZone && (recentlyHadTwoHands || currentVelocity > 0.022);
+                const h0 = hands[0];
+                const palm0 = computePalmCenter(h0);
+                const inWashZone = palm0.x > 0.12 && palm0.x < 0.88 && palm0.y > 0.10 && palm0.y < 0.92;
+                const massContact = detectTouchingHandMass(h0, contactTol, now);
+                const hasTouchingMass = inWashZone && massContact.isTouching;
+
+                lastObservedMetrics = {
+                    palmDistNorm: 0.45,
+                    avgExt: computeFingerExtensionRatio(h0),
+                    isTouching: hasTouchingMass,
+                    contactMetric: hasTouchingMass ? 0.0 : 1.0,
+                    contactPoint: palm0,
+                    touchMode: hasTouchingMass ? "TOUCHING ✓" : "No Contact"
+                };
+
+                return hasTouchingMass;
             }
 
             return false;
@@ -831,19 +1953,41 @@
         function calculateEuclideanVelocity(hands) {
             let totalVelocity = 0;
             let handComparisons = 0;
+            const handVectors = [];
+
+            const prevList = prevHandLandmarks.filter(Boolean);
 
             for (let h = 0; h < hands.length; h++) {
                 const hand = hands[h];
-                const prev = prevHandLandmarks[h];
-                if (prev) {
+                const currCenter = computePalmCenter(hand);
+
+                // Match current hand to nearest previous hand to prevent MediaPipe index-swap spikes
+                let bestPrev = null;
+                let bestCenterDist = 0.22;
+                for (const cand of prevList) {
+                    const candCenter = computePalmCenter(cand);
+                    const d = dist2D(currCenter, candCenter);
+                    if (d < bestCenterDist) {
+                        bestCenterDist = d;
+                        bestPrev = cand;
+                    }
+                }
+
+                if (bestPrev) {
                     let sumDelta = 0;
+                    let meanDx = 0;
+                    let meanDy = 0;
                     for (const idx of VELOCITY_LANDMARKS) {
-                        const dx = hand[idx].x - prev[idx].x;
-                        const dy = hand[idx].y - prev[idx].y;
+                        const dx = hand[idx].x - bestPrev[idx].x;
+                        const dy = hand[idx].y - bestPrev[idx].y;
                         // Euclidean distance: \Delta d = \sqrt{(x_t - x_{t-1})^2 + (y_t - y_{t-1})^2}
                         sumDelta += Math.sqrt(dx * dx + dy * dy);
+                        meanDx += dx;
+                        meanDy += dy;
                     }
-                    totalVelocity += sumDelta / VELOCITY_LANDMARKS.length;
+                    const n = VELOCITY_LANDMARKS.length;
+                    totalVelocity += sumDelta / n;
+                    handVectors.push({ dx: meanDx / n, dy: meanDy / n });
                     handComparisons++;
                 }
             }
@@ -854,65 +1998,340 @@
                 hands[1] ? hands[1].map(p => ({ x: p.x, y: p.y })) : null
             ];
 
+            if (handComparisons >= 2 && handVectors.length >= 2) {
+                // Require true relative inter-hand scrubbing friction (not just swaying both hands together)
+                const relShear = Math.hypot(
+                    handVectors[0].dx - handVectors[1].dx,
+                    handVectors[0].dy - handVectors[1].dy
+                );
+                const meanAbsVel = totalVelocity / handComparisons;
+                return (meanAbsVel * 0.55) + (relShear * 0.65);
+            }
+
             return handComparisons > 0 ? totalVelocity / handComparisons : 0;
         }
 
+        function cloneHandLandmarks(hand) {
+            return hand.map(p => ({ x: p.x, y: p.y, z: p.z || 0 }));
+        }
+
+        function clamp01(v) {
+            return Math.min(1, Math.max(0, v));
+        }
+
+        function areDuplicateSingleHand(h1, h2) {
+            const scale = Math.max(0.06, (dist2D(h1[0], h1[9]) + dist2D(h2[0], h2[9])) * 0.5);
+            const wristDist = dist2D(h1[0], h2[0]) / scale;
+            const mcpDist = dist2D(computeMCPCenter(h1), computeMCPCenter(h2)) / scale;
+            const indexDist = dist2D(h1[5], h2[5]) / scale;
+            const pinkyDist = dist2D(h1[17], h2[17]) / scale;
+            return (wristDist < 0.28 && mcpDist < 0.25 && indexDist < 0.28 && pinkyDist < 0.28);
+        }
+
+        function verifyHandSkinStillPresent(candidateHand, visibleHand) {
+            try {
+                const video = document.getElementById("webcam-video");
+                if (!video || video.readyState < 2) return false;
+
+                touchProbeCtx.drawImage(video, 0, 0, 64, 48);
+                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+
+                // Sample reference skin color from the visible hand
+                const refIndices = [0, 5, 9, 13, 17];
+                let sr = 0, sg = 0, sb = 0;
+                for (const idx of refIndices) {
+                    const px = Math.min(63, Math.max(0, Math.round(visibleHand[idx].x * 63)));
+                    const py = Math.min(47, Math.max(0, Math.round(visibleHand[idx].y * 47)));
+                    const off = (py * 64 + px) * 4;
+                    sr += img[off];
+                    sg += img[off + 1];
+                    sb += img[off + 2];
+                }
+                sr /= refIndices.length;
+                sg /= refIndices.length;
+                sb /= refIndices.length;
+
+                // Check candidateHand's wrist [0], thumb base [1,2], and palm knuckles [5,9,13,17]
+                const probeIndices = [0, 1, 2, 5, 9, 13, 17];
+                let matches = 0;
+                for (const idx of probeIndices) {
+                    const px = Math.min(63, Math.max(0, Math.round(candidateHand[idx].x * 63)));
+                    const py = Math.min(47, Math.max(0, Math.round(candidateHand[idx].y * 47)));
+                    const off = (py * 64 + px) * 4;
+                    const diff = Math.abs(img[off] - sr) + Math.abs(img[off + 1] - sg) + Math.abs(img[off + 2] - sb);
+                    if (diff < 100) matches++;
+                }
+                return matches >= 5;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function unmapDualQuadrantHands(rawHands, rawHandedness, now) {
+            const unmappedHands = [];
+            const unmappedHandedness = [];
+
+            for (let i = 0; i < rawHands.length; i++) {
+                const rawH = rawHands[i];
+                const rawLabel = (rawHandedness && rawHandedness[i]) || { label: i === 0 ? "Left" : "Right" };
+
+                let cx = 0, cy = 0;
+                for (let k = 0; k < 21; k++) {
+                    cx += rawH[k].x;
+                    cy += rawH[k].y;
+                }
+                cx /= 21;
+                cy /= 21;
+
+                let mapped = null;
+                if (cx < 0.52 && cy < 0.52) {
+                    // Quadrant 1 (Top-Left [0..0.5, 0..0.5]) -> [0..1, 0..1]
+                    mapped = rawH.map(p => ({
+                        x: clamp01(p.x * 2.0),
+                        y: clamp01(p.y * 2.0),
+                        z: (p.z || 0) * 2.0
+                    }));
+                } else if (cx >= 0.48 && cy >= 0.48) {
+                    // Quadrant 2 (Bottom-Right [0.5..1.0, 0.5..1.0]) -> [0..1, 0..1]
+                    mapped = rawH.map(p => ({
+                        x: clamp01((p.x - 0.5) * 2.0),
+                        y: clamp01((p.y - 0.5) * 2.0),
+                        z: (p.z || 0) * 2.0
+                    }));
+                }
+
+                if (mapped && dist2D(mapped[0], mapped[9]) >= 0.04) {
+                    const isDup = unmappedHands.some(existing => areDuplicateSingleHand(existing, mapped));
+                    if (!isDup) {
+                        unmappedHands.push(mapped);
+                        unmappedHandedness.push(rawLabel);
+                    }
+                }
+            }
+
+            // Keep consistent ordering with lastTrackedHands[0] so Q1 and Q2 don't swap hands
+            if (unmappedHands.length === 2 && lastTrackedHands.length >= 1) {
+                const prev0 = lastTrackedHands[0];
+                const d0 = dist2D(unmappedHands[0][0], prev0[0]) + dist2D(unmappedHands[0][9], prev0[9]);
+                const d1 = dist2D(unmappedHands[1][0], prev0[0]) + dist2D(unmappedHands[1][9], prev0[9]);
+                if (d1 < d0) {
+                    unmappedHands.reverse();
+                    unmappedHandedness.reverse();
+                }
+            }
+
+            // Record direct 2-hand detections; or recover eclipsed 2nd hand when two close hands press together
+            if (unmappedHands.length >= 2) {
+                lastDirectTwoHands = [
+                    cloneHandLandmarks(unmappedHands[0]),
+                    cloneHandLandmarks(unmappedHands[1])
+                ];
+                lastDirectTwoHandsHandedness = [
+                    unmappedHandedness[0],
+                    unmappedHandedness[1]
+                ];
+                lastDirectTwoHandsTime = now;
+            } else if (
+                unmappedHands.length === 1 &&
+                lastDirectTwoHands &&
+                (now - lastDirectTwoHandsTime) <= 1500
+            ) {
+                const prevH0 = lastDirectTwoHands[0];
+                const prevH1 = lastDirectTwoHands[1];
+                const prevPalmDist = dist2D(computePalmCenter(prevH0), computePalmCenter(prevH1));
+
+                // Only recover the 2nd hand if the 2 hands were already close together when one eclipsed the other
+                if (prevPalmDist <= 0.36) {
+                    const visH = unmappedHands[0];
+                    const match0 = dist2D(visH[0], prevH0[0]) + dist2D(visH[9], prevH0[9]);
+                    const match1 = dist2D(visH[0], prevH1[0]) + dist2D(visH[9], prevH1[9]);
+                    const matchedIdx = match0 <= match1 ? 0 : 1;
+                    const missingIdx = matchedIdx === 0 ? 1 : 0;
+
+                    const matchedPrev = lastDirectTwoHands[matchedIdx];
+                    const missingPrev = lastDirectTwoHands[missingIdx];
+
+                    if (verifyHandSkinStillPresent(missingPrev, visH)) {
+                        const dx = (visH[9].x - matchedPrev[9].x) * 0.35;
+                        const dy = (visH[9].y - matchedPrev[9].y) * 0.35;
+                        const recoveredHand = missingPrev.map(p => ({
+                            x: clamp01(p.x + dx),
+                            y: clamp01(p.y + dy),
+                            z: p.z || 0
+                        }));
+                        lastDirectTwoHands[matchedIdx] = cloneHandLandmarks(visH);
+                        lastDirectTwoHands[missingIdx] = cloneHandLandmarks(recoveredHand);
+
+                        if (matchedIdx === 0) {
+                            unmappedHands.push(recoveredHand);
+                            unmappedHandedness.push(lastDirectTwoHandsHandedness[1]);
+                        } else {
+                            unmappedHands.unshift(recoveredHand);
+                            unmappedHandedness.unshift(lastDirectTwoHandsHandedness[0]);
+                        }
+                    } else {
+                        lastDirectTwoHands = null;
+                    }
+                }
+            }
+
+            lastTrackedHands = unmappedHands.map(cloneHandLandmarks);
+            lastTrackedHandedness = unmappedHandedness.slice();
+
+            return {
+                hands: unmappedHands,
+                handednessList: unmappedHandedness
+            };
+        }
+
         function onMediaPipeResults(results) {
-            const canvas = document.getElementById("output-canvas");
+            const isCalibrating = (appState === "CALIBRATING");
+            const canvas = document.getElementById(isCalibrating ? "cal-canvas" : "output-canvas");
             const ctx = canvas.getContext("2d");
             canvas.width = 320;
             canvas.height = 240;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const hands = results.multiHandLandmarks || [];
+            const now = performance.now();
+            const rawHands = results.multiHandLandmarks || [];
+            const rawHandedness = results.multiHandedness || [];
+            const unmapped = unmapDualQuadrantHands(rawHands, rawHandedness, now);
+            const hands = unmapped.hands;
+            const handednessList = unmapped.handednessList;
             handsInFrameCount = hands.length;
 
+            const activeStep = isCalibrating
+                ? (WHO_STEPS[calSelectedStepIndex] || WHO_STEPS[0])
+                : (WHO_STEPS[currentStepIndex] || WHO_STEPS[0]);
+            const effectiveThresh = getEffectiveVelocityThreshold(activeStep);
+
             if (hands.length > 0) {
-                cameraHasSeenRealHand = true;
-                const now = performance.now();
-                const step = WHO_STEPS[currentStepIndex] || WHO_STEPS[0];
 
                 currentVelocity = calculateEuclideanVelocity(hands);
-                isPoseValid = validateTwoHandPose(step.id, hands, now);
+                isPoseValid = validateStepGesture(activeStep.id, hands, handednessList, now);
 
-                const validScrub = isPoseValid && (currentVelocity >= step.velocityThreshold);
-                if (validScrub) {
+                const validScrub = isPoseValid && (currentVelocity >= effectiveThresh);
+                if (validScrub && appState === "WASHING") {
                     recordValidScrubFrame();
                 }
 
-                // Draw real-time skeleton in PiP
-                const wireColor = (isScrubbingActive || validScrub) ? "#34d399" : "#fbbf24";
+                if (isCalibrating && isAutoSampling && hands.length >= 1 && currentVelocity > 0.004) {
+                    autoSampleBuffer.push({ vel: currentVelocity });
+                }
+
+                // Color-code PiP skeleton:
+                // Emerald (#34d399) = Valid Pose + Contact + Scrubbing
+                // Sky Blue (#38bdf8) = Valid Step Pose + Contact, waiting for scrubbing motion
+                // Amber/Red (#f59e0b) = No Hand Contact or Incorrect Gesture Pose / Surface
+                const wireColor = (isScrubbingActive || validScrub)
+                    ? "#34d399"
+                    : (isPoseValid ? "#38bdf8" : "#f59e0b");
+
                 for (const landmarks of hands) {
                     if (typeof drawConnectors !== "undefined") {
                         drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: wireColor, lineWidth: 3 });
                         drawLandmarks(ctx, landmarks, { color: "#ffffff", lineWidth: 1, radius: 2.2 });
                     }
                 }
+
+                // Highlight hand-to-hand contact zone when hands are physically touching
+                if (lastObservedMetrics.isTouching && lastObservedMetrics.contactPoint) {
+                    const cx = lastObservedMetrics.contactPoint.x * canvas.width;
+                    const cy = lastObservedMetrics.contactPoint.y * canvas.height;
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                    ctx.strokeStyle = "#34d399";
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                if (isCalibrating) {
+                    updateCalibrationLiveTelemetry(hands.length, isPoseValid, validScrub, currentVelocity, effectiveThresh);
+                }
             } else {
                 isPoseValid = false;
                 currentVelocity = 0;
                 prevHandLandmarks = [null, null];
+                lastDirectTwoHands = null;
+                lastDirectTwoHandsTime = 0;
+                lastTwoHandContactTime = 0;
+                lastTwoHandContactCenter = null;
+                lastObservedMetrics.isTouching = false;
                 if (appState === "WASHING" && !isScrubbingActive) {
                     updateVisualRunState(false);
+                }
+                if (isCalibrating) {
+                    updateCalibrationLiveTelemetry(0, false, false, 0, effectiveThresh);
                 }
             }
         }
 
+        function updateCalibrationLiveTelemetry(handCount, poseOk, scrubOk, vel, thresh) {
+            const frame = document.getElementById("cal-camera-frame");
+            const badge = document.getElementById("cal-pose-badge");
+            const velReadout = document.getElementById("cal-vel-readout");
+            const velBar = document.getElementById("cal-vel-bar");
+            const threshMarker = document.getElementById("cal-vel-thresh-marker");
+            const metricsLine = document.getElementById("cal-metrics-line");
+
+            if (!frame || !badge) return;
+
+            const touchInfo = lastObservedMetrics.touchMode || "None";
+            const isTouching = Boolean(lastObservedMetrics.isTouching);
+
+            if (scrubOk) {
+                frame.className = "relative w-full aspect-[4/3] max-h-56 sm:max-h-64 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.3)]";
+                badge.className = "absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-400 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-emerald-300";
+                badge.innerText = "CONTACT + MOTION VALID ✓ (SCRUBBING)";
+            } else if (isTouching) {
+                frame.className = "relative w-full aspect-[4/3] max-h-56 sm:max-h-64 rounded-2xl border-4 border-sky-400 bg-slate-900 overflow-hidden shadow-lg";
+                badge.className = "absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-sky-950/90 border border-sky-400 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-sky-300";
+                badge.innerText = "HAND CONTACT DETECTED ✓ — SCRUB HANDS";
+            } else {
+                frame.className = "relative w-full aspect-[4/3] max-h-56 sm:max-h-64 rounded-2xl border-4 border-amber-400 bg-slate-900 overflow-hidden shadow-lg";
+                badge.className = "absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/85 border border-slate-700 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-400";
+                badge.innerText = handCount === 0
+                    ? "WAITING FOR HANDS..."
+                    : "NO HAND CONTACT — TOUCH HANDS TOGETHER";
+            }
+
+            const maxScale = 0.04;
+            const barPct = Math.min(100, (vel / maxScale) * 100);
+            const threshPct = Math.min(96, (thresh / maxScale) * 100);
+
+            velReadout.innerText = `${vel.toFixed(3)} / ${thresh.toFixed(3)}`;
+            velBar.style.width = `${barPct.toFixed(1)}%`;
+            velBar.className = `h-full transition-all duration-75 ${vel >= thresh ? 'bg-emerald-400' : 'bg-amber-400'}`;
+            threshMarker.style.left = `${threshPct.toFixed(1)}%`;
+
+            const contactClass = (handCount > 0 && isTouching) ? "text-emerald-400" : "text-amber-400";
+            const gapVal = (handCount >= 2 && typeof lastObservedMetrics.contactMetric === "number")
+                ? lastObservedMetrics.contactMetric.toFixed(2)
+                : (isTouching ? "0.00" : "--");
+            metricsLine.innerHTML = `
+                <span class="${contactClass}">Contact: ${handCount > 0 ? touchInfo : 'None'}</span>
+                <span>Hands: ${handCount}/2</span>
+                <span>Gap Dist: ${gapVal}</span>
+            `;
+        }
+
         // ============================================================================
-        // 7. DESKTOP / NO-CAMERA SCRUB FALLBACK (Pointer / Touch / Spacebar Scrubbing)
+        // 7. DESKTOP / NO-CAMERA SCRUB FALLBACK (Only active when no webcam is available)
         // ============================================================================
         let lastPointerPos = null;
 
         function setupFallbackScrubListeners() {
-            // Allows testing the motion-gated timer on devices without a webcam by scrubbing mouse/touch
+            // Only active when no webcam stream is running (e.g., headless/desktop without camera)
             window.addEventListener("pointermove", (e) => {
-                if (appState !== "WASHING") return;
-                if (webcamRunning && cameraHasSeenRealHand) return;
+                if (appState !== "WASHING" || webcamRunning) return;
 
                 if (lastPointerPos) {
                     const dist = Math.hypot(e.clientX - lastPointerPos.x, e.clientY - lastPointerPos.y);
                     if (dist > 6) {
                         handsInFrameCount = 2;
+                        isPoseValid = true;
                         recordValidScrubFrame();
                     }
                 }
@@ -920,11 +2339,7 @@
             });
 
             window.addEventListener("keydown", (e) => {
-                if (appState === "WASHING" && e.code === "Space") {
-                    e.preventDefault();
-                    handsInFrameCount = 2;
-                    recordValidScrubFrame();
-                } else if (appState === "WASHING" && e.code === "Escape") {
+                if (appState === "WASHING" && e.code === "Escape") {
                     resetToStart(e);
                 }
             });

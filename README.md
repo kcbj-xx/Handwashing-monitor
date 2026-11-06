@@ -12,7 +12,9 @@
 - **Strict Rules:**
   - Locked strictly to **landscape mode** via Web App Manifest, Screen Orientation API, and CSS `@media (orientation: portrait)` rotation enforcement.
   - Zero-clutter Main Wash Interface limited strictly to **5 core UI elements** (Top-Left Step Timer, Top-Right Camera PiP, Center Animated WHO Hand Prompt + Label, Bottom 6-Segment "Just Dance" Progress Bar, Bottom-Left `↺` Reset Button).
-  - Timer and progress bar advance **only** when valid two-hand pose and frame-to-frame Euclidean scrubbing velocity exceed the step threshold (`isPoseValid && velocity >= velocityThreshold`), freezing at the exact millisecond when motion pauses.
+  - Timer and progress bar advance **only** when the worker's two hands match the **active step's specific 2D landmark pose geometry** AND frame-to-frame Euclidean + inter-hand relative scrubbing velocity exceeds the step threshold (`isPoseValid && velocity >= velocityThreshold`), freezing at the exact millisecond when motion pauses or the gesture pose is broken.
+  - **50/50 Opposite-Hand Split (Steps 2–6):** All steps except Step 1 split their duration equally between the initial hand configuration (first `4.0s`) and the **opposite hand** (remaining `4.0s`), automatically mirroring the central 2D hand illustration, updating all 5 language prompts (`English`, `Chinese`, `Spanish`, `Indian/Hindi`, `Vietnamese`), and requiring the worker to switch hands at the 50% midpoint.
+  - **Extended Completion Screen + Next User Button:** Holds the `COMPLETE` screen for `15000ms` (15 seconds) before auto-closing, and includes a high-contrast **`Next User →`** arrow button so the next worker in line can immediately advance to their turn.
 
 ## 3. Core Architecture & Data Models
 - **WHO Step Schema (`WHO_STEPS`):**
@@ -20,7 +22,13 @@
   {
     "id": "number (1–6)",
     "whoStep": "string (Step 2 – Step 7)",
-    "label": "string (Concise action caption displayed beneath hand icon)",
+    "label": "string (Primary English action caption)",
+    "translations": {
+      "zh": "string (1. Chinese / 中文)",
+      "es": "string (2. Spanish / Español)",
+      "hi": "string (3. Indian - Hindi / हिन्दी)",
+      "vi": "string (4. Vietnamese / Tiếng Việt)"
+    },
     "duration": "number (8.0 seconds per step; 48.0 seconds total)",
     "svgType": "'palm-to-palm' | 'dorsum' | 'interlaced' | 'knuckles' | 'thumbs' | 'fingertips'",
     "velocityThreshold": "number (Normalized Euclidean landmark displacement threshold)"
@@ -55,10 +63,13 @@
 - [x] **Milestone 2: Motion-Gated AI Engine**
   - Mirrored front-camera PiP feed with real-time MediaPipe skeleton overlay.
   - Frame-to-frame Euclidean velocity calculation $\Delta d = \sqrt{(x_t - x_{t-1})^2 + (y_t - y_{t-1})^2}$ across wrist (`0`), MCP knuckle (`5, 9, 13, 17`), and fingertip (`4, 8, 12`) landmarks.
-  - Millisecond-accurate freeze/resume timer loop with a `300ms` micro-pause smoothing buffer and `3000ms` auto-reset completion screen.
+  - Millisecond-accurate freeze/resume timer loop with a `300ms` micro-pause smoothing buffer, 50/50 opposite-hand midpoint switch on Steps 2–6, and a `15000ms` completion screen with a `Next User →` button.
 - [x] **Milestone 3: Wash-Station Floor Calibration**
-  - Tuned detection/tracking confidence (`0.45`) and step-specific velocity thresholds for wet-skin specular glare.
-  - Two-hand occlusion grace window (`650ms`) to prevent false pauses when palms tightly eclipse each other during scrubbing.
+  - Interactive **Gesture Calibration** button (`Calibrate Gestures`) anchored in the lower-right corner of the Start Menu (`#start-screen`, which balances 2 languages above and 2 languages below `START`).
+  - Live camera & skeleton calibration panel with per-step testing across all 6 WHO gestures, a 3-second `Auto-Sample (3s)` calibration routine, Pose Tolerance (`0.75x–1.45x`) & Velocity Threshold (`0.50x–1.50x`) sliders, and Opposite-Hand Switch toggle persisted in `localStorage`.
+  - **Touching-Hand Merged Skeleton Support & Palm vs. Back (`DORSUM`) Differentiation:**
+    - When two hands touch closely, MediaPipe's Non-Maximum Suppression frequently outputs a single merged skeleton (`hands.length === 1`). The engine handles both `2` skeletons and `1` touching skeleton (verified via adaptive skin/glove pixel mass around the palm in `detectTouchingHandMass`).
+    - Computes rotation-invariant 2D cross-product palm winding $(\text{MiddleMCP}_9 - \text{Wrist}_0) \times (\text{IndexMCP}_5 - \text{PinkyMCP}_{17})$ combined with MediaPipe handedness in `computeHandSurfaceOrientation` to distinguish **PALM (Front)**, **BACK (Dorsum)**, and **EDGE**, ensuring Palm-to-Palm (Step 1) and Back-to-Palm (Step 2) are strictly differentiated.
 
 ## 5. UI/UX & Design System
 - **Theme:** High-contrast industrial dark mode (`#090d16` background) engineered for instant legibility at arm's length in bright or humid food-processing wash stations.
