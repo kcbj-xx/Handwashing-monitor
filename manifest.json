@@ -2,7 +2,7 @@
   "name": "WHO AI Handwashing Tracker",
   "short_name": "HandWash AI",
   "description": "Zero-clutter landscape PWA guiding food processing workers through the 6 core WHO handwashing motions with AI hand tracking.",
-  "start_url": "./handwash_monitor.html",
+  "start_url": "./index.html",
   "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#090d16",
