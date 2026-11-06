@@ -67,29 +67,29 @@
                 padding-bottom: 1rem !important;
             }
             #start-btn .start-title {
-                font-size: 3.25rem !important;
+                font-size: 3.5rem !important;
             }
             #gesture-illustration {
-                width: 6.5rem !important;
-                height: 5.25rem !important;
+                width: 7rem !important;
+                height: 5.75rem !important;
             }
             #gesture-caption {
-                font-size: 0.95rem !important;
+                font-size: 1.1rem !important;
             }
             #gesture-translations {
-                font-size: 0.7rem !important;
-                line-height: 1.15 !important;
+                font-size: 0.8rem !important;
+                line-height: 1.2 !important;
             }
             #timer-circle {
-                width: 3.75rem !important;
-                height: 3.75rem !important;
+                width: 4.25rem !important;
+                height: 4.25rem !important;
             }
             #timer-number {
-                font-size: 1.75rem !important;
+                font-size: 2rem !important;
             }
             #camera-box {
-                width: 7.5rem !important;
-                height: 5.25rem !important;
+                width: 10.5rem !important;
+                height: 7.5rem !important;
             }
         }
 
@@ -166,21 +166,21 @@
                     type="button"
                     onclick="startWash()"
                     aria-label="Start Handwashing Session"
-                    class="w-full max-w-xl py-7 sm:py-10 md:py-14 px-5 sm:px-10 rounded-[2rem] sm:rounded-[3rem] border-[4px] sm:border-[5px] border-dashed border-slate-200/85 hover:border-emerald-400 hover:bg-emerald-500/5 active:scale-95 transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group shadow-[0_0_90px_rgba(0,0,0,0.75)] focus:outline-none"
+                    class="w-full max-w-xl py-10 sm:py-12 md:py-14 px-6 sm:px-10 rounded-[2.25rem] sm:rounded-[3rem] border-[4px] sm:border-[5px] border-dashed border-slate-200/85 hover:border-emerald-400 hover:bg-emerald-500/5 active:scale-95 transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group shadow-[0_0_90px_rgba(0,0,0,0.75)] focus:outline-none"
                 >
                     <!-- 2 Languages Above START (1. Chinese, 2. Spanish) -->
-                    <div class="mb-2 sm:mb-3 flex flex-col items-center space-y-0.5 sm:space-y-1 text-xs sm:text-base md:text-lg font-bold tracking-wider text-slate-300 group-hover:text-emerald-200/90 transition-colors">
+                    <div class="mb-2.5 sm:mb-3 flex flex-col items-center space-y-1 text-base sm:text-lg md:text-xl font-bold tracking-wider text-slate-300 group-hover:text-emerald-200/90 transition-colors">
                         <span>开始</span>
                         <span>INICIAR</span>
                     </div>
 
                     <!-- Centered Primary English START -->
-                    <span class="start-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-[0.12em] sm:tracking-[0.14em] text-white group-hover:text-emerald-400 transition-colors pl-[0.12em] sm:pl-[0.14em] leading-none my-1">
+                    <span class="start-title text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-[0.12em] sm:tracking-[0.14em] text-white group-hover:text-emerald-400 transition-colors pl-[0.12em] sm:pl-[0.14em] leading-none my-1.5">
                         START
                     </span>
 
                     <!-- 2 Languages Below START (3. Indian/Hindi, 4. Vietnamese) -->
-                    <div class="mt-2 sm:mt-3 flex flex-col items-center space-y-0.5 sm:space-y-1 text-xs sm:text-base md:text-lg font-bold tracking-wider text-slate-300 group-hover:text-emerald-200/90 transition-colors">
+                    <div class="mt-2.5 sm:mt-3 flex flex-col items-center space-y-1 text-base sm:text-lg md:text-xl font-bold tracking-wider text-slate-300 group-hover:text-emerald-200/90 transition-colors">
                         <span>शुरू करें</span>
                         <span>BẮT ĐẦU</span>
                     </div>
@@ -188,19 +188,19 @@
             </div>
 
             <!-- Bottom Utility Bar: Download/Install PWA + Calibrate Gestures -->
-            <div class="w-full shrink-0 flex flex-wrap items-center justify-center sm:justify-end gap-2.5 sm:gap-3 pt-2 z-40">
+            <div class="w-full shrink-0 flex flex-wrap items-center justify-center sm:justify-end gap-3 pt-2 z-40">
                 <!-- Install App (PWA) Button -->
                 <button
                     id="install-pwa-btn"
                     type="button"
                     onclick="triggerInstallPWA(event)"
                     aria-label="Install Handwashing Tracker App"
-                    class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 border-emerald-500/80 bg-emerald-950/60 hover:bg-emerald-900/70 hover:border-emerald-400 active:scale-95 transition-all duration-150 flex items-center space-x-2 text-emerald-200 hover:text-white cursor-pointer shadow-[0_0_20px_rgba(16,185,129,0.2)] focus:outline-none"
+                    class="flex-1 sm:flex-initial justify-center px-5 py-3.5 sm:px-5 sm:py-3 rounded-2xl border-2 border-emerald-500/80 bg-emerald-950/60 hover:bg-emerald-900/70 hover:border-emerald-400 active:scale-95 transition-all duration-150 flex items-center space-x-2.5 text-emerald-200 hover:text-white cursor-pointer shadow-[0_0_20px_rgba(16,185,129,0.2)] focus:outline-none"
                 >
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/>
                     </svg>
-                    <span class="text-[11px] sm:text-xs md:text-sm font-bold tracking-wider uppercase">
+                    <span class="text-sm sm:text-base font-extrabold tracking-wider uppercase">
                         Install App
                     </span>
                 </button>
@@ -211,12 +211,12 @@
                     type="button"
                     onclick="openCalibration(event)"
                     aria-label="Calibrate Handwashing Gestures"
-                    class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-2 border-slate-600/90 bg-slate-900/90 hover:border-emerald-400 hover:bg-slate-800/95 active:scale-95 transition-all duration-150 flex items-center space-x-2 text-slate-200 hover:text-white cursor-pointer shadow-[0_0_24px_rgba(0,0,0,0.65)] focus:outline-none"
+                    class="flex-1 sm:flex-initial justify-center px-5 py-3.5 sm:px-5 sm:py-3 rounded-2xl border-2 border-slate-600/90 bg-slate-900/90 hover:border-emerald-400 hover:bg-slate-800/95 active:scale-95 transition-all duration-150 flex items-center space-x-2.5 text-slate-200 hover:text-white cursor-pointer shadow-[0_0_24px_rgba(0,0,0,0.65)] focus:outline-none"
                 >
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                     </svg>
-                    <span class="text-[11px] sm:text-xs md:text-sm font-bold tracking-wider uppercase">
+                    <span class="text-sm sm:text-base font-extrabold tracking-wider uppercase">
                         Calibrate Gestures
                     </span>
                 </button>
@@ -226,23 +226,23 @@
             <div id="pwa-install-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeInstallModal()">
                 <div class="w-full max-w-md rounded-3xl border-2 border-slate-700 bg-slate-900 p-5 sm:p-6 shadow-2xl text-left" onclick="event.stopPropagation()">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-base sm:text-lg font-black text-white uppercase tracking-wide flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        <h3 class="text-lg sm:text-xl font-black text-white uppercase tracking-wide flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
                             Install as App (PWA)
                         </h3>
-                        <button type="button" onclick="closeInstallModal()" class="text-slate-400 hover:text-white text-xl font-bold px-2 cursor-pointer">&times;</button>
+                        <button type="button" onclick="closeInstallModal()" class="text-slate-400 hover:text-white text-2xl font-bold px-2 cursor-pointer">&times;</button>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-3">
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-3">
                         To install <strong>HandWash AI</strong> on your phone or tablet for fullscreen offline use:
                     </p>
-                    <ul class="text-xs sm:text-sm text-slate-300 space-y-2 mb-5 list-disc pl-5">
-                        <li><strong>iPhone / iPad (Safari):</strong> Tap the <strong>Share</strong> button <span class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300 font-mono text-xs">↑</span> at the bottom of the screen, then select <strong>"Add to Home Screen"</strong>.</li>
-                        <li><strong>Android (Chrome / Edge):</strong> Tap the browser menu <span class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300 font-mono text-xs">⋮</span> and select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>
+                    <ul class="text-sm sm:text-base text-slate-300 space-y-2.5 mb-5 list-disc pl-5">
+                        <li><strong>iPhone / iPad (Safari):</strong> Tap the <strong>Share</strong> button <span class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300 font-mono text-sm">↑</span> at the bottom of the screen, then select <strong>"Add to Home Screen"</strong>.</li>
+                        <li><strong>Android (Chrome / Edge):</strong> Tap the browser menu <span class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300 font-mono text-sm">⋮</span> and select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>
                     </ul>
                     <button
                         type="button"
                         onclick="closeInstallModal()"
-                        class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider cursor-pointer"
+                        class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm sm:text-base uppercase tracking-wider cursor-pointer"
                     >
                         Got It
                     </button>
@@ -253,30 +253,30 @@
         <!-- ========================================================= -->
         <!-- GESTURE CALIBRATION MODAL / SCREEN                        -->
         <!-- ========================================================= -->
-        <section id="calibration-screen" class="hidden absolute inset-0 z-40 bg-[#090d16] flex flex-col justify-between p-3 sm:p-5 lg:p-8 overflow-y-auto">
+        <section id="calibration-screen" class="hidden absolute inset-0 z-40 bg-[#090d16] flex flex-col justify-between p-4 sm:p-6 lg:p-8 overflow-y-auto">
             <!-- Header -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5 shrink-0">
+            <div class="flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-800 pb-3 shrink-0">
                 <div>
-                    <h2 class="text-base sm:text-xl md:text-2xl font-black tracking-wide text-white uppercase flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 inline-block shrink-0"></span>
+                    <h2 class="text-lg sm:text-xl md:text-2xl font-black tracking-wide text-white uppercase flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block shrink-0"></span>
                         Contact &amp; Motion Calibration
                     </h2>
-                    <p class="text-[11px] sm:text-sm text-slate-400 font-medium">
+                    <p class="text-xs sm:text-sm text-slate-400 font-medium">
                         Tune hand-to-hand contact detection tolerance and scrubbing velocity threshold.
                     </p>
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                     <button
                         type="button"
                         onclick="resetCalibrationDefaults()"
-                        class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm font-bold text-slate-300 hover:text-white transition-colors cursor-pointer"
+                        class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-sm font-bold text-slate-300 hover:text-white transition-colors cursor-pointer"
                     >
                         Reset Defaults
                     </button>
                     <button
                         type="button"
                         onclick="closeCalibration()"
-                        class="px-4 py-1.5 sm:px-5 sm:py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-xs sm:text-sm font-black text-slate-950 uppercase tracking-wider transition-colors cursor-pointer"
+                        class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-sm font-black text-slate-950 uppercase tracking-wider transition-colors cursor-pointer"
                     >
                         Save &amp; Done
                     </button>
@@ -284,28 +284,28 @@
             </div>
 
             <!-- Main Calibration Body (Stacks in Portrait, Side-by-Side in Landscape/Tablet) -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-5 my-auto py-3 items-center">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 my-auto py-3 items-center">
                 <!-- Left Column: Live Camera Feed + Telemetry Badges -->
                 <div class="md:col-span-5 flex flex-col items-center">
-                    <div id="cal-camera-frame" class="relative w-full max-w-sm md:max-w-none aspect-[4/3] max-h-44 sm:max-h-56 md:max-h-64 rounded-2xl border-4 border-amber-400 bg-slate-900 overflow-hidden shadow-lg">
+                    <div id="cal-camera-frame" class="relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-amber-400 bg-slate-900 overflow-hidden shadow-lg">
                         <video id="cal-video" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 opacity-90" autoplay playsinline muted></video>
                         <canvas id="cal-canvas" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 pointer-events-none"></canvas>
-                        <div id="cal-pose-badge" class="absolute top-2 left-2 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-slate-950/85 border border-slate-700 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-400">
+                        <div id="cal-pose-badge" class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/85 border border-slate-700 text-xs font-extrabold uppercase tracking-wider text-amber-400">
                             WAITING FOR HANDS...
                         </div>
                     </div>
 
                     <!-- Live Velocity Meter -->
-                    <div class="w-full max-w-sm md:max-w-none mt-2.5 bg-slate-900/90 border border-slate-800 rounded-xl p-2.5">
-                        <div class="flex justify-between text-[11px] sm:text-xs font-bold text-slate-300 mb-1">
+                    <div class="w-full max-w-md md:max-w-none mt-3 bg-slate-900/90 border border-slate-800 rounded-xl p-3">
+                        <div class="flex justify-between text-xs sm:text-sm font-bold text-slate-300 mb-1.5">
                             <span>LIVE SCRUB VELOCITY</span>
                             <span id="cal-vel-readout" class="tabular-nums text-emerald-400">0.000 / 0.016</span>
                         </div>
-                        <div class="relative w-full h-2.5 sm:h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                        <div class="relative w-full h-3 sm:h-3.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
                             <div id="cal-vel-bar" class="h-full bg-emerald-400 transition-all duration-75 w-0"></div>
                             <div id="cal-vel-thresh-marker" class="absolute inset-y-0 w-0.5 bg-white z-10" style="left: 40%;"></div>
                         </div>
-                        <div id="cal-metrics-line" class="mt-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-400 tabular-nums flex justify-between">
+                        <div id="cal-metrics-line" class="mt-2 text-xs font-semibold text-slate-400 tabular-nums flex justify-between">
                             <span>Contact: None</span>
                             <span>Hands: 0/2</span>
                             <span>Gap Dist: --</span>
@@ -314,17 +314,17 @@
                 </div>
 
                 <!-- Right Column: 4-Level Hand Contact Tolerance & Velocity Threshold Adjustments -->
-                <div class="md:col-span-7 flex flex-col justify-center space-y-3 sm:space-y-4">
+                <div class="md:col-span-7 flex flex-col justify-center space-y-3.5 sm:space-y-4">
                     <!-- 1. Hand Contact Tolerance (4 Levels) -->
-                    <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3 sm:p-4">
-                        <div class="flex justify-between items-center text-xs sm:text-base font-extrabold text-white mb-1">
+                    <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4">
+                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-1">
                             <span>Hand Contact Tolerance</span>
                             <span id="cal-contact-tol-val" class="text-emerald-400 tabular-nums">Level 3 (Standard)</span>
                         </div>
-                        <p class="text-[11px] sm:text-xs text-slate-400 mb-1">
+                        <p class="text-xs sm:text-sm text-slate-400 mb-1">
                             Adjusts how closely both hands must touch to register valid hand-to-hand contact.
                         </p>
-                        <p class="text-[10px] sm:text-[11px] text-slate-400/90 mb-2.5">
+                        <p class="text-xs text-slate-400/90 mb-3">
                             双手接触容差 • Tolerancia de contacto entre manos • हाथ संपर्क सहनशीलता • Độ nhạy tiếp xúc hai bàn tay
                         </p>
                         <input
@@ -335,26 +335,26 @@
                             step="1"
                             value="3"
                             oninput="onCalibrationSliderChange()"
-                            class="w-full accent-emerald-400 cursor-pointer"
+                            class="w-full h-2.5 accent-emerald-400 cursor-pointer"
                         />
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mt-2">
-                            <button type="button" id="cal-contact-lvl-1" onclick="setContactLevel(1)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">1 • Strict</button>
-                            <button type="button" id="cal-contact-lvl-2" onclick="setContactLevel(2)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">2 • Firm</button>
-                            <button type="button" id="cal-contact-lvl-3" onclick="setContactLevel(3)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">3 • Standard</button>
-                            <button type="button" id="cal-contact-lvl-4" onclick="setContactLevel(4)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">4 • Loose</button>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5">
+                            <button type="button" id="cal-contact-lvl-1" onclick="setContactLevel(1)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">1 • Strict</button>
+                            <button type="button" id="cal-contact-lvl-2" onclick="setContactLevel(2)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">2 • Firm</button>
+                            <button type="button" id="cal-contact-lvl-3" onclick="setContactLevel(3)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">3 • Standard</button>
+                            <button type="button" id="cal-contact-lvl-4" onclick="setContactLevel(4)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">4 • Loose</button>
                         </div>
                     </div>
 
                     <!-- 2. Velocity Threshold (4 Levels) -->
-                    <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3 sm:p-4">
-                        <div class="flex justify-between items-center text-xs sm:text-base font-extrabold text-white mb-1">
+                    <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4">
+                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-1">
                             <span>Velocity Threshold</span>
                             <span id="cal-vel-tol-val" class="text-emerald-400 tabular-nums">Level 2 (Standard)</span>
                         </div>
-                        <p class="text-[11px] sm:text-xs text-slate-400 mb-1">
+                        <p class="text-xs sm:text-sm text-slate-400 mb-1">
                             Adjusts how fast the hands must rub together while in contact for the timer to advance.
                         </p>
-                        <p class="text-[10px] sm:text-[11px] text-slate-400/90 mb-2.5">
+                        <p class="text-xs text-slate-400/90 mb-3">
                             揉搓速度阈值 • Umbral de velocidad de frotado • रगड़ने की गति सीमा • Ngưỡng tốc độ chà tay
                         </p>
                         <input
@@ -365,13 +365,13 @@
                             step="1"
                             value="2"
                             oninput="onCalibrationSliderChange()"
-                            class="w-full accent-emerald-400 cursor-pointer"
+                            class="w-full h-2.5 accent-emerald-400 cursor-pointer"
                         />
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mt-2">
-                            <button type="button" id="cal-vel-lvl-1" onclick="setVelocityLevel(1)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">1 • Light</button>
-                            <button type="button" id="cal-vel-lvl-2" onclick="setVelocityLevel(2)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">2 • Standard</button>
-                            <button type="button" id="cal-vel-lvl-3" onclick="setVelocityLevel(3)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">3 • Brisk</button>
-                            <button type="button" id="cal-vel-lvl-4" onclick="setVelocityLevel(4)" class="py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all">4 • Vigorous</button>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5">
+                            <button type="button" id="cal-vel-lvl-1" onclick="setVelocityLevel(1)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">1 • Light</button>
+                            <button type="button" id="cal-vel-lvl-2" onclick="setVelocityLevel(2)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">2 • Standard</button>
+                            <button type="button" id="cal-vel-lvl-3" onclick="setVelocityLevel(3)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">3 • Brisk</button>
+                            <button type="button" id="cal-vel-lvl-4" onclick="setVelocityLevel(4)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">4 • Vigorous</button>
                         </div>
                     </div>
                 </div>
@@ -381,7 +381,7 @@
         <!-- ========================================================= -->
         <!-- SCREEN 2: MAIN WASH INTERFACE (5 Core Elements Only)      -->
         <!-- ========================================================= -->
-        <section id="wash-screen" class="hidden absolute inset-0 z-20 bg-[#090d16] flex flex-col justify-between p-3 sm:p-5 lg:p-8 overflow-hidden">
+        <section id="wash-screen" class="hidden absolute inset-0 z-20 bg-[#090d16] flex flex-col justify-between p-3.5 sm:p-5 lg:p-8 overflow-hidden">
 
             <!-- TOP ROW: [1] Top-Left Step Timer & [2] Top-Right Camera PiP -->
             <div class="flex items-start justify-between w-full z-20 shrink-0">
@@ -389,9 +389,9 @@
                 <!-- 1. Top-Left Step Timer -->
                 <div
                     id="timer-circle"
-                    class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-4 border-emerald-400 bg-slate-900/90 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.28)] transition-colors duration-150 shrink-0"
+                    class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-emerald-400 bg-slate-900/90 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.28)] transition-colors duration-150 shrink-0"
                 >
-                    <span id="timer-number" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tabular-nums leading-none">
+                    <span id="timer-number" class="text-4xl sm:text-5xl md:text-6xl font-black text-white tabular-nums leading-none">
                         3
                     </span>
                 </div>
@@ -399,7 +399,7 @@
                 <!-- 2. Top-Right Camera PiP -->
                 <div
                     id="camera-box"
-                    class="relative w-32 h-24 sm:w-44 sm:h-32 md:w-56 md:h-40 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-colors duration-150 flex items-center justify-center shrink-0"
+                    class="relative w-48 h-36 sm:w-60 sm:h-44 md:w-72 md:h-52 lg:w-80 lg:h-60 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-colors duration-150 flex items-center justify-center shrink-0"
                 >
                     <!-- Mirrored Real-Time Front Camera Video -->
                     <video
@@ -426,18 +426,18 @@
             <div id="center-stage" class="flex-1 min-h-0 flex flex-col items-center justify-center text-center z-10 px-2 py-1 overflow-hidden">
                 <div
                     id="gesture-illustration"
-                    class="w-32 h-28 sm:w-44 sm:h-36 md:w-56 md:h-48 flex items-center justify-center transition-all duration-150 shrink-0"
+                    class="w-40 h-36 sm:w-48 sm:h-40 md:w-56 md:h-48 flex items-center justify-center transition-all duration-150 shrink-0"
                 >
                     <!-- Anatomical 2D WHO Hand SVG Injected Dynamically -->
                 </div>
                 <p
                     id="gesture-caption"
-                    class="mt-1 sm:mt-1.5 text-base sm:text-xl md:text-2xl font-extrabold text-white tracking-tight leading-snug max-w-xl"
+                    class="mt-1.5 sm:mt-2 text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-snug max-w-xl"
                 >
                     Palm to palm
                 </p>
                 <!-- Multilingual Sub-Captions: 1. Chinese, 2. Spanish, 3. Indian (Hindi), 4. Vietnamese -->
-                <div id="gesture-translations" class="mt-1 flex flex-col items-center space-y-0.5 text-[11px] sm:text-sm md:text-base font-semibold text-slate-300 leading-tight max-w-xl">
+                <div id="gesture-translations" class="mt-1.5 flex flex-col items-center space-y-1 text-sm sm:text-base md:text-lg font-semibold text-slate-300 leading-snug max-w-xl">
                     <span id="lang-zh">掌心对掌心揉搓</span>
                     <span id="lang-es">Frotar palma contra palma</span>
                     <span id="lang-hi">हथेली से हथेली रगड़ें</span>
@@ -446,7 +446,7 @@
             </div>
 
             <!-- BOTTOM ROW: [5] Bottom-Left Reset Button & [4] Bottom Segmented Progress Bar -->
-            <div class="flex items-center gap-2.5 sm:gap-4 w-full max-w-4xl mx-auto z-20 pt-1 shrink-0">
+            <div class="flex items-center gap-3 sm:gap-4 w-full max-w-4xl mx-auto z-20 pt-1 shrink-0">
 
                 <!-- 5. Bottom-Left Reset Button -->
                 <button
@@ -454,14 +454,14 @@
                     type="button"
                     onclick="resetToStart(event)"
                     aria-label="Reset and return to Start Screen"
-                    class="shrink-0 w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full border-[3px] border-slate-200 bg-slate-900/90 hover:border-white hover:bg-slate-800 active:scale-90 transition-all duration-150 flex items-center justify-center text-white text-xl sm:text-3xl font-black cursor-pointer shadow-[0_0_24px_rgba(0,0,0,0.65)] focus:outline-none"
+                    class="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-[3px] border-slate-200 bg-slate-900/90 hover:border-white hover:bg-slate-800 active:scale-90 transition-all duration-150 flex items-center justify-center text-white text-2xl sm:text-3xl font-black cursor-pointer shadow-[0_0_24px_rgba(0,0,0,0.65)] focus:outline-none"
                 >
                     &#8634;
                 </button>
 
                 <!-- 4. Bottom Segmented Progress Bar ("Just Dance" Style) -->
                 <div class="flex-1 min-w-0">
-                    <div id="progress-segments" class="grid grid-cols-6 gap-1.5 sm:gap-3 h-11 sm:h-14 md:h-16 w-full">
+                    <div id="progress-segments" class="grid grid-cols-6 gap-2 sm:gap-3 h-14 sm:h-16 w-full">
                         <!-- 6 Segmented Gesture Blocks Injected Dynamically -->
                     </div>
                 </div>
@@ -473,13 +473,13 @@
         <!-- SCREEN 3: COMPLETION SCREEN                               -->
         <!-- ========================================================= -->
         <section id="complete-screen" class="hidden absolute inset-0 z-30 bg-[#090d16] flex flex-col items-center justify-center text-center p-4 sm:p-6">
-            <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-[0.08em] text-emerald-400 mb-2">
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.08em] text-emerald-400 mb-2">
                 COMPLETE
             </h1>
-            <p class="text-sm sm:text-xl md:text-2xl font-bold tracking-[0.1em] sm:tracking-[0.12em] text-slate-100 uppercase mb-3">
+            <p class="text-lg sm:text-xl md:text-2xl font-bold tracking-[0.1em] sm:tracking-[0.12em] text-slate-100 uppercase mb-3">
                 ( PROCEED TO THE NEXT STEP )
             </p>
-            <div class="flex flex-col items-center space-y-1 text-xs sm:text-sm md:text-base font-semibold text-slate-300 mb-6">
+            <div class="flex flex-col items-center space-y-1.5 text-sm sm:text-base md:text-lg font-semibold text-slate-300 mb-6">
                 <span>已完成 —（请进行下一步）</span>
                 <span>COMPLETADO — ( PROCEDA AL SIGUIENTE PASO )</span>
                 <span>पूर्ण — ( अगले चरण पर आगे बढ़ें )</span>
@@ -492,9 +492,9 @@
                 type="button"
                 onclick="resetToStart(event)"
                 aria-label="Return to Start"
-                class="group mt-2 w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/30 active:scale-95 transition-all duration-150 flex items-center justify-center cursor-pointer shadow-[0_0_35px_rgba(16,185,129,0.3)] focus:outline-none"
+                class="group mt-2 w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] border-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/30 active:scale-95 transition-all duration-150 flex items-center justify-center cursor-pointer shadow-[0_0_35px_rgba(16,185,129,0.3)] focus:outline-none"
             >
-                <span class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-400 text-slate-950 flex items-center justify-center text-3xl sm:text-4xl font-black group-hover:translate-x-0.5 transition-transform leading-none">
+                <span class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-400 text-slate-950 flex items-center justify-center text-4xl font-black group-hover:translate-x-0.5 transition-transform leading-none">
                     &#8594;
                 </span>
             </button>
@@ -1061,14 +1061,14 @@
                 const cBtn = document.getElementById(`cal-contact-lvl-${i}`);
                 if (cBtn) {
                     cBtn.className = (i === cEntry.level)
-                        ? "py-1.5 rounded-lg border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-xs font-extrabold cursor-pointer transition-all"
-                        : "py-1.5 rounded-lg border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-xs font-bold cursor-pointer transition-all";
+                        ? "py-2.5 rounded-xl border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-sm font-extrabold cursor-pointer transition-all"
+                        : "py-2.5 rounded-xl border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-sm font-bold cursor-pointer transition-all";
                 }
                 const vBtn = document.getElementById(`cal-vel-lvl-${i}`);
                 if (vBtn) {
                     vBtn.className = (i === vEntry.level)
-                        ? "py-1.5 rounded-lg border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-xs font-extrabold cursor-pointer transition-all"
-                        : "py-1.5 rounded-lg border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-xs font-bold cursor-pointer transition-all";
+                        ? "py-2.5 rounded-xl border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-sm font-extrabold cursor-pointer transition-all"
+                        : "py-2.5 rounded-xl border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-sm font-bold cursor-pointer transition-all";
                 }
             }
         }
@@ -1110,7 +1110,7 @@
                     <!-- 50% Halfway Hand-Switch Divider for Steps 2 to 6 -->
                     ${step.requiresHandSwitch ? '<div class="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-slate-950/70 z-10 pointer-events-none"></div>' : ''}
                     <!-- Static Mini Anatomical Hand Icon -->
-                    <div class="relative z-10 w-7 h-7 sm:w-10 sm:h-10 md:w-12 md:h-12 pointer-events-none">
+                    <div class="relative z-10 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 pointer-events-none">
                         ${getGestureSVG(step.svgType, true, false)}
                     </div>
                 `;
@@ -1255,8 +1255,8 @@
 
             if (running) {
                 // RUNNING STATE: Green glowing border on Timer & PiP, active central animation
-                timerCircle.className = "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-4 border-emerald-400 bg-slate-900/90 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-colors duration-150 shrink-0";
-                cameraBox.className = "relative w-32 h-24 sm:w-44 sm:h-32 md:w-56 md:h-40 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.28)] transition-colors duration-150 flex items-center justify-center shrink-0";
+                timerCircle.className = "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-emerald-400 bg-slate-900/90 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-colors duration-150 shrink-0";
+                cameraBox.className = "relative w-48 h-36 sm:w-60 sm:h-44 md:w-72 md:h-52 lg:w-80 lg:h-60 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.28)] transition-colors duration-150 flex items-center justify-center shrink-0";
                 centerStage.classList.remove("motion-paused");
             } else {
                 // PAUSED STATE: Freeze timer & progress bar at exact ms, pause/pulse amber central hand icon, amber/red PiP border
@@ -1264,8 +1264,8 @@
                     ? "border-rose-500 shadow-[0_0_30px_rgba(244,63,94,0.3)]"
                     : "border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.3)]";
 
-                timerCircle.className = "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-4 border-amber-400 bg-amber-950/35 flex items-center justify-center shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-colors duration-150 shrink-0";
-                cameraBox.className = `relative w-32 h-24 sm:w-44 sm:h-32 md:w-56 md:h-40 rounded-2xl border-4 ${pipBorderClass} bg-slate-900 overflow-hidden transition-colors duration-150 flex items-center justify-center shrink-0`;
+                timerCircle.className = "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-amber-400 bg-amber-950/35 flex items-center justify-center shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-colors duration-150 shrink-0";
+                cameraBox.className = `relative w-48 h-36 sm:w-60 sm:h-44 md:w-72 md:h-52 lg:w-80 lg:h-60 rounded-2xl border-4 ${pipBorderClass} bg-slate-900 overflow-hidden transition-colors duration-150 flex items-center justify-center shrink-0`;
                 centerStage.classList.add("motion-paused");
             }
         }
@@ -2420,16 +2420,16 @@
             const isTouching = Boolean(lastObservedMetrics.isTouching);
 
             if (scrubOk) {
-                frame.className = "relative w-full max-w-sm md:max-w-none aspect-[4/3] max-h-44 sm:max-h-56 md:max-h-64 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.3)]";
-                badge.className = "absolute top-2 left-2 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-emerald-950/90 border border-emerald-400 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-emerald-300";
+                frame.className = "relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.3)]";
+                badge.className = "absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-400 text-xs font-extrabold uppercase tracking-wider text-emerald-300";
                 badge.innerText = "CONTACT + MOTION VALID ✓ (SCRUBBING)";
             } else if (isTouching) {
-                frame.className = "relative w-full max-w-sm md:max-w-none aspect-[4/3] max-h-44 sm:max-h-56 md:max-h-64 rounded-2xl border-4 border-sky-400 bg-slate-900 overflow-hidden shadow-lg";
-                badge.className = "absolute top-2 left-2 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-sky-950/90 border border-sky-400 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-sky-300";
+                frame.className = "relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-sky-400 bg-slate-900 overflow-hidden shadow-lg";
+                badge.className = "absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-sky-950/90 border border-sky-400 text-xs font-extrabold uppercase tracking-wider text-sky-300";
                 badge.innerText = "HAND CONTACT DETECTED ✓ — SCRUB HANDS";
             } else {
-                frame.className = "relative w-full max-w-sm md:max-w-none aspect-[4/3] max-h-44 sm:max-h-56 md:max-h-64 rounded-2xl border-4 border-amber-400 bg-slate-900 overflow-hidden shadow-lg";
-                badge.className = "absolute top-2 left-2 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-slate-950/85 border border-slate-700 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-400";
+                frame.className = "relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-amber-400 bg-slate-900 overflow-hidden shadow-lg";
+                badge.className = "absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/85 border border-slate-700 text-xs font-extrabold uppercase tracking-wider text-amber-400";
                 badge.innerText = handCount === 0
                     ? "WAITING FOR HANDS..."
                     : "NO HAND CONTACT — TOUCH HANDS TOGETHER";
