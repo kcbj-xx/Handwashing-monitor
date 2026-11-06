@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#090d16">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AI Handwashing Tracker</title>
+
+    <!-- PWA Web App Manifest (Landscape Locked) -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- MediaPipe Hands & Drawing Utils (WebGL / WASM) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #090d16;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        /* Enforce Landscape Display via CSS Orientation Media Query */
+        #app-viewport {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #090d16;
+        }
+
+        @media screen and (orientation: portrait) {
+            #app-viewport {
+                width: 100dvh;
+                height: 100vw;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(90deg);
+                transform-origin: center center;
+            }
+        }
+
+        /* WHO Hand Gesture Keyframe Animations */
+        @keyframes scrub-circular {
+            0%   { transform: translate(0px, 0px) rotate(0deg); }
+            25%  { transform: translate(9px, -7px) rotate(4deg); }
+            50%  { transform: translate(0px, -13px) rotate(0deg); }
+            75%  { transform: translate(-9px, -7px) rotate(-4deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+
+        @keyframes scrub-vertical {
+            0%, 100% { transform: translateY(-10px); }
+            50%      { transform: translateY(10px); }
+        }
+
+        @keyframes scrub-horizontal {
+            0%, 100% { transform: translateX(-11px); }
+            50%      { transform: translateX(11px); }
+        }
+
+        @keyframes scrub-twist {
+            0%, 100% { transform: rotate(-11deg) translateY(-4px); }
+            50%      { transform: rotate(11deg) translateY(4px); }
+        }
+
+        @keyframes amber-pulse {
+            0%, 100% { filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.65)); opacity: 0.92; }
+            50%      { filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.2)); opacity: 0.55; }
+        }
+
+        .anim-circular   { animation: scrub-circular 0.95s infinite ease-in-out; transform-origin: center; }
+        .anim-vertical   { animation: scrub-vertical 0.8s infinite ease-in-out; transform-origin: center; }
+        .anim-horizontal { animation: scrub-horizontal 0.8s infinite ease-in-out; transform-origin: center; }
+        .anim-twist      { animation: scrub-twist 0.85s infinite ease-in-out; transform-origin: 95px 110px; }
+
+        /* Pause & Pulse Amber when Scrubbing Stops (PAUSED State) */
+        .motion-paused .anim-circular,
+        .motion-paused .anim-vertical,
+        .motion-paused .anim-horizontal,
+        .motion-paused .anim-twist {
+            animation-play-state: paused !important;
+        }
+
+        .motion-paused #gesture-illustration {
+            animation: amber-pulse 1.2s infinite ease-in-out;
+        }
+
+        .motion-paused #gesture-illustration svg .active-hand-fill {
+            stroke: #fbbf24 !important;
+        }
+
+        .motion-paused #gesture-illustration svg .motion-arrow {
+            stroke: #fbbf24 !important;
+            fill: #fbbf24 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-viewport">
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 1: START MENU                                      -->
+        <!-- ========================================================= -->
+        <section id="start-screen" class="absolute inset-0 z-30 bg-[#090d16] flex items-center justify-center p-8">
+            <button
+                id="start-btn"
+                type="button"
+                onclick="startWash()"
+                aria-label="Start Handwashing Session"
+                class="w-full max-w-2xl py-14 sm:py-20 px-12 rounded-[3rem] border-[5px] border-dashed border-slate-200/85 hover:border-emerald-400 hover:bg-emerald-500/5 active:scale-95 transition-all duration-200 flex items-center justify-center cursor-pointer group shadow-[0_0_90px_rgba(0,0,0,0.75)] focus:outline-none"
+            >
+                <span class="text-6xl sm:text-8xl md:text-9xl font-black tracking-[0.14em] text-white group-hover:text-emerald-400 transition-colors pl-[0.14em]">
+                    START
+                </span>
+            </button>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 2: MAIN WASH INTERFACE (5 Core Elements Only)      -->
+        <!-- ========================================================= -->
+        <section id="wash-screen" class="hidden absolute inset-0 z-20 bg-[#090d16] flex flex-col justify-between p-5 sm:p-8 lg:p-10 overflow-hidden">
+
+            <!-- TOP ROW: [1] Top-Left Step Timer & [2] Top-Right Camera PiP -->
+            <div class="flex items-start justify-between w-full z-20">
+
+                <!-- 1. Top-Left Step Timer -->
+                <div
+                    id="timer-circle"
+                    class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-emerald-400 bg-slate-900/90 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.28)] transition-colors duration-150"
+                >
+                    <span id="timer-number" class="text-4xl sm:text-5xl md:text-6xl font-black text-white tabular-nums leading-none">
+                        8
+                    </span>
+                </div>
+
+                <!-- 2. Top-Right Camera PiP -->
+                <div
+                    id="camera-box"
+                    class="relative w-40 h-26 sm:w-52 sm:h-34 md:w-60 md:h-40 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.25)] transition-colors duration-150 flex items-center justify-center"
+                >
+                    <!-- Mirrored Real-Time Front Camera Video -->
+                    <video
+                        id="webcam-video"
+                        class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 opacity-92"
+                        autoplay
+                        playsinline
+                        muted
+                    ></video>
+                    <!-- Mirrored MediaPipe Hand Skeleton Overlay -->
+                    <canvas
+                        id="output-canvas"
+                        class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 pointer-events-none"
+                    ></canvas>
+                    <!-- Fallback PiP Visualization when Camera is Unavailable -->
+                    <canvas
+                        id="sim-canvas"
+                        class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                    ></canvas>
+                </div>
+            </div>
+
+            <!-- CENTER STAGE: [3] Center Visual Prompt (Animated WHO Hand Icons + Single Concise Label) -->
+            <div id="center-stage" class="my-auto flex flex-col items-center justify-center text-center z-10 px-4 -mt-2 sm:-mt-4">
+                <div
+                    id="gesture-illustration"
+                    class="w-48 h-44 sm:w-64 sm:h-56 md:w-72 md:h-64 flex items-center justify-center transition-all duration-150"
+                >
+                    <!-- Anatomical 2D WHO Hand SVG Injected Dynamically -->
+                </div>
+                <p
+                    id="gesture-caption"
+                    class="mt-2 sm:mt-3 text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight"
+                >
+                    Palm to palm
+                </p>
+            </div>
+
+            <!-- BOTTOM ROW: [5] Bottom-Left Reset Button & [4] Bottom Segmented Progress Bar -->
+            <div class="relative flex items-center justify-center w-full z-20 pt-1">
+
+                <!-- 5. Bottom-Left Reset Button -->
+                <button
+                    id="reset-btn"
+                    type="button"
+                    onclick="resetToStart(event)"
+                    aria-label="Reset and return to Start Screen"
+                    class="absolute left-0 bottom-0 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full border-[3px] border-slate-200 bg-slate-900/90 hover:border-white hover:bg-slate-800 active:scale-90 transition-all duration-150 flex items-center justify-center text-white text-2xl sm:text-3xl font-black cursor-pointer shadow-[0_0_24px_rgba(0,0,0,0.65)] focus:outline-none"
+                >
+                    &#8634;
+                </button>
+
+                <!-- 4. Bottom Segmented Progress Bar ("Just Dance" Style) -->
+                <div class="w-full max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto pl-16 pr-4 sm:px-20">
+                    <div id="progress-segments" class="grid grid-cols-6 gap-2 sm:gap-3.5 h-12 sm:h-14 md:h-16 w-full">
+                        <!-- 6 Segmented Gesture Blocks Injected Dynamically -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 3: COMPLETION SCREEN                               -->
+        <!-- ========================================================= -->
+        <section id="complete-screen" onclick="resetToStart(event)" class="hidden absolute inset-0 z-30 bg-[#090d16] flex flex-col items-center justify-center text-center p-8 cursor-pointer">
+            <h1 class="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.08em] text-emerald-400 mb-5">
+                COMPLETE
+            </h1>
+            <p class="text-lg sm:text-2xl md:text-3xl font-bold tracking-[0.14em] text-slate-200 uppercase">
+                ( PROCEED TO THE NEXT STEP )
+            </p>
+        </section>
+
+    </div>
+
+    <script>
+        // ============================================================================
+        // 1. WHO 6 CORE HANDWASHING STEPS (48 Seconds Total -> Within 40–60s Spec)
+        // ============================================================================
+        const WHO_STEPS = [
+            {
+                id: 1,
+                whoStep: "Step 2",
+                label: "Palm to palm",
+                duration: 8.0, // 6 x 8.0s = 48.0s total WHO wash duration
+                svgType: "palm-to-palm",
+                velocityThreshold: 0.018
+            },
+            {
+                id: 2,
+                whoStep: "Step 3",
+                label: "Right palm over back of left hand & vice versa",
+                duration: 8.0,
+                svgType: "dorsum",
+                velocityThreshold: 0.017
+            },
+            {
+                id: 3,
+                whoStep: "Step 4",
+                label: "Palm to palm with fingers interlaced",
+                duration: 8.0,
+                svgType: "interlaced",
+                velocityThreshold: 0.016
+            },
+            {
+                id: 4,
+                whoStep: "Step 5",
+                label: "Backs of fingers to opposing palms",
+                duration: 8.0,
+                svgType: "knuckles",
+                velocityThreshold: 0.016
+            },
+            {
+                id: 5,
+                whoStep: "Step 6",
+                label: "Rotational rubbing of left & right thumbs",
+                duration: 8.0,
+                svgType: "thumbs",
+                velocityThreshold: 0.015
+            },
+            {
+                id: 6,
+                whoStep: "Step 7",
+                label: "Rotational rubbing of fingertips in palm",
+                duration: 8.0,
+                svgType: "fingertips",
+                velocityThreshold: 0.015
+            }
+        ];
+
+        // ============================================================================
+        // 2. ANATOMICAL 2D WHO HAND SVG LIBRARY (Center Stage & Mini Timeline Icons)
+        // ============================================================================
+        // Reusable anatomical open hand path (palm + 4 distinct fingers + thumb)
+        const ANATOMICAL_HAND_PATH =
+            "M 62 152 " +
+            "L 60 94 C 60 87 69 87 69 94 L 69 102 " +
+            "L 71 58 C 71 50 82 50 82 58 L 82 96 " +
+            "L 85 48 C 85 40 97 40 97 48 L 97 96 " +
+            "L 100 56 C 100 48 111 48 111 56 L 111 102 " +
+            "L 114 72 C 114 65 124 65 124 72 L 124 126 " +
+            "L 138 106 C 145 97 156 105 148 117 " +
+            "L 126 148 C 121 156 112 162 100 162 " +
+            "L 76 162 C 67 162 62 157 62 152 Z";
+
+        function getGestureSVG(type, isMini = false) {
+            const sw = isMini ? "5.5" : "3.6";
+            const baseHandFill = "#1e293b";
+            const baseHandStroke = "#94a3b8";
+            const activeHandFill = "rgba(16, 185, 129, 0.30)";
+            const activeHandStroke = "#34d399";
+
+            switch (type) {
+                // --------------------------------------------------------------------
+                // SEGMENT 1 (WHO Step 2): Two open flat hands overlapping + circular arrow
+                // --------------------------------------------------------------------
+                case "palm-to-palm":
+                    return `
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                        <!-- Rear Left Anatomical Hand -->
+                        <g transform="translate(-18, -6) rotate(-8 95 110)">
+                            <path d="${ANATOMICAL_HAND_PATH}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
+                            ${isMini ? "" : `<path d="M 74 124 Q 95 115 116 126 M 78 138 Q 96 130 112 140" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>`}
+                        </g>
+                        <!-- Front Right Overlapping Anatomical Hand (Animated Circular Rub) -->
+                        <g class="${isMini ? "" : "anim-circular"}">
+                            <g transform="translate(14, 6) rotate(8 95 110)">
+                                <path class="active-hand-fill" d="${ANATOMICAL_HAND_PATH}" fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
+                                ${isMini ? "" : `<path d="M 74 124 Q 95 115 116 126" fill="none" stroke="#6ee7b7" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.7"/>`}
+                            </g>
+                            ${isMini ? "" : `
+                            <!-- Circular Scrubbing Motion Arrow -->
+                            <path class="motion-arrow" d="M 84 114 A 24 24 0 1 1 124 128" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                            <polygon class="motion-arrow" points="126,132 129,117 115,125" fill="#ffffff"/>
+                            `}
+                        </g>
+                    </svg>`;
+
+                // --------------------------------------------------------------------
+                // SEGMENT 2 (WHO Step 3): Flat hand stacked over dorsum + interlaced fingers + up/down arrows
+                // --------------------------------------------------------------------
+                case "dorsum":
+                    return `
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                        <!-- Bottom Hand (Back of Hand / Dorsum with spread fingers) -->
+                        <g transform="translate(4, 6)">
+                            <path d="M 56 156 L 50 74 C 49 65 60 64 62 73 L 68 104 L 74 52 C 75 43 87 43 87 52 L 89 100 L 96 46 C 97 37 109 37 109 46 L 108 100 L 117 56 C 119 47 130 49 128 58 L 122 114 L 142 94 C 150 86 160 95 151 106 L 126 146 C 120 156 110 160 94 160 L 68 160 C 60 160 56 158 56 156 Z"
+                                  fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            ${isMini ? "" : `
+                            <!-- Dorsal tendons & fingernails on bottom hand -->
+                            <path d="M 76 114 L 74 144 M 92 112 L 91 146 M 108 114 L 107 144" stroke="#64748b" stroke-width="2.4" stroke-linecap="round"/>
+                            `}
+                        </g>
+                        <!-- Top Hand (Palm stacked over dorsum with fingers interlaced between bottom fingers) -->
+                        <g class="${isMini ? "" : "anim-vertical"}">
+                            <g transform="translate(-4, -2)">
+                                <path class="active-hand-fill" d="M 62 150 L 58 80 C 57 71 68 70 70 79 L 75 106 L 83 58 C 84 49 96 49 96 58 L 97 104 L 106 54 C 107 45 119 45 119 54 L 116 104 L 126 64 C 128 55 139 57 136 66 L 126 122 L 146 104 C 154 96 163 105 154 116 L 128 150 C 122 156 110 158 94 158 L 72 158 C 65 158 62 154 62 150 Z"
+                                      fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            </g>
+                            ${isMini ? "" : `
+                            <!-- Up / Down Double-Headed Motion Arrow -->
+                            <g transform="translate(164, 0)">
+                                <line class="motion-arrow" x1="0" y1="68" x2="0" y2="132" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                                <polygon class="motion-arrow" points="0,56 -8,72 8,72" fill="#ffffff"/>
+                                <polygon class="motion-arrow" points="0,144 -8,128 8,128" fill="#ffffff"/>
+                            </g>
+                            `}
+                        </g>
+                    </svg>`;
+
+                // --------------------------------------------------------------------
+                // SEGMENT 3 (WHO Step 4): Two open palms facing each other with crossed/interlocked fingers
+                // --------------------------------------------------------------------
+                case "interlaced":
+                    return `
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                        <!-- Left Facing Open Palm with Spread Fingers -->
+                        <g transform="translate(-8, 4) rotate(22 85 115)">
+                            <path d="M 52 154 L 46 72 C 45 63 56 62 58 71 L 66 104 L 72 52 C 73 43 85 43 85 52 L 88 100 L 96 48 C 97 39 109 39 109 48 L 108 102 L 118 60 C 120 51 131 53 129 62 L 120 116 L 140 98 C 148 90 157 99 148 110 L 122 148 C 116 156 104 160 88 160 L 64 160 Z"
+                                  fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                        </g>
+                        <!-- Right Facing Open Palm Interlocking Fingers with Left Hand -->
+                        <g class="${isMini ? "" : "anim-vertical"}">
+                            <g transform="translate(208, 4) scale(-1, 1) rotate(22 85 115)">
+                                <path class="active-hand-fill" d="M 52 154 L 46 72 C 45 63 56 62 58 71 L 66 104 L 72 52 C 73 43 85 43 85 52 L 88 100 L 96 48 C 97 39 109 39 109 48 L 108 102 L 118 60 C 120 51 131 53 129 62 L 120 116 L 140 98 C 148 90 157 99 148 110 L 122 148 C 116 156 104 160 88 160 L 64 160 Z"
+                                      fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            </g>
+                            ${isMini ? "" : `
+                            <!-- Interlaced Friction Arrows -->
+                            <g transform="translate(100, 0)">
+                                <line class="motion-arrow" x1="-38" y1="42" x2="-16" y2="22" stroke="#ffffff" stroke-width="3.8" stroke-linecap="round"/>
+                                <polygon class="motion-arrow" points="-10,16 -24,20 -15,30" fill="#ffffff"/>
+                                <line class="motion-arrow" x1="38" y1="42" x2="16" y2="22" stroke="#ffffff" stroke-width="3.8" stroke-linecap="round"/>
+                                <polygon class="motion-arrow" points="10,16 24,20 15,30" fill="#ffffff"/>
+                            </g>
+                            `}
+                        </g>
+                    </svg>`;
+
+                // --------------------------------------------------------------------
+                // SEGMENT 4 (WHO Step 5): Backs of fingers to opposing palms (interlocked curled hands + horizontal arrow)
+                // --------------------------------------------------------------------
+                case "knuckles":
+                    return `
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                        <!-- Left Hand Wrist + Cupped Palm & Curled Fingers Facing Right -->
+                        <path d="M 18 118 L 46 112 C 52 84 68 68 94 68 L 114 68 C 126 68 132 76 132 86 C 132 95 124 101 112 101 L 88 101 C 88 108 98 114 114 114 C 124 114 130 120 128 128 C 126 136 116 140 100 140 L 60 142 L 22 146 Z"
+                              fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                        <!-- Right Hand Wrist + Interlocked Curled Fingers Facing Left -->
+                        <g class="${isMini ? "" : "anim-horizontal"}">
+                            <path class="active-hand-fill" d="M 182 82 L 154 88 C 148 116 132 132 106 132 L 86 132 C 74 132 68 124 68 114 C 68 105 76 99 88 99 L 112 99 C 112 92 102 86 86 86 C 76 86 70 80 72 72 C 74 64 84 60 100 60 L 140 58 L 178 54 Z"
+                                  fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            <!-- Interlocked KnuckleRidges -->
+                            <path d="M 82 84 H 118 M 80 98 H 120 M 82 112 H 118" stroke="#e2e8f0" stroke-width="${isMini ? "3.5" : "3"}" stroke-linecap="round"/>
+                            ${isMini ? "" : `
+                            <!-- Horizontal Oscillating Double-Headed Arrow -->
+                            <g transform="translate(0, 164)">
+                                <line class="motion-arrow" x1="62" y1="0" x2="138" y2="0" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                                <polygon class="motion-arrow" points="50,0 66,-8 66,8" fill="#ffffff"/>
+                                <polygon class="motion-arrow" points="150,0 134,-8 134,8" fill="#ffffff"/>
+                            </g>
+                            `}
+                        </g>
+                    </svg>`;
+
+                // --------------------------------------------------------------------
+                // SEGMENT 5 (WHO Step 6): Rotational thumb rub (Open hand with extended thumb + clasping hand + rotational arrow)
+                // --------------------------------------------------------------------
+                case "thumbs":
+                    return `
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                        <!-- Base Hand with Upright Extended Thumb Being Washed -->
+                        <path d="M 108 164 L 146 154 C 158 148 166 134 166 116 L 166 64 C 166 56 156 56 156 64 L 154 94 L 150 56 C 150 48 140 48 140 56 L 138 92 L 134 60 C 134 52 124 52 124 60 L 122 98 L 110 108 L 88 50 C 83 38 66 42 70 56 L 88 122 C 92 140 98 154 108 164 Z"
+                              fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                        <!-- Opposing Hand Clasping & Rotating Around the Isolated Thumb -->
+                        <g class="${isMini ? "" : "anim-twist"}">
+                            <path class="active-hand-fill" d="M 32 134 L 56 96 C 62 86 74 82 88 84 L 110 88 C 120 90 124 98 120 106 C 118 112 122 120 114 126 C 110 132 102 138 90 138 L 64 138 L 42 154 Z"
+                                  fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            <!-- Wrapped Finger Segments Around Thumb -->
+                            <path d="M 70 96 L 108 98 M 68 110 L 110 112 M 70 124 L 104 125" stroke="#a7f3d0" stroke-width="2.6" stroke-linecap="round"/>
+                            ${isMini ? "" : `
+                            <!-- Rotational Arrow Wrapping Around Thumb Axis -->
+                            <path class="motion-arrow" d="M 52 68 A 34 18 0 1 1 108 62" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                            <polygon class="motion-arrow" points="112,56 108,71 96,61" fill="#ffffff"/>
+                            `}
+                        </g>
+                    </svg>`;
+
+                // --------------------------------------------------------------------
+                // SEGMENT 6 (WHO Step 7): Rotational fingertip scrub in opposing open palm
+                // --------------------------------------------------------------------
+                case "fingertips":
+                    return `
+                    <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
+                        <!-- Bottom Open Flat Upturned Anatomical Palm -->
+                        <g transform="translate(4, 16)">
+                            <path d="M 48 148 L 42 84 C 41 75 52 74 54 83 L 60 110 L 66 64 C 67 55 79 55 79 64 L 82 106 L 90 58 C 91 49 103 49 103 58 L 103 106 L 112 68 C 114 59 125 61 123 70 L 116 118 L 138 102 C 146 95 156 104 146 115 L 120 148 C 112 156 98 160 82 160 L 60 160 C 52 160 48 154 48 148 Z"
+                                  fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            <!-- Open Palm Target Zone -->
+                            <ellipse cx="90" cy="128" rx="28" ry="18" fill="#0f172a" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3"/>
+                        </g>
+                        <!-- Top Hand Clustered Fingertips Scrubbing in Palm -->
+                        <g class="${isMini ? "" : "anim-circular"}">
+                            <path class="active-hand-fill" d="M 78 24 L 68 72 C 66 86 72 118 78 134 C 82 142 88 142 90 136 C 92 144 98 144 102 136 C 106 142 112 140 114 132 C 120 116 126 86 122 72 L 112 24 Z"
+                                  fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            <!-- Clustered Fingertip Pads Contacting Palm -->
+                            <circle cx="82" cy="134" r="5" fill="#ffffff"/>
+                            <circle cx="94" cy="138" r="5" fill="#ffffff"/>
+                            <circle cx="106" cy="134" r="5" fill="#ffffff"/>
+                            ${isMini ? "" : `
+                            <!-- Circular Scrubbing Arrow Inside Palm -->
+                            <path class="motion-arrow" d="M 64 142 A 32 16 0 1 0 124 142" fill="none" stroke="#ffffff" stroke-width="3.8" stroke-linecap="round"/>
+                            <polygon class="motion-arrow" points="126,136 126,151 113,143" fill="#ffffff"/>
+                            `}
+                        </g>
+                    </svg>`;
+            }
+        }
+
+        // ============================================================================
+        // 3. MOTION-GATED TIMER & PAUSE ENGINE (300ms Micro-Pause Buffer)
+        // ============================================================================
+        const MOTION_DEBOUNCE_MS = 300;   // Spec: 300ms smoothing window for direction reversals
+        const OCCLUSION_GRACE_MS = 650;   // Floor calibration: brief 1-hand occlusion grace when hands overlap tightly
+        const COMPLETE_HOLD_MS = 3000;    // Spec: Hold COMPLETE screen for 3 seconds then auto-loop to START
+
+        let appState = "START";           // "START" | "WASHING" | "COMPLETE"
+        let currentStepIndex = 0;
+        let stepRemainingMs = 8000;
+        let stepDurationMs = 8000;
+
+        // Motion & Pose Tracking State
+        let lastValidScrubTime = 0;
+        let lastTwoHandsTime = 0;
+        let isScrubbingActive = false;    // RUNNING (true) vs PAUSED (false)
+        let handsInFrameCount = 0;
+        let isPoseValid = false;
+        let currentVelocity = 0;
+
+        // MediaPipe & Camera State
+        let handsDetector = null;
+        let webcamRunning = false;
+        let cameraHasSeenRealHand = false;
+        let prevHandLandmarks = [null, null];
+        let rafId = null;
+        let lastFrameTime = performance.now();
+        let completeTimeoutId = null;
+
+        // Key Wrist & MCP (Knuckle) + Fingertip Landmarks for Euclidean Velocity Calculation
+        const VELOCITY_LANDMARKS = [0, 5, 9, 13, 17, 4, 8, 12];
+
+        // ============================================================================
+        // 4. INITIALIZATION
+        // ============================================================================
+        window.addEventListener("DOMContentLoaded", () => {
+            renderProgressSegments();
+            setupFallbackScrubListeners();
+            initMediaPipeHands();
+            startFallbackPiPCanvas();
+        });
+
+        function renderProgressSegments() {
+            const container = document.getElementById("progress-segments");
+            container.innerHTML = "";
+
+            WHO_STEPS.forEach((step, idx) => {
+                const seg = document.createElement("div");
+                seg.id = `segment-${idx}`;
+                seg.className = "relative rounded-xl border-2 border-slate-700 bg-slate-900/80 overflow-hidden flex items-center justify-center transition-colors duration-200";
+                seg.innerHTML = `
+                    <!-- Continuous Left-to-Right Progress Fill -->
+                    <div id="segment-fill-${idx}" class="absolute inset-y-0 left-0 bg-emerald-500/85 w-0"></div>
+                    <!-- Static Mini Anatomical Hand Icon -->
+                    <div class="relative z-10 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 pointer-events-none">
+                        ${getGestureSVG(step.svgType, true)}
+                    </div>
+                `;
+                container.appendChild(seg);
+            });
+        }
+
+        // ============================================================================
+        // 5. SCREEN TRANSITIONS: START -> WASH -> COMPLETE -> START
+        // ============================================================================
+        async function startWash() {
+            if (completeTimeoutId) {
+                clearTimeout(completeTimeoutId);
+                completeTimeoutId = null;
+            }
+
+            // Lock to landscape orientation when supported by browser/PWA
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock("landscape").catch(() => {});
+            }
+
+            document.getElementById("start-screen").classList.add("hidden");
+            document.getElementById("complete-screen").classList.add("hidden");
+            document.getElementById("wash-screen").classList.remove("hidden");
+
+            appState = "WASHING";
+            prevHandLandmarks = [null, null];
+            lastValidScrubTime = 0;
+            isScrubbingActive = false;
+
+            loadStep(0);
+            updateVisualRunState(false);
+
+            await startWebcam();
+
+            lastFrameTime = performance.now();
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(washTimerLoop);
+        }
+
+        function loadStep(index) {
+            if (index >= WHO_STEPS.length) {
+                completeWashSession();
+                return;
+            }
+
+            currentStepIndex = index;
+            const step = WHO_STEPS[index];
+            stepDurationMs = step.duration * 1000;
+            stepRemainingMs = stepDurationMs;
+
+            document.getElementById("gesture-illustration").innerHTML = getGestureSVG(step.svgType, false);
+            document.getElementById("gesture-caption").innerText = step.label;
+
+            syncTimerAndBarDOM();
+        }
+
+        function washTimerLoop(now) {
+            if (appState !== "WASHING") return;
+
+            const dtMs = Math.min(100, Math.max(0, now - lastFrameTime));
+            lastFrameTime = now;
+
+            // Check if valid scrubbing occurred within the 300ms micro-pause debounce buffer
+            const runningNow = (now - lastValidScrubTime) <= MOTION_DEBOUNCE_MS;
+
+            if (runningNow !== isScrubbingActive) {
+                isScrubbingActive = runningNow;
+                updateVisualRunState(isScrubbingActive);
+            }
+
+            // Motion-Gated Progression: Advance timer ONLY when in RUNNING state
+            if (isScrubbingActive) {
+                stepRemainingMs = Math.max(0, stepRemainingMs - dtMs);
+                syncTimerAndBarDOM();
+
+                if (stepRemainingMs <= 0) {
+                    loadStep(currentStepIndex + 1);
+                }
+            }
+
+            if (appState === "WASHING") {
+                rafId = requestAnimationFrame(washTimerLoop);
+            }
+        }
+
+        function updateVisualRunState(running) {
+            const timerCircle = document.getElementById("timer-circle");
+            const cameraBox = document.getElementById("camera-box");
+            const centerStage = document.getElementById("center-stage");
+
+            if (running) {
+                // RUNNING STATE: Green glowing border on Timer & PiP, active central animation
+                timerCircle.className = "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-emerald-400 bg-slate-900/90 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-colors duration-150";
+                cameraBox.className = "relative w-40 h-26 sm:w-52 sm:h-34 md:w-60 md:h-40 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.28)] transition-colors duration-150 flex items-center justify-center";
+                centerStage.classList.remove("motion-paused");
+            } else {
+                // PAUSED STATE: Freeze timer & progress bar at exact ms, pause/pulse amber central hand icon, amber/red PiP border
+                const pipBorderClass = handsInFrameCount === 0
+                    ? "border-rose-500 shadow-[0_0_30px_rgba(244,63,94,0.3)]"
+                    : "border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.3)]";
+
+                timerCircle.className = "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-amber-400 bg-amber-950/35 flex items-center justify-center shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-colors duration-150";
+                cameraBox.className = `relative w-40 h-26 sm:w-52 sm:h-34 md:w-60 md:h-40 rounded-2xl border-4 ${pipBorderClass} bg-slate-900 overflow-hidden transition-colors duration-150 flex items-center justify-center`;
+                centerStage.classList.add("motion-paused");
+            }
+        }
+
+        function syncTimerAndBarDOM() {
+            // Top-left circular integer countdown
+            const displaySec = Math.max(1, Math.ceil(stepRemainingMs / 1000));
+            document.getElementById("timer-number").innerText = displaySec;
+
+            // Exact millisecond progress percentage for active bottom segment
+            const progressPct = Math.min(100, Math.max(0, ((stepDurationMs - stepRemainingMs) / stepDurationMs) * 100));
+
+            WHO_STEPS.forEach((_, idx) => {
+                const seg = document.getElementById(`segment-${idx}`);
+                const fill = document.getElementById(`segment-fill-${idx}`);
+
+                if (idx < currentStepIndex) {
+                    // Completed block: solid filled
+                    fill.style.width = "100%";
+                    fill.className = "absolute inset-y-0 left-0 bg-emerald-500";
+                    seg.className = "relative rounded-xl border-2 border-emerald-400 bg-emerald-950/60 overflow-hidden flex items-center justify-center opacity-100";
+                } else if (idx === currentStepIndex) {
+                    // Active block: fills continuously left to right in sync with active timer
+                    fill.style.width = `${progressPct.toFixed(2)}%`;
+                    fill.className = "absolute inset-y-0 left-0 bg-emerald-500/85";
+                    seg.className = "relative rounded-xl border-2 border-white bg-slate-900 overflow-hidden flex items-center justify-center scale-[1.03] shadow-[0_0_18px_rgba(16,185,129,0.28)]";
+                } else {
+                    // Upcoming block: remains outlined
+                    fill.style.width = "0%";
+                    fill.className = "absolute inset-y-0 left-0 bg-emerald-500/85";
+                    seg.className = "relative rounded-xl border-2 border-slate-700 bg-slate-900/50 overflow-hidden flex items-center justify-center opacity-55";
+                }
+            });
+        }
+
+        function completeWashSession() {
+            appState = "COMPLETE";
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+
+            // Log background compliance timestamp for QC records
+            logComplianceRecord();
+
+            document.getElementById("wash-screen").classList.add("hidden");
+            document.getElementById("complete-screen").classList.remove("hidden");
+
+            // Hold for 3 seconds (3000ms), then automatically loop back to START screen
+            completeTimeoutId = setTimeout(() => {
+                resetToStart();
+            }, COMPLETE_HOLD_MS);
+        }
+
+        function resetToStart(event) {
+            if (event) event.stopPropagation();
+
+            appState = "START";
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+            if (completeTimeoutId) {
+                clearTimeout(completeTimeoutId);
+                completeTimeoutId = null;
+            }
+
+            currentStepIndex = 0;
+            stepRemainingMs = WHO_STEPS[0].duration * 1000;
+            lastValidScrubTime = 0;
+            isScrubbingActive = false;
+
+            document.getElementById("wash-screen").classList.add("hidden");
+            document.getElementById("complete-screen").classList.add("hidden");
+            document.getElementById("start-screen").classList.remove("hidden");
+        }
+
+        function logComplianceRecord() {
+            try {
+                const timestamp = new Date().toISOString();
+                const record = {
+                    completedAt: timestamp,
+                    totalDurationSec: WHO_STEPS.reduce((acc, s) => acc + s.duration, 0),
+                    stepsCompleted: WHO_STEPS.length
+                };
+                const existing = JSON.parse(localStorage.getItem("handwash_qc_logs") || "[]");
+                existing.push(record);
+                localStorage.setItem("handwash_qc_logs", JSON.stringify(existing.slice(-200)));
+                window.dispatchEvent(new CustomEvent("handwash:complete", { detail: record }));
+                console.info("[QC Compliance Logged]", record);
+            } catch (e) {}
+        }
+
+        // ============================================================================
+        // 6. MEDIAPIPE HANDS AI TRACKING, EUCLIDEAN VELOCITY & POSE VALIDATION
+        // ============================================================================
+        function recordValidScrubFrame() {
+            lastValidScrubTime = performance.now();
+        }
+
+        function initMediaPipeHands() {
+            try {
+                if (typeof Hands === "undefined") return;
+                handsDetector = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                });
+                // Floor calibration: tuned confidence for wash-station lighting & wet-skin glare
+                handsDetector.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.45,
+                    minTrackingConfidence: 0.45
+                });
+                handsDetector.onResults(onMediaPipeResults);
+            } catch (err) {
+                console.warn("MediaPipe initialization error:", err);
+            }
+        }
+
+        async function startWebcam() {
+            if (webcamRunning) return;
+            const video = document.getElementById("webcam-video");
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "user",
+                        width: { ideal: 320 },
+                        height: { ideal: 240 },
+                        frameRate: { ideal: 30 }
+                    },
+                    audio: false
+                });
+                video.srcObject = stream;
+                await video.play();
+                webcamRunning = true;
+                requestAnimationFrame(pumpCameraFrame);
+            } catch (err) {
+                webcamRunning = false;
+            }
+        }
+
+        async function pumpCameraFrame() {
+            if (!webcamRunning) return;
+            const video = document.getElementById("webcam-video");
+            if (appState === "WASHING" && handsDetector && video.readyState >= 2) {
+                try {
+                    await handsDetector.send({ image: video });
+                } catch (e) {}
+            }
+            requestAnimationFrame(pumpCameraFrame);
+        }
+
+        function computePalmCenter(hand) {
+            const indices = [0, 5, 9, 13, 17];
+            let sx = 0, sy = 0;
+            for (const i of indices) {
+                sx += hand[i].x;
+                sy += hand[i].y;
+            }
+            return { x: sx / indices.length, y: sy / indices.length };
+        }
+
+        function validateTwoHandPose(stepId, hands, now) {
+            if (!hands || hands.length === 0) return false;
+
+            if (hands.length >= 2) {
+                lastTwoHandsTime = now;
+                const c1 = computePalmCenter(hands[0]);
+                const c2 = computePalmCenter(hands[1]);
+                const palmDist = Math.hypot(c1.x - c2.x, c1.y - c2.y);
+
+                // Ensure the two hands are engaged in washing proximity (overlapping or interacting)
+                return palmDist < 0.52;
+            }
+
+            // Floor Calibration: When two hands tightly overlap (e.g., palm-to-palm or dorsum),
+            // MediaPipe may briefly merge them into 1 skeleton. Allow an occlusion grace window
+            // or central wash-zone overlap so wet-hand glare/occlusion doesn't cause false pauses.
+            if (hands.length === 1) {
+                const c1 = computePalmCenter(hands[0]);
+                const inCentralWashZone = c1.x > 0.20 && c1.x < 0.80 && c1.y > 0.15 && c1.y < 0.88;
+                const recentlyHadTwoHands = (now - lastTwoHandsTime) <= OCCLUSION_GRACE_MS;
+                return inCentralWashZone && (recentlyHadTwoHands || currentVelocity > 0.022);
+            }
+
+            return false;
+        }
+
+        function calculateEuclideanVelocity(hands) {
+            let totalVelocity = 0;
+            let handComparisons = 0;
+
+            for (let h = 0; h < hands.length; h++) {
+                const hand = hands[h];
+                const prev = prevHandLandmarks[h];
+                if (prev) {
+                    let sumDelta = 0;
+                    for (const idx of VELOCITY_LANDMARKS) {
+                        const dx = hand[idx].x - prev[idx].x;
+                        const dy = hand[idx].y - prev[idx].y;
+                        // Euclidean distance: \Delta d = \sqrt{(x_t - x_{t-1})^2 + (y_t - y_{t-1})^2}
+                        sumDelta += Math.sqrt(dx * dx + dy * dy);
+                    }
+                    totalVelocity += sumDelta / VELOCITY_LANDMARKS.length;
+                    handComparisons++;
+                }
+            }
+
+            // Store current landmarks for next frame comparison
+            prevHandLandmarks = [
+                hands[0] ? hands[0].map(p => ({ x: p.x, y: p.y })) : null,
+                hands[1] ? hands[1].map(p => ({ x: p.x, y: p.y })) : null
+            ];
+
+            return handComparisons > 0 ? totalVelocity / handComparisons : 0;
+        }
+
+        function onMediaPipeResults(results) {
+            const canvas = document.getElementById("output-canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = 320;
+            canvas.height = 240;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const hands = results.multiHandLandmarks || [];
+            handsInFrameCount = hands.length;
+
+            if (hands.length > 0) {
+                cameraHasSeenRealHand = true;
+                const now = performance.now();
+                const step = WHO_STEPS[currentStepIndex] || WHO_STEPS[0];
+
+                currentVelocity = calculateEuclideanVelocity(hands);
+                isPoseValid = validateTwoHandPose(step.id, hands, now);
+
+                const validScrub = isPoseValid && (currentVelocity >= step.velocityThreshold);
+                if (validScrub) {
+                    recordValidScrubFrame();
+                }
+
+                // Draw real-time skeleton in PiP
+                const wireColor = (isScrubbingActive || validScrub) ? "#34d399" : "#fbbf24";
+                for (const landmarks of hands) {
+                    if (typeof drawConnectors !== "undefined") {
+                        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: wireColor, lineWidth: 3 });
+                        drawLandmarks(ctx, landmarks, { color: "#ffffff", lineWidth: 1, radius: 2.2 });
+                    }
+                }
+            } else {
+                isPoseValid = false;
+                currentVelocity = 0;
+                prevHandLandmarks = [null, null];
+                if (appState === "WASHING" && !isScrubbingActive) {
+                    updateVisualRunState(false);
+                }
+            }
+        }
+
+        // ============================================================================
+        // 7. DESKTOP / NO-CAMERA SCRUB FALLBACK (Pointer / Touch / Spacebar Scrubbing)
+        // ============================================================================
+        let lastPointerPos = null;
+
+        function setupFallbackScrubListeners() {
+            // Allows testing the motion-gated timer on devices without a webcam by scrubbing mouse/touch
+            window.addEventListener("pointermove", (e) => {
+                if (appState !== "WASHING") return;
+                if (webcamRunning && cameraHasSeenRealHand) return;
+
+                if (lastPointerPos) {
+                    const dist = Math.hypot(e.clientX - lastPointerPos.x, e.clientY - lastPointerPos.y);
+                    if (dist > 6) {
+                        handsInFrameCount = 2;
+                        recordValidScrubFrame();
+                    }
+                }
+                lastPointerPos = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener("keydown", (e) => {
+                if (appState === "WASHING" && e.code === "Space") {
+                    e.preventDefault();
+                    handsInFrameCount = 2;
+                    recordValidScrubFrame();
+                } else if (appState === "WASHING" && e.code === "Escape") {
+                    resetToStart(e);
+                }
+            });
+        }
+
+        function startFallbackPiPCanvas() {
+            const canvas = document.getElementById("sim-canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = 240;
+            canvas.height = 160;
+
+            function renderPiPFallback(now) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (appState === "WASHING" && !webcamRunning) {
+                    const t = isScrubbingActive ? now * 0.009 : 0;
+                    const dx = isScrubbingActive ? Math.sin(t) * 14 : 0;
+                    const dy = isScrubbingActive ? Math.cos(t * 1.3) * 8 : 0;
+                    const color = isScrubbingActive ? "#34d399" : "#fbbf24";
+
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2.5;
+                    ctx.lineCap = "round";
+
+                    drawPiPHandOutline(ctx, 104 + dx, 96 + dy, 1);
+                    drawPiPHandOutline(ctx, 136 - dx, 96 - dy, -1);
+                }
+                requestAnimationFrame(renderPiPFallback);
+            }
+            requestAnimationFrame(renderPiPFallback);
+        }
+
+        function drawPiPHandOutline(ctx, cx, cy, dir) {
+            ctx.beginPath();
+            ctx.roundRect(cx - 16, cy - 10, 32, 34, 10);
+            ctx.stroke();
+            const fingers = [-12, -4, 4, 12];
+            fingers.forEach((fx, i) => {
+                const len = (i === 1 || i === 2) ? 26 : 20;
+                ctx.beginPath();
+                ctx.moveTo(cx + fx, cy - 10);
+                ctx.lineTo(cx + fx, cy - 10 - len);
+                ctx.stroke();
+            });
+            ctx.beginPath();
+            ctx.moveTo(cx - 16 * dir, cy + 4);
+            ctx.lineTo(cx - 28 * dir, cy - 8);
+            ctx.stroke();
+        }
+    </script>
+</body>
+</html>
