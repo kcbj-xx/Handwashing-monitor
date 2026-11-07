@@ -32,12 +32,34 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        :root {
+            /* Generous top clearance so phone hole-punch / Dynamic Island / status bar cutouts never cover text */
+            --hole-punch-top: max(env(safe-area-inset-top, 0px), 2.5rem);
+            --hole-punch-left: max(env(safe-area-inset-left, 0px), 0.85rem);
+            --hole-punch-right: max(env(safe-area-inset-right, 0px), 0.85rem);
+        }
+
+        @media screen and (orientation: landscape) {
+            :root {
+                --hole-punch-top: max(env(safe-area-inset-top, 0px), 1.35rem);
+                --hole-punch-left: max(env(safe-area-inset-left, 0px), 1.75rem);
+                --hole-punch-right: max(env(safe-area-inset-right, 0px), 1.75rem);
+            }
+        }
+
+        @media screen and (min-width: 1024px) {
+            :root {
+                --hole-punch-top: max(env(safe-area-inset-top, 0px), 1.5rem);
+            }
+        }
+
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
+            overscroll-behavior-y: contain;
             background-color: #090d16;
             color: #f8fafc;
             font-family: 'Inter', 'Noto Sans SC', 'Noto Sans Devanagari', sans-serif;
@@ -54,31 +76,38 @@
             height: 100dvh;
             overflow: hidden;
             background-color: #090d16;
-            padding-top: env(safe-area-inset-top, 0px);
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-            padding-left: env(safe-area-inset-left, 0px);
-            padding-right: env(safe-area-inset-right, 0px);
         }
 
-        /* Top row floats in corners so #center-stage is always strictly centered */
+        /* Apply top hole-punch margin/padding directly to all full-screen sections */
+        #start-screen,
+        #calibration-screen,
+        #wash-screen,
+        #complete-screen {
+            padding-top: calc(var(--hole-punch-top) + 0.5rem) !important;
+            padding-left: var(--hole-punch-left) !important;
+            padding-right: var(--hole-punch-right) !important;
+            padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.85rem) !important;
+        }
+
+        /* Top row floats in corners below the hole-punch area so #center-stage is always strictly centered */
         #wash-top-row {
             position: absolute;
-            top: 0.85rem;
-            left: 0.85rem;
-            right: 0.85rem;
+            top: calc(var(--hole-punch-top) + 0.5rem);
+            left: var(--hole-punch-left);
+            right: var(--hole-punch-right);
             width: auto;
             pointer-events: none;
         }
         @media screen and (min-width: 640px) {
             #wash-top-row {
-                top: 1.25rem;
-                left: 1.25rem;
-                right: 1.25rem;
+                top: calc(var(--hole-punch-top) + 0.75rem);
+                left: max(env(safe-area-inset-left, 0px), 1.25rem);
+                right: max(env(safe-area-inset-right, 0px), 1.25rem);
             }
         }
         @media screen and (min-width: 1024px) {
             #wash-top-row {
-                top: 2rem;
+                top: calc(var(--hole-punch-top) + 1rem);
                 left: 2rem;
                 right: 2rem;
             }
@@ -87,16 +116,17 @@
             pointer-events: auto;
         }
 
-        /* Portrait layout: keep #center-stage horizontally centered with symmetric top clearance */
+        /* Portrait layout: keep #center-stage horizontally centered with generous top clearance below hole punch & top row */
         @media screen and (orientation: portrait) {
             #center-stage {
-                padding-top: 5.5rem;
+                padding-top: 6.25rem;
             }
         }
 
         /* Landscape layout & compact height rules for phones in horizontal orientation */
         @media screen and (orientation: landscape) {
             #center-stage {
+                padding-top: 0.75rem;
                 padding-left: 1rem;
                 padding-right: 1rem;
                 padding-bottom: 0.5rem;
@@ -156,7 +186,10 @@
             }
             /* Prevent vertical overflow & shaking in Calibration Menu on horizontal phones */
             #calibration-screen {
-                padding: 0.6rem 1rem !important;
+                padding-top: calc(var(--hole-punch-top) + 0.35rem) !important;
+                padding-bottom: 0.5rem !important;
+                padding-left: var(--hole-punch-left) !important;
+                padding-right: var(--hole-punch-right) !important;
                 overflow: hidden !important;
             }
             #cal-header {
@@ -278,6 +311,17 @@
 </head>
 <body>
     <div id="app-viewport">
+        <!-- Pull-to-Refresh (Scroll-to-Refresh) Indicator -->
+        <div
+            id="pull-refresh-indicator"
+            class="fixed left-1/2 -translate-x-1/2 z-50 pointer-events-none flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/95 border-2 border-emerald-400 text-emerald-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider shadow-[0_8px_28px_rgba(0,0,0,0.75)] opacity-0 transition-opacity duration-150"
+            style="top: var(--hole-punch-top); transform: translate(-50%, -120%);"
+        >
+            <svg id="pull-refresh-icon" class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 transition-transform duration-150" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5.5 9A7 7 0 0118 7.5L19 9M18.5 15A7 7 0 016 16.5L5 15"/>
+            </svg>
+            <span id="pull-refresh-text">Pull down to refresh</span>
+        </div>
 
         <!-- ========================================================= -->
         <!-- SCREEN 1: START MENU                                      -->
@@ -1088,10 +1132,117 @@
             renderCalibrationUI();
             setupFallbackScrubListeners();
             initCameraBoxResize();
+            initPullToRefresh();
             initPWAInstallAndServiceWorker();
             initMediaPipeHands();
             startFallbackPiPCanvas();
         });
+
+        function initPullToRefresh() {
+            const indicator = document.getElementById("pull-refresh-indicator");
+            const icon = document.getElementById("pull-refresh-icon");
+            const text = document.getElementById("pull-refresh-text");
+            if (!indicator || !icon || !text) return;
+
+            const PULL_THRESHOLD = 85;
+            const MAX_PULL = 140;
+            let startY = 0;
+            let startX = 0;
+            let currentPull = 0;
+            let pulling = false;
+            let refreshing = false;
+
+            window.addEventListener("touchstart", (e) => {
+                if (refreshing || !e.touches || e.touches.length !== 1) return;
+
+                const target = e.target;
+                if (
+                    target &&
+                    (target.closest("#camera-resize-handle") ||
+                     target.closest("input[type='range']"))
+                ) {
+                    return;
+                }
+
+                // If calibration screen is open and scrolled down, only start pull-to-refresh when at scrollTop === 0
+                const calScreen = document.getElementById("calibration-screen");
+                if (calScreen && !calScreen.classList.contains("hidden") && calScreen.scrollTop > 2) {
+                    return;
+                }
+
+                startY = e.touches[0].clientY;
+                startX = e.touches[0].clientX;
+                currentPull = 0;
+                pulling = true;
+            }, { passive: true });
+
+            window.addEventListener("touchmove", (e) => {
+                if (!pulling || refreshing || !e.touches || e.touches.length !== 1) return;
+
+                const dy = e.touches[0].clientY - startY;
+                const dx = Math.abs(e.touches[0].clientX - startX);
+
+                // Ignore upward swipes or primarily horizontal drags
+                if (dy <= 10 || (dx > dy && currentPull === 0)) {
+                    if (currentPull > 0) {
+                        indicator.style.opacity = "0";
+                        indicator.style.transform = "translate(-50%, -120%)";
+                        currentPull = 0;
+                    }
+                    return;
+                }
+
+                currentPull = Math.min(MAX_PULL, (dy - 10) * 0.65);
+                const progress = Math.min(1, currentPull / PULL_THRESHOLD);
+                const translateY = Math.round(currentPull - 42);
+                const deg = Math.round(progress * 220);
+
+                indicator.style.opacity = String(Math.min(1, progress * 1.25));
+                indicator.style.transform = `translate(-50%, ${translateY}px)`;
+                icon.style.transform = `rotate(${deg}deg)`;
+
+                if (currentPull >= PULL_THRESHOLD) {
+                    text.innerText = "Release to refresh";
+                } else {
+                    text.innerText = "Pull down to refresh";
+                }
+            }, { passive: true });
+
+            const endPull = async () => {
+                if (!pulling || refreshing) return;
+                pulling = false;
+
+                if (currentPull >= PULL_THRESHOLD) {
+                    refreshing = true;
+                    indicator.style.opacity = "1";
+                    indicator.style.transform = "translate(-50%, 10px)";
+                    icon.classList.add("animate-spin");
+                    text.innerText = "Refreshing...";
+
+                    try {
+                        if ("serviceWorker" in navigator) {
+                            const regs = await navigator.serviceWorker.getRegistrations();
+                            await Promise.all(regs.map((r) => r.update().catch(() => {})));
+                        }
+                        if ("caches" in window) {
+                            const keys = await caches.keys();
+                            await Promise.all(keys.map((k) => caches.delete(k).catch(() => {})));
+                        }
+                    } catch (_) {}
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 180);
+                } else {
+                    indicator.style.opacity = "0";
+                    indicator.style.transform = "translate(-50%, -120%)";
+                    currentPull = 0;
+                }
+            };
+
+            window.addEventListener("touchend", endPull, { passive: true });
+            window.addEventListener("touchcancel", endPull, { passive: true });
+        }
 
         function initCameraBoxResize() {
             const cameraBox = document.getElementById("camera-box");
