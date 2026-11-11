@@ -222,40 +222,40 @@
                 padding-bottom: 0.5rem !important;
                 padding-left: var(--hole-punch-left) !important;
                 padding-right: var(--hole-punch-right) !important;
-                overflow: hidden !important;
+                overflow-y: auto !important;
             }
             #cal-header {
-                padding-bottom: 0.35rem !important;
-                margin-bottom: 0.35rem !important;
+                padding-bottom: 0.3rem !important;
+                margin-bottom: 0.3rem !important;
             }
             #cal-header p {
                 display: none !important;
             }
             #cal-camera-frame {
-                max-height: 9.25rem !important;
+                max-height: 9rem !important;
             }
             #cal-vel-card {
-                margin-top: 0.4rem !important;
-                padding: 0.45rem 0.65rem !important;
+                margin-top: 0.35rem !important;
+                padding: 0.4rem 0.6rem !important;
             }
             #cal-right-col {
-                gap: 0.5rem !important;
+                gap: 0.35rem !important;
             }
             .cal-setting-card {
-                padding: 0.55rem 0.75rem !important;
+                padding: 0.4rem 0.65rem !important;
             }
             .cal-setting-desc {
                 display: none !important;
             }
             .cal-lvl-grid {
                 grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-                margin-top: 0.35rem !important;
-                gap: 0.35rem !important;
+                margin-top: 0.25rem !important;
+                gap: 0.3rem !important;
             }
             .cal-lvl-grid button {
-                padding-top: 0.3rem !important;
-                padding-bottom: 0.3rem !important;
-                font-size: 0.72rem !important;
+                padding-top: 0.22rem !important;
+                padding-bottom: 0.22rem !important;
+                font-size: 0.7rem !important;
             }
         }
 
@@ -462,10 +462,10 @@
                 <div>
                     <h2 class="text-lg sm:text-xl md:text-2xl font-black tracking-wide text-white uppercase flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block shrink-0"></span>
-                        Contact &amp; Motion Calibration
+                        Contact, Motion &amp; Finger Verification Calibration
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-400 font-medium">
-                        Tune hand-to-hand contact detection tolerance and scrubbing velocity threshold.
+                        Tune hand contact tolerance, scrubbing velocity threshold, and finger-closing verification tolerance.
                     </p>
                 </div>
                 <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
@@ -516,18 +516,18 @@
                     </div>
                 </div>
 
-                <!-- Right Column: 4-Level Hand Contact Tolerance & Velocity Threshold Adjustments -->
-                <div id="cal-right-col" class="md:col-span-7 flex flex-col justify-center gap-3.5 sm:gap-4">
+                <!-- Right Column: 4-Level Hand Contact, Velocity & Finger-Closing Verification Adjustments -->
+                <div id="cal-right-col" class="md:col-span-7 flex flex-col justify-center gap-2.5 sm:gap-3">
                     <!-- 1. Hand Contact Tolerance (4 Levels) -->
-                    <div class="cal-setting-card bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4">
-                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-1">
+                    <div class="cal-setting-card bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3 sm:p-3.5">
+                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-0.5">
                             <span>Hand Contact Tolerance</span>
                             <span id="cal-contact-tol-val" class="text-emerald-400 tabular-nums">Level 3 (Standard)</span>
                         </div>
-                        <p class="cal-setting-desc text-xs sm:text-sm text-slate-400 mb-1">
+                        <p class="cal-setting-desc text-xs text-slate-400 mb-0.5">
                             Adjusts how closely both hands must touch to register valid hand-to-hand contact.
                         </p>
-                        <p class="cal-setting-desc text-xs text-slate-400/90 mb-2.5">
+                        <p class="cal-setting-desc text-[11px] text-slate-400/90 mb-2">
                             双手接触容差 • Tolerancia de contacto entre manos • हाथ संपर्क सहनशीलता • Độ nhạy tiếp xúc hai bàn tay
                         </p>
                         <input
@@ -538,26 +538,26 @@
                             step="1"
                             value="3"
                             oninput="onCalibrationSliderChange()"
-                            class="w-full h-2.5 accent-emerald-400 cursor-pointer"
+                            class="w-full h-2 accent-emerald-400 cursor-pointer"
                         />
-                        <div class="cal-lvl-grid grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5">
-                            <button type="button" id="cal-contact-lvl-1" onclick="setContactLevel(1)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">1 • Strict</button>
-                            <button type="button" id="cal-contact-lvl-2" onclick="setContactLevel(2)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">2 • Firm</button>
-                            <button type="button" id="cal-contact-lvl-3" onclick="setContactLevel(3)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">3 • Standard</button>
-                            <button type="button" id="cal-contact-lvl-4" onclick="setContactLevel(4)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">4 • Loose</button>
+                        <div class="cal-lvl-grid grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                            <button type="button" id="cal-contact-lvl-1" onclick="setContactLevel(1)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">1 • Strict</button>
+                            <button type="button" id="cal-contact-lvl-2" onclick="setContactLevel(2)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">2 • Firm</button>
+                            <button type="button" id="cal-contact-lvl-3" onclick="setContactLevel(3)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">3 • Standard</button>
+                            <button type="button" id="cal-contact-lvl-4" onclick="setContactLevel(4)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">4 • Loose</button>
                         </div>
                     </div>
 
                     <!-- 2. Velocity Threshold (4 Levels) -->
-                    <div class="cal-setting-card bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4">
-                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-1">
+                    <div class="cal-setting-card bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3 sm:p-3.5">
+                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-0.5">
                             <span>Velocity Threshold</span>
                             <span id="cal-vel-tol-val" class="text-emerald-400 tabular-nums">Level 2 (Standard)</span>
                         </div>
-                        <p class="cal-setting-desc text-xs sm:text-sm text-slate-400 mb-1">
+                        <p class="cal-setting-desc text-xs text-slate-400 mb-0.5">
                             Adjusts how fast the hands must rub together while in contact for the timer to advance.
                         </p>
-                        <p class="cal-setting-desc text-xs text-slate-400/90 mb-2.5">
+                        <p class="cal-setting-desc text-[11px] text-slate-400/90 mb-2">
                             揉搓速度阈值 • Umbral de velocidad de frotado • रगड़ने की गति सीमा • Ngưỡng tốc độ chà tay
                         </p>
                         <input
@@ -568,13 +568,43 @@
                             step="1"
                             value="2"
                             oninput="onCalibrationSliderChange()"
-                            class="w-full h-2.5 accent-emerald-400 cursor-pointer"
+                            class="w-full h-2 accent-emerald-400 cursor-pointer"
                         />
-                        <div class="cal-lvl-grid grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5">
-                            <button type="button" id="cal-vel-lvl-1" onclick="setVelocityLevel(1)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">1 • Light</button>
-                            <button type="button" id="cal-vel-lvl-2" onclick="setVelocityLevel(2)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">2 • Standard</button>
-                            <button type="button" id="cal-vel-lvl-3" onclick="setVelocityLevel(3)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">3 • Brisk</button>
-                            <button type="button" id="cal-vel-lvl-4" onclick="setVelocityLevel(4)" class="py-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all">4 • Vigorous</button>
+                        <div class="cal-lvl-grid grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                            <button type="button" id="cal-vel-lvl-1" onclick="setVelocityLevel(1)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">1 • Light</button>
+                            <button type="button" id="cal-vel-lvl-2" onclick="setVelocityLevel(2)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">2 • Standard</button>
+                            <button type="button" id="cal-vel-lvl-3" onclick="setVelocityLevel(3)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">3 • Brisk</button>
+                            <button type="button" id="cal-vel-lvl-4" onclick="setVelocityLevel(4)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">4 • Vigorous</button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Finger-Closing Verification Tolerance (4 Levels) -->
+                    <div class="cal-setting-card bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3 sm:p-3.5">
+                        <div class="flex justify-between items-center text-sm sm:text-base font-extrabold text-white mb-0.5">
+                            <span>Finger-Closing Verification</span>
+                            <span id="cal-finger-tol-val" class="text-emerald-400 tabular-nums">Level 3 (Standard)</span>
+                        </div>
+                        <p class="cal-setting-desc text-xs text-slate-400 mb-0.5">
+                            Adjusts how tightly all fingers must be closed together when showing both hands before proceeding to the next step.
+                        </p>
+                        <p class="cal-setting-desc text-[11px] text-slate-400/90 mb-2">
+                            并拢手指验证容差 • Tolerancia de dedos juntos • उंगलियां साथ रखने की सहनशीलता • Độ nhạy khép ngón tay khi xác nhận
+                        </p>
+                        <input
+                            id="cal-finger-tol-slider"
+                            type="range"
+                            min="1"
+                            max="4"
+                            step="1"
+                            value="3"
+                            oninput="onCalibrationSliderChange()"
+                            class="w-full h-2 accent-emerald-400 cursor-pointer"
+                        />
+                        <div class="cal-lvl-grid grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                            <button type="button" id="cal-finger-lvl-1" onclick="setFingerCloseLevel(1)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">1 • Strict</button>
+                            <button type="button" id="cal-finger-lvl-2" onclick="setFingerCloseLevel(2)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">2 • Snug</button>
+                            <button type="button" id="cal-finger-lvl-3" onclick="setFingerCloseLevel(3)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">3 • Standard</button>
+                            <button type="button" id="cal-finger-lvl-4" onclick="setFingerCloseLevel(4)" class="py-2 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer transition-all">4 • Relaxed</button>
                         </div>
                     </div>
                 </div>
@@ -919,6 +949,17 @@
             `;
         }
 
+        // Renders unmistakable anatomical palm crease lines (Heart line, Head line, Life/Thenar line, Wrist crease)
+        // on TOPDOWN_LEFT_HAND_PALM_UP so upturned palms are immediately distinguishable from the back of the hand
+        function renderLeftPalmUpCreases(isMini, color = "#e2e8f0") {
+            const w = isMini ? "2.4" : "2.5";
+            return `
+                <!-- Anatomical Palm Creases: Heart Line, Head Line, Life/Thenar Line & Wrist Crease -->
+                <path d="M 116 112 Q 92 104 68 109 M 62 115 Q 88 120 112 128 M 62 115 Q 78 128 76 150 M 73 158 Q 88 154 103 158"
+                      fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-opacity="0.9"/>
+            `;
+        }
+
         function getGestureSVG(type, isMini = false, isMirrored = false) {
             const sw = isMini ? "5.2" : "3.5";
             const baseHandFill = "#1e293b";
@@ -934,7 +975,7 @@
             switch (type) {
                 // --------------------------------------------------------------------
                 // STEP 1 (Top-Down POV): Palm to palm circular rub
-                //   - Bottom Hand: Left Hand PALM UP (Thumb on outer left, open palm creases)
+                //   - Bottom Hand: Left Hand PALM UP (Thumb on outer left + clear anatomical palm creases)
                 //   - Top Hand (Yellow): Right Hand PALM DOWN rubbing in a circle
                 // --------------------------------------------------------------------
                 case "palm-to-palm":
@@ -943,16 +984,13 @@
                         <!-- Left Hand Entering from Bottom-Left (PALM UP: Thumb on Outer Left + Palm Creases) -->
                         <g transform="translate(-8, 2) rotate(14 88 120)">
                             <path d="${TOPDOWN_LEFT_HAND_PALM_UP}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
-                            ${isMini ? "" : `
-                            <!-- Upturned Left Palm Lifelines & Creases -->
-                            <path d="M 64 114 Q 88 106 112 114 M 66 126 Q 86 118 106 128 M 64 114 Q 78 128 74 142" fill="none" stroke="#cbd5e1" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.8"/>
-                            `}
+                            ${renderLeftPalmUpCreases(isMini)}
                         </g>
                         <!-- Top Hand (Yellow): Right Hand Entering from Bottom-Right Overlapping Upturned Left Palm -->
                         <g class="${isMini ? "" : "anim-circular"}">
                             <g transform="translate(14, -4) rotate(-18 110 120)">
                                 <path class="active-hand-fill" d="${TOPDOWN_RIGHT_HAND_SPREAD}" fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
-                                ${isMini ? "" : `<path d="M 94 118 Q 112 108 132 118" fill="none" stroke="#fef08a" stroke-width="2.4" stroke-linecap="round" stroke-opacity="0.9"/>`}
+                                ${isMini ? "" : `<path d="M 98 112 L 99 134 M 112 110 L 111 136 M 128 112 L 126 134" fill="none" stroke="#fef08a" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.85"/>`}
                             </g>
                             ${isMini ? "" : `
                             <!-- Top-Down Circular Scrubbing Motion Arrow -->
@@ -965,21 +1003,22 @@
 
                 // --------------------------------------------------------------------
                 // STEP 2 (Top-Down POV): Palm to palm with fingers interlaced (No half-step)
-                //   - Bottom Hand: Left Hand PALM UP (slate)
+                //   - Bottom Hand: Left Hand PALM UP (slate + clear anatomical palm creases)
                 //   - Top Hand (Yellow): Right Hand PALM DOWN with fingers interlaced
                 // --------------------------------------------------------------------
                 case "interlaced":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
-                        <!-- Left Hand Entering from Bottom-Left (PALM UP, Spread Fingers) -->
+                        <!-- Left Hand Entering from Bottom-Left (PALM UP, Spread Fingers + Palm Creases) -->
                         <g transform="translate(-8, 4) rotate(24 88 122)">
                             <path d="${TOPDOWN_LEFT_HAND_PALM_UP}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
-                            ${isMini ? "" : `<path d="M 64 114 Q 88 106 112 114 M 66 126 Q 86 118 106 128" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-opacity="0.75"/>`}
+                            ${renderLeftPalmUpCreases(isMini)}
                         </g>
                         <!-- Top Hand (Yellow): Right Hand Entering from Bottom-Right Interlocking Fingers -->
                         <g class="${isMini ? "" : "anim-vertical"}">
                             <g transform="translate(12, 4) rotate(-26 112 122)">
                                 <path class="active-hand-fill" d="${TOPDOWN_RIGHT_HAND_SPREAD}" fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                                ${isMini ? "" : `<path d="M 98 112 L 99 134 M 112 110 L 111 136 M 128 112 L 126 134" fill="none" stroke="#fef08a" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.85"/>`}
                             </g>
                             ${isMini ? "" : `
                             <!-- Interlaced Finger Web Highlight & Friction Arrows -->
@@ -1036,16 +1075,19 @@
 
                 // --------------------------------------------------------------------
                 // STEP 4 (Top-Down POV): Backs of fingers to opposing palm (Interlocked knuckles)
-                //   - Right over Left (!isMirrored): Left hand underneath (slate), Right hand curled on top (Yellow)
-                //   - Left over Right (isMirrored):  Right hand underneath (slate), Left hand curled on top (Yellow)
+                //   - Right over Left (!isMirrored): Left hand underneath (cupped palm with palm lines), Right hand curled on top (Yellow)
+                //   - Left over Right (isMirrored):  Right hand underneath (cupped palm with palm lines), Left hand curled on top (Yellow)
                 // --------------------------------------------------------------------
                 case "knuckles":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
                         <g ${geomMirror}>
-                            <!-- Underneath Base Hand (Left Hand entering from Bottom-Left, Cupped Palm Facing Up/Right) -->
+                            <!-- Underneath Base Hand (Left Hand entering from Bottom-Left, Cupped Palm Facing Up/Right + Palm Lines) -->
                             <path d="M 28 164 L 46 126 C 52 94 68 74 96 72 L 116 72 C 128 72 134 80 134 90 C 134 99 126 105 114 105 L 90 105 C 90 112 100 118 116 118 C 126 118 132 124 130 132 C 128 140 116 144 98 144 L 72 146 L 56 170 Z"
                                   fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            <!-- Palm Crease Lines on Cupped Opposing Palm -->
+                            <path d="M 52 118 Q 76 112 104 118 M 54 130 Q 78 124 98 132 M 48 116 Q 64 130 62 148"
+                                  fill="none" stroke="#e2e8f0" stroke-width="${isMini ? "2.2" : "2.4"}" stroke-linecap="round" stroke-opacity="0.88"/>
                             <!-- Lead Top Hand (Yellow): Right Hand entering from Bottom-Right, Curled Fingers Interlocked on Top -->
                             <g class="${isMini ? "" : "anim-horizontal"}">
                                 <path class="active-hand-fill" d="M 172 164 L 154 120 C 148 92 132 62 104 60 L 84 60 C 72 60 66 68 66 78 C 66 87 74 93 86 93 L 110 93 C 110 100 100 106 84 106 C 74 106 68 112 70 120 C 72 128 84 132 102 132 L 128 136 L 144 170 Z"
@@ -1067,16 +1109,19 @@
 
                 // --------------------------------------------------------------------
                 // STEP 5 (Top-Down POV): Rotational rubbing of thumb clasped in opposing palm
-                //   - First Half (!isMirrored): CLASPED RIGHT THUMB FIRST — Right hand base (bottom-right, slate) extends right thumb inward; Left hand (bottom-left, Top Hand in Yellow) clasps & rotates around right thumb!
-                //   - Second Half (isMirrored): CLASPED LEFT THUMB SECOND — Left hand base (bottom-left, slate) extends left thumb inward; Right hand (bottom-right, Top Hand in Yellow) clasps & rotates around left thumb!
+                //   - First Half (!isMirrored): CLASPED RIGHT THUMB FIRST — Right hand base (bottom-right, slate with palm lines) extends right thumb inward; Left hand (bottom-left, Top Hand in Yellow) clasps & rotates around right thumb!
+                //   - Second Half (isMirrored): CLASPED LEFT THUMB SECOND — Left hand base (bottom-left, slate with palm lines) extends left thumb inward; Right hand (bottom-right, Top Hand in Yellow) clasps & rotates around left thumb!
                 // --------------------------------------------------------------------
                 case "thumbs":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
                         <g ${geomMirror}>
-                            <!-- Base Hand (Right Hand entering from Bottom-Right with RIGHT THUMB Extended Inward to Left) -->
+                            <!-- Base Hand (Right Hand entering from Bottom-Right with RIGHT THUMB Extended Inward to Left + Palm Crease Lines) -->
                             <path d="M 158 168 L 160 136 C 166 124 170 110 170 94 L 170 58 C 170 51 161 51 161 58 L 159 84 L 157 46 C 157 38 147 38 147 46 L 145 82 L 143 42 C 143 34 133 34 133 42 L 131 82 L 129 50 C 129 42 119 42 119 50 L 118 94 L 106 102 L 84 80 C 77 73 66 81 73 91 L 96 122 C 106 136 118 150 128 168 Z"
                                   fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            <!-- Palm Crease Lines on Thumb-Extended Base Hand -->
+                            <path d="M 118 112 Q 140 104 162 112 M 118 124 Q 140 118 158 128 M 114 114 Q 126 130 128 148"
+                                  fill="none" stroke="#e2e8f0" stroke-width="${isMini ? "2.2" : "2.4"}" stroke-linecap="round" stroke-opacity="0.88"/>
                             <!-- Top Clasping Hand (Yellow): Left Hand entering from Bottom-Left, Clasping Right Thumb on Top -->
                             <g class="${isMini ? "" : "anim-twist"}">
                                 <path class="active-hand-fill" d="M 36 166 L 54 126 C 58 104 68 86 84 80 L 104 82 C 114 84 118 92 114 100 C 112 106 116 114 108 120 C 104 126 94 130 82 130 L 70 144 L 62 170 Z"
@@ -1095,18 +1140,19 @@
 
                 // --------------------------------------------------------------------
                 // STEP 6 (Top-Down POV): Rotational rubbing of fingertips in opposing palm
-                //   - First Half (!isMirrored): Left upturned palm (bottom-left, slate); Right clustered fingertips (entering from bottom-right, Top Hand in Yellow) scrubbing in left palm
-                //   - Second Half (isMirrored): Right upturned palm (bottom-right, slate); Left clustered fingertips (entering from bottom-left, Top Hand in Yellow) scrubbing in right palm
+                //   - First Half (!isMirrored): Left upturned palm (bottom-left, slate + palm lines); Right clustered fingertips (entering from bottom-right, Top Hand in Yellow) scrubbing in left palm
+                //   - Second Half (isMirrored): Right upturned palm (bottom-right, slate + palm lines); Left clustered fingertips (entering from bottom-left, Top Hand in Yellow) scrubbing in right palm
                 // --------------------------------------------------------------------
                 case "fingertips":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
                         <g ${geomMirror}>
-                            <!-- Base Hand (Left Upturned Open Palm Entering from Bottom-Left) -->
+                            <!-- Base Hand (Left Upturned Open Palm Entering from Bottom-Left + Palm Creases) -->
                             <g transform="translate(-8, 4) rotate(12 88 120)">
                                 <path d="${TOPDOWN_LEFT_HAND_PALM_UP}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                                ${renderLeftPalmUpCreases(isMini)}
                                 <!-- Open Palm Target Zone on Upturned Left Palm -->
-                                <ellipse cx="88" cy="118" rx="24" ry="16" fill="#0f172a" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3"/>
+                                <ellipse cx="88" cy="118" rx="22" ry="14" fill="rgba(15, 23, 42, 0.55)" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3"/>
                             </g>
                             <!-- Lead Top Hand (Yellow): Right Hand Entering from Bottom-Right with Clustered Fingertips Pressing into Left Palm -->
                             <g class="${isMini ? "" : "anim-circular"}">
@@ -1127,31 +1173,33 @@
                     </svg>`;
 
                 // --------------------------------------------------------------------
-                // CHECKPOINT POSE (Top-Down POV): Both Hands Held Out with All Fingers Together
+                // CHECKPOINT POSE (Top-Down POV): Both Hands Held Out with All Fingers Together (Palms Facing Viewer)
                 // --------------------------------------------------------------------
                 case "both-hands-up":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
-                        <!-- Left Upright Anatomical Hand (All 5 Fingers Pressed Flush Together) -->
+                        <!-- Left Upright Anatomical Hand (All 5 Fingers Pressed Flush Together + Distinct Palm Lines) -->
                         <g transform="translate(-4, 0)">
                             <path class="active-hand-fill"
                                   d="M 38 162 L 38 154 C 32 146 30 134 30 118 L 30 66 C 30 58 41 58 41 66 L 41 98 L 41 48 C 41 39 53 39 53 48 L 53 96 L 53 40 C 53 31 65 31 65 40 L 65 96 L 65 50 C 65 41 77 41 77 50 L 77 106 L 79 78 C 80 68 91 70 90 81 L 88 120 C 87 138 78 148 68 154 L 68 162 Z"
                                   fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
-                            <!-- Subtle Palm Creases -->
-                            <path d="M 38 116 Q 56 110 73 118 M 46 132 Q 60 124 70 138" fill="none" stroke="#fef08a" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.75"/>
+                            <!-- Distinct Palm Creases: Heart Line, Head Line, Life/Thenar Line & Wrist Crease -->
+                            <path d="M 34 112 Q 54 105 73 111 M 73 116 Q 54 121 36 128 M 73 116 Q 60 128 62 146 M 41 151 Q 53 148 65 151"
+                                  fill="none" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.95"/>
                             <!-- Inward Squeeze Arrows Indicating Fingers Together -->
                             <line class="motion-arrow" x1="12" y1="72" x2="23" y2="72" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                             <polygon class="motion-arrow" points="26,72 19,67 19,77" fill="#ffffff"/>
                             <line class="motion-arrow" x1="104" y1="82" x2="95" y2="82" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                             <polygon class="motion-arrow" points="92,82 99,77 99,87" fill="#ffffff"/>
                         </g>
-                        <!-- Right Upright Anatomical Hand (All 5 Fingers Pressed Flush Together) -->
+                        <!-- Right Upright Anatomical Hand (All 5 Fingers Pressed Flush Together + Distinct Palm Lines) -->
                         <g transform="translate(204, 0) scale(-1, 1)">
                             <path class="active-hand-fill"
                                   d="M 38 162 L 38 154 C 32 146 30 134 30 118 L 30 66 C 30 58 41 58 41 66 L 41 98 L 41 48 C 41 39 53 39 53 48 L 53 96 L 53 40 C 53 31 65 31 65 40 L 65 96 L 65 50 C 65 41 77 41 77 50 L 77 106 L 79 78 C 80 68 91 70 90 81 L 88 120 C 87 138 78 148 68 154 L 68 162 Z"
                                   fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
-                            <!-- Subtle Palm Creases -->
-                            <path d="M 38 116 Q 56 110 73 118 M 46 132 Q 60 124 70 138" fill="none" stroke="#fef08a" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.75"/>
+                            <!-- Distinct Palm Creases: Heart Line, Head Line, Life/Thenar Line & Wrist Crease -->
+                            <path d="M 34 112 Q 54 105 73 111 M 73 116 Q 54 121 36 128 M 73 116 Q 60 128 62 146 M 41 151 Q 53 148 65 151"
+                                  fill="none" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.95"/>
                             <!-- Inward Squeeze Arrows Indicating Fingers Together -->
                             <line class="motion-arrow" x1="12" y1="72" x2="23" y2="72" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                             <polygon class="motion-arrow" points="26,72 19,67 19,77" fill="#ffffff"/>
@@ -1212,11 +1260,20 @@
             4: { level: 4, label: "Vigorous", value: 1.50 }
         };
 
+        const FINGER_CLOSE_TOLERANCE_LEVELS = {
+            1: { level: 1, label: "Strict", value: 0.72 },
+            2: { level: 2, label: "Snug", value: 0.86 },
+            3: { level: 3, label: "Standard", value: 1.00 },
+            4: { level: 4, label: "Relaxed", value: 1.32 }
+        };
+
         const DEFAULT_CALIBRATION = {
             contactLevel: 3,
             velocityLevel: 2,
+            fingerCloseLevel: 3,
             contactTolerance: 1.00,
-            velocityMultiplier: 1.00
+            velocityMultiplier: 1.00,
+            fingerCloseTolerance: 1.00
         };
         let calibrationConfig = loadCalibrationConfig();
         let calSelectedStepIndex = 0;
@@ -1513,8 +1570,10 @@
                     const parsed = Object.assign({}, DEFAULT_CALIBRATION, JSON.parse(raw));
                     const cEntry = CONTACT_TOLERANCE_LEVELS[parsed.contactLevel] || CONTACT_TOLERANCE_LEVELS[3];
                     const vEntry = VELOCITY_THRESHOLD_LEVELS[parsed.velocityLevel] || VELOCITY_THRESHOLD_LEVELS[2];
+                    const fEntry = FINGER_CLOSE_TOLERANCE_LEVELS[parsed.fingerCloseLevel] || FINGER_CLOSE_TOLERANCE_LEVELS[3];
                     parsed.contactTolerance = cEntry.value;
                     parsed.velocityMultiplier = vEntry.value;
+                    parsed.fingerCloseTolerance = fEntry.value;
                     return parsed;
                 }
             } catch (e) {}
@@ -1535,8 +1594,10 @@
         function renderCalibrationUI() {
             const contactSlider = document.getElementById("cal-contact-tol-slider");
             const velSlider = document.getElementById("cal-vel-tol-slider");
+            const fingerSlider = document.getElementById("cal-finger-tol-slider");
             if (contactSlider) contactSlider.value = calibrationConfig.contactLevel || 3;
             if (velSlider) velSlider.value = calibrationConfig.velocityLevel || 2;
+            if (fingerSlider) fingerSlider.value = calibrationConfig.fingerCloseLevel || 3;
             updateCalibrationSliderLabels();
         }
 
@@ -1556,19 +1617,32 @@
             }
         }
 
+        function setFingerCloseLevel(lvl) {
+            const fingerSlider = document.getElementById("cal-finger-tol-slider");
+            if (fingerSlider) {
+                fingerSlider.value = lvl;
+                onCalibrationSliderChange();
+            }
+        }
+
         function onCalibrationSliderChange() {
             const contactSlider = document.getElementById("cal-contact-tol-slider");
             const velSlider = document.getElementById("cal-vel-tol-slider");
+            const fingerSlider = document.getElementById("cal-finger-tol-slider");
             const cLvl = contactSlider ? (parseInt(contactSlider.value, 10) || 3) : 3;
             const vLvl = velSlider ? (parseInt(velSlider.value, 10) || 2) : 2;
+            const fLvl = fingerSlider ? (parseInt(fingerSlider.value, 10) || 3) : 3;
 
             const cEntry = CONTACT_TOLERANCE_LEVELS[cLvl] || CONTACT_TOLERANCE_LEVELS[3];
             const vEntry = VELOCITY_THRESHOLD_LEVELS[vLvl] || VELOCITY_THRESHOLD_LEVELS[2];
+            const fEntry = FINGER_CLOSE_TOLERANCE_LEVELS[fLvl] || FINGER_CLOSE_TOLERANCE_LEVELS[3];
 
             calibrationConfig.contactLevel = cEntry.level;
             calibrationConfig.contactTolerance = cEntry.value;
             calibrationConfig.velocityLevel = vEntry.level;
             calibrationConfig.velocityMultiplier = vEntry.value;
+            calibrationConfig.fingerCloseLevel = fEntry.level;
+            calibrationConfig.fingerCloseTolerance = fEntry.value;
 
             updateCalibrationSliderLabels();
             saveCalibrationConfig();
@@ -1577,26 +1651,36 @@
         function updateCalibrationSliderLabels() {
             const cLvl = calibrationConfig.contactLevel || 3;
             const vLvl = calibrationConfig.velocityLevel || 2;
+            const fLvl = calibrationConfig.fingerCloseLevel || 3;
             const cEntry = CONTACT_TOLERANCE_LEVELS[cLvl] || CONTACT_TOLERANCE_LEVELS[3];
             const vEntry = VELOCITY_THRESHOLD_LEVELS[vLvl] || VELOCITY_THRESHOLD_LEVELS[2];
+            const fEntry = FINGER_CLOSE_TOLERANCE_LEVELS[fLvl] || FINGER_CLOSE_TOLERANCE_LEVELS[3];
 
             const contactValEl = document.getElementById("cal-contact-tol-val");
             const velValEl = document.getElementById("cal-vel-tol-val");
+            const fingerValEl = document.getElementById("cal-finger-tol-val");
             if (contactValEl) contactValEl.innerText = `Level ${cEntry.level} (${cEntry.label})`;
             if (velValEl) velValEl.innerText = `Level ${vEntry.level} (${vEntry.label})`;
+            if (fingerValEl) fingerValEl.innerText = `Level ${fEntry.level} (${fEntry.label})`;
 
             for (let i = 1; i <= 4; i++) {
                 const cBtn = document.getElementById(`cal-contact-lvl-${i}`);
                 if (cBtn) {
                     cBtn.className = (i === cEntry.level)
-                        ? "py-2.5 rounded-xl border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-sm font-extrabold cursor-pointer transition-all"
-                        : "py-2.5 rounded-xl border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-sm font-bold cursor-pointer transition-all";
+                        ? "py-2 rounded-xl border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-xs sm:text-sm font-extrabold cursor-pointer transition-all"
+                        : "py-2 rounded-xl border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-xs sm:text-sm font-bold cursor-pointer transition-all";
                 }
                 const vBtn = document.getElementById(`cal-vel-lvl-${i}`);
                 if (vBtn) {
                     vBtn.className = (i === vEntry.level)
-                        ? "py-2.5 rounded-xl border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-sm font-extrabold cursor-pointer transition-all"
-                        : "py-2.5 rounded-xl border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-sm font-bold cursor-pointer transition-all";
+                        ? "py-2 rounded-xl border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-xs sm:text-sm font-extrabold cursor-pointer transition-all"
+                        : "py-2 rounded-xl border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-xs sm:text-sm font-bold cursor-pointer transition-all";
+                }
+                const fBtn = document.getElementById(`cal-finger-lvl-${i}`);
+                if (fBtn) {
+                    fBtn.className = (i === fEntry.level)
+                        ? "py-2 rounded-xl border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300 text-xs sm:text-sm font-extrabold cursor-pointer transition-all"
+                        : "py-2 rounded-xl border border-slate-700 bg-slate-950/70 text-slate-400 hover:text-white text-xs sm:text-sm font-bold cursor-pointer transition-all";
                 }
             }
         }
@@ -3125,10 +3209,14 @@
         }
 
         // Angle-invariant check (0°–360° rotation & 3D tilt tolerant):
-        // Evaluates whether a hand has all 4 fingers genuinely extended (not curled/scrubbing) and held together at ANY angle
+        // Evaluates whether a hand has all 4 fingers genuinely extended (not curled/scrubbing) and held together at ANY angle,
+        // scaled by calibrationConfig.fingerCloseTolerance (0.72 Strict -> 1.00 Standard -> 1.32 Relaxed).
         function checkSingleHandUpFingersTogether(hand) {
             const palmLen = Math.max(0.045, dist2D(hand[0], hand[9]));
             const axis = computeHandAxisVector(hand);
+            const fTol = (typeof calibrationConfig !== "undefined" && calibrationConfig && typeof calibrationConfig.fingerCloseTolerance === "number")
+                ? calibrationConfig.fingerCloseTolerance
+                : 1.00;
 
             // 1. Angle-invariant finger extension (works at any 360° rotation, rejects curled/fist/scrubbing hands)
             const extRatio = computeFingerExtensionRatio(hand);
@@ -3159,9 +3247,11 @@
                 }
             }
 
-            const isExtended = (extRatio >= 1.34 && extendedCount >= 4);
+            const minExtRatio = fTol >= 1.20 ? 1.28 : 1.34;
+            const minExtCount = fTol >= 1.25 ? 3 : 4;
+            const isExtended = (extRatio >= minExtRatio && extendedCount >= minExtCount);
 
-            // 2. Angle- & tilt-invariant "fingers together" check:
+            // 2. Angle- & tilt-invariant "fingers together" check (scaled by fTol):
             //    (a) Adjacent finger vectors are parallel (not splayed out at wide angles)
             const dot01 = fingerDirs[0].x * fingerDirs[1].x + fingerDirs[0].y * fingerDirs[1].y;
             const dot12 = fingerDirs[1].x * fingerDirs[2].x + fingerDirs[1].y * fingerDirs[2].y;
@@ -3183,13 +3273,16 @@
             const p14_18 = dist2D(hand[14], hand[18]) / palmLen;
             const meanPipGap = (p6_10 + p10_14 + p14_18) / 3;
 
+            const reqMinParallel = Math.max(0.56, Math.min(0.84, 0.72 - (fTol - 1.0) * 0.35));
+            const reqMeanParallel = Math.max(0.75, Math.min(0.92, 0.86 - (fTol - 1.0) * 0.25));
+
             const fingersTogether =
-                (outerTipSpan <= 1.05) &&
-                (minParallelDot >= 0.72) &&
+                (outerTipSpan <= 1.05 * fTol) &&
+                (minParallelDot >= reqMinParallel) &&
                 (
-                    (meanTipGap <= 0.42 && maxTipGap <= 0.52) ||
-                    (meanParallelDot >= 0.86 && meanTipGap <= 0.46) ||
-                    (meanPipGap <= 0.32 && meanTipGap <= 0.46)
+                    (meanTipGap <= 0.42 * fTol && maxTipGap <= 0.52 * fTol) ||
+                    (meanParallelDot >= reqMeanParallel && meanTipGap <= 0.46 * fTol) ||
+                    (meanPipGap <= 0.32 * fTol && meanTipGap <= 0.46 * fTol)
                 );
 
             return {
@@ -3322,11 +3415,15 @@
                     ? "#34d399"
                     : (isPoseValid ? "#38bdf8" : "#f59e0b");
 
+                const calFingerCheck = (isCalibrating && !lastObservedMetrics.isTouching)
+                    ? evaluateBothHandsUpFingersTogether(hands, directHandCount, currentVelocity)
+                    : null;
+
                 for (let hIdx = 0; hIdx < hands.length; hIdx++) {
                     const landmarks = hands[hIdx];
                     if (typeof drawConnectors !== "undefined") {
                         let handWireColor = wireColor;
-                        if (appState === "WASHING" && awaitingBothHandsForSwitch) {
+                        if ((appState === "WASHING" && awaitingBothHandsForSwitch) || (isCalibrating && !lastObservedMetrics.isTouching)) {
                             const singleCheck = checkSingleHandUpFingersTogether(landmarks);
                             handWireColor = singleCheck.ok ? "#34d399" : (singleCheck.isUpright ? "#38bdf8" : "#f59e0b");
                         }
@@ -3349,7 +3446,7 @@
                 }
 
                 if (isCalibrating) {
-                    updateCalibrationLiveTelemetry(hands.length, isPoseValid, validScrub, currentVelocity, effectiveThresh);
+                    updateCalibrationLiveTelemetry(hands.length, isPoseValid, validScrub, currentVelocity, effectiveThresh, calFingerCheck);
                 }
             } else {
                 isPoseValid = false;
@@ -3369,12 +3466,12 @@
                     updateVisualRunState(false);
                 }
                 if (isCalibrating) {
-                    updateCalibrationLiveTelemetry(0, false, false, 0, effectiveThresh);
+                    updateCalibrationLiveTelemetry(0, false, false, 0, effectiveThresh, null);
                 }
             }
         }
 
-        function updateCalibrationLiveTelemetry(handCount, poseOk, scrubOk, vel, thresh) {
+        function updateCalibrationLiveTelemetry(handCount, poseOk, scrubOk, vel, thresh, fingerCheck) {
             const frame = document.getElementById("cal-camera-frame");
             const badge = document.getElementById("cal-pose-badge");
             const velReadout = document.getElementById("cal-vel-readout");
@@ -3386,6 +3483,7 @@
 
             const touchInfo = lastObservedMetrics.touchMode || "None";
             const isTouching = Boolean(lastObservedMetrics.isTouching);
+            const fingersVerified = Boolean(fingerCheck && fingerCheck.ready);
 
             if (scrubOk) {
                 frame.className = "relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.3)]";
@@ -3395,12 +3493,16 @@
                 frame.className = "relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-sky-400 bg-slate-900 overflow-hidden shadow-lg";
                 badge.className = "absolute top-2.5 left-2.5 max-w-[92%] truncate whitespace-nowrap px-2.5 py-1 rounded-lg bg-sky-950/90 border border-sky-400 text-xs font-extrabold uppercase tracking-wider text-sky-300";
                 badge.innerText = "HAND CONTACT DETECTED ✓ — SCRUB HANDS";
+            } else if (fingersVerified) {
+                frame.className = "relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-emerald-400 bg-slate-900 overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.3)]";
+                badge.className = "absolute top-2.5 left-2.5 max-w-[92%] truncate whitespace-nowrap px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-400 text-xs font-extrabold uppercase tracking-wider text-emerald-300";
+                badge.innerText = "BOTH HANDS FINGERS TOGETHER ✓ (VERIFIED)";
             } else {
                 frame.className = "relative w-full max-w-md md:max-w-none aspect-[4/3] max-h-60 sm:max-h-72 md:max-h-80 rounded-2xl border-4 border-amber-400 bg-slate-900 overflow-hidden shadow-lg";
                 badge.className = "absolute top-2.5 left-2.5 max-w-[92%] truncate whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-950/85 border border-slate-700 text-xs font-extrabold uppercase tracking-wider text-amber-400";
                 badge.innerText = handCount === 0
                     ? "WAITING FOR HANDS..."
-                    : "NO HAND CONTACT — TOUCH HANDS TOGETHER";
+                    : (fingerCheck ? `${fingerCheck.hint.toUpperCase()} OR TOUCH TO SCRUB` : "NO HAND CONTACT — TOUCH HANDS TOGETHER");
             }
 
             const maxScale = 0.04;
@@ -3413,13 +3515,14 @@
             threshMarker.style.left = `${threshPct.toFixed(1)}%`;
 
             const contactClass = (handCount > 0 && isTouching) ? "text-emerald-400" : "text-amber-400";
+            const fingerClass = fingersVerified ? "text-emerald-400" : "text-slate-400";
             const gapVal = (handCount >= 2 && typeof lastObservedMetrics.contactMetric === "number")
                 ? lastObservedMetrics.contactMetric.toFixed(2)
                 : (isTouching ? "0.00" : "--");
             metricsLine.innerHTML = `
                 <span class="${contactClass}">Contact: ${handCount > 0 ? touchInfo : 'None'}</span>
-                <span>Hands: ${handCount}/2</span>
-                <span>Gap Dist: ${gapVal}</span>
+                <span class="${fingerClass}">Fingers: ${fingersVerified ? 'Closed ✓' : (handCount >= 2 ? 'Open' : '--')}</span>
+                <span>Hands: ${handCount}/2 (${gapVal})</span>
             `;
         }
 

@@ -1,5 +1,5 @@
 // Service worker: offline app shell + runtime caching of CDN assets (Tailwind, fonts, MediaPipe)
-const CACHE = "handwash-ai-v15";
+const CACHE = "handwash-ai-v16";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
