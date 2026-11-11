@@ -813,20 +813,20 @@
                 id: 5,
                 whoStep: "Step 6",
                 requiresHandSwitch: true,
-                label: "Rotational rubbing of left thumb clasped in right palm",
+                label: "Rotational rubbing of right thumb clasped in left palm",
                 translations: {
-                    zh: "右手握住左手大拇指旋转揉搓",
-                    es: "Frotar con rotación el pulgar izquierdo con la palma derecha",
-                    hi: "दाईं हथेली से बाएं अंगूठे को पकड़कर घुमाते हुए रगड़ें",
-                    vi: "Tay phải nắm xoay tròn ngón cái của bàn tay trái"
+                    zh: "左手握住右手大拇指旋转揉搓",
+                    es: "Frotar con rotación el pulgar derecho con la palma izquierda",
+                    hi: "बाईं हथेली से दाएं अंगूठे को पकड़कर घुमाते हुए रगड़ें",
+                    vi: "Tay trái nắm xoay tròn ngón cái của bàn tay phải"
                 },
                 secondHalf: {
-                    label: "Switch hands: Rotational rubbing of right thumb clasped in left palm",
+                    label: "Switch hands: Rotational rubbing of left thumb clasped in right palm",
                     translations: {
-                        zh: "换手：左手握住右手大拇指旋转揉搓",
-                        es: "Cambiar: Frotar con rotación el pulgar derecho con la palma izquierda",
-                        hi: "हाथ बदलें: बाईं हथेली से दाएं अंगूठे को पकड़कर घुमाते हुए रगड़ें",
-                        vi: "Đổi tay: Tay trái nắm xoay tròn ngón cái của bàn tay phải"
+                        zh: "换手：右手握住左手大拇指旋转揉搓",
+                        es: "Cambiar: Frotar con rotación el pulgar izquierdo con la palma derecha",
+                        hi: "हाथ बदलें: दाईं हथेली से बाएं अंगूठे को पकड़कर घुमाते हुए रगड़ें",
+                        vi: "Đổi tay: Tay phải nắm xoay tròn ngón cái của bàn tay trái"
                     }
                 },
                 duration: 3.0,
@@ -863,10 +863,9 @@
         // 2. FIRST-PERSON TOP-DOWN (POV) WHO HAND SVG LIBRARY
         //    - Left Hand enters from Bottom-Left (marked "L" on wrist)
         //    - Right Hand enters from Bottom-Right (marked "R" on wrist)
-        //    - Highlights Right Hand when Right leads over Left (!isMirrored),
-        //      and highlights Left Hand when Left leads over Right (isMirrored)
+        //    - Top hand is ALWAYS highlighted in vibrant Yellow (#facc15)
         // ============================================================================
-        // Top-down Left Hand (Pinky on outer left, Index & Thumb on inner right, forearm at bottom)
+        // Top-down Left Hand PALM DOWN / Dorsum Up (Pinky on outer left, Thumb facing center/right)
         const TOPDOWN_LEFT_HAND_SPREAD =
             "M 70 174 L 68 146 C 60 136 55 124 54 110 " +
             "L 48 68 C 47 60 57 58 59 67 L 64 100 " +
@@ -876,7 +875,17 @@
             "L 132 88 C 140 81 149 90 140 100 " +
             "L 116 134 C 110 144 106 156 106 174 Z";
 
-        // Top-down Right Hand (Mirror of Left Hand: Thumb & Index on inner left, Pinky on outer right)
+        // Top-down Left Hand PALM UP / Supinated (Thumb on outer left, Pinky on inner right, open upturned palm)
+        const TOPDOWN_LEFT_HAND_PALM_UP =
+            "M 106 174 L 108 146 C 116 136 121 124 122 110 " +
+            "L 128 68 C 129 60 119 58 117 67 L 112 100 " +
+            "L 110 50 C 109 41 98 41 98 50 L 97 96 " +
+            "L 90 44 C 89 35 77 35 77 44 L 80 96 " +
+            "L 70 52 C 68 43 57 45 59 54 L 66 108 " +
+            "L 44 88 C 36 81 27 90 36 100 " +
+            "L 60 134 C 66 144 70 156 70 174 Z";
+
+        // Top-down Right Hand PALM DOWN (Thumb on inner left facing center, Pinky on outer right)
         const TOPDOWN_RIGHT_HAND_SPREAD =
             "M 130 174 L 132 146 C 140 136 145 124 146 110 " +
             "L 152 68 C 153 60 143 58 141 67 L 136 100 " +
@@ -888,13 +897,13 @@
 
         function renderTopDownWristBadges(isMini, leftIsLead, rightIsLead) {
             if (isMini) return "";
-            const lFill = leftIsLead ? "#10b981" : "#1e293b";
-            const lStroke = leftIsLead ? "#6ee7b7" : "#64748b";
-            const lText = leftIsLead ? "#022c22" : "#cbd5e1";
+            const lFill = leftIsLead ? "#facc15" : "#1e293b";
+            const lStroke = leftIsLead ? "#fef08a" : "#64748b";
+            const lText = leftIsLead ? "#090d16" : "#cbd5e1";
 
-            const rFill = rightIsLead ? "#10b981" : "#1e293b";
-            const rStroke = rightIsLead ? "#6ee7b7" : "#64748b";
-            const rText = rightIsLead ? "#022c22" : "#cbd5e1";
+            const rFill = rightIsLead ? "#facc15" : "#1e293b";
+            const rStroke = rightIsLead ? "#fef08a" : "#64748b";
+            const rText = rightIsLead ? "#090d16" : "#cbd5e1";
 
             return `
                 <!-- Bottom-Left "L" (Left Hand) POV Indicator -->
@@ -914,30 +923,36 @@
             const sw = isMini ? "5.2" : "3.5";
             const baseHandFill = "#1e293b";
             const baseHandStroke = "#94a3b8";
-            const activeHandFill = "rgba(16, 185, 129, 0.38)";
-            const activeHandStroke = "#34d399";
+            // Top hand is ALWAYS highlighted in Yellow
+            const activeHandFill = "rgba(250, 204, 21, 0.44)";
+            const activeHandStroke = "#facc15";
             const geomMirror = isMirrored ? 'transform="translate(200, 0) scale(-1, 1)"' : "";
-            // When !isMirrored, Right hand is the active lead hand; when isMirrored, Left hand is the active lead hand
+            // When !isMirrored, Right hand is on top; when isMirrored, Left hand is on top (reversed for thumbs where right thumb is clasped first)
             const leftLead = Boolean(isMirrored);
             const rightLead = !isMirrored;
 
             switch (type) {
                 // --------------------------------------------------------------------
-                // STEP 1 (Top-Down POV): Palm to palm circular rub (Both hands active)
+                // STEP 1 (Top-Down POV): Palm to palm circular rub
+                //   - Bottom Hand: Left Hand PALM UP (Thumb on outer left, open palm creases)
+                //   - Top Hand (Yellow): Right Hand PALM DOWN rubbing in a circle
                 // --------------------------------------------------------------------
                 case "palm-to-palm":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
-                        <!-- Left Hand Entering from Bottom-Left (Upturned Palm) -->
-                        <g transform="translate(-14, 0) rotate(18 90 120)">
-                            <path d="${TOPDOWN_LEFT_HAND_SPREAD}" fill="rgba(16, 185, 129, 0.22)" stroke="#34d399" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
-                            ${isMini ? "" : `<path d="M 68 118 Q 88 108 106 118 M 72 132 Q 90 124 104 136" fill="none" stroke="#6ee7b7" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.65"/>`}
+                        <!-- Left Hand Entering from Bottom-Left (PALM UP: Thumb on Outer Left + Palm Creases) -->
+                        <g transform="translate(-8, 2) rotate(14 88 120)">
+                            <path d="${TOPDOWN_LEFT_HAND_PALM_UP}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
+                            ${isMini ? "" : `
+                            <!-- Upturned Left Palm Lifelines & Creases -->
+                            <path d="M 64 114 Q 88 106 112 114 M 66 126 Q 86 118 106 128 M 64 114 Q 78 128 74 142" fill="none" stroke="#cbd5e1" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.8"/>
+                            `}
                         </g>
-                        <!-- Right Hand Entering from Bottom-Right Overlapping Left Palm (Circular Scrub) -->
+                        <!-- Top Hand (Yellow): Right Hand Entering from Bottom-Right Overlapping Upturned Left Palm -->
                         <g class="${isMini ? "" : "anim-circular"}">
                             <g transform="translate(14, -4) rotate(-18 110 120)">
                                 <path class="active-hand-fill" d="${TOPDOWN_RIGHT_HAND_SPREAD}" fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
-                                ${isMini ? "" : `<path d="M 94 118 Q 112 108 132 118" fill="none" stroke="#a7f3d0" stroke-width="2.4" stroke-linecap="round" stroke-opacity="0.8"/>`}
+                                ${isMini ? "" : `<path d="M 94 118 Q 112 108 132 118" fill="none" stroke="#fef08a" stroke-width="2.4" stroke-linecap="round" stroke-opacity="0.9"/>`}
                             </g>
                             ${isMini ? "" : `
                             <!-- Top-Down Circular Scrubbing Motion Arrow -->
@@ -945,22 +960,25 @@
                             <polygon class="motion-arrow" points="124,120 127,105 113,113" fill="#ffffff"/>
                             `}
                         </g>
-                        ${renderTopDownWristBadges(isMini, true, true)}
+                        ${renderTopDownWristBadges(isMini, false, true)}
                     </svg>`;
 
                 // --------------------------------------------------------------------
-                // STEP 2 (Top-Down POV): Palm to palm with fingers interlaced (Both hands active, no half-step)
+                // STEP 2 (Top-Down POV): Palm to palm with fingers interlaced (No half-step)
+                //   - Bottom Hand: Left Hand PALM UP (slate)
+                //   - Top Hand (Yellow): Right Hand PALM DOWN with fingers interlaced
                 // --------------------------------------------------------------------
                 case "interlaced":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
-                        <!-- Left Hand Entering from Bottom-Left Angled Inward (Spread Fingers) -->
-                        <g transform="translate(-12, 4) rotate(28 88 122)">
-                            <path d="${TOPDOWN_LEFT_HAND_SPREAD}" fill="rgba(16, 185, 129, 0.24)" stroke="#34d399" stroke-width="${sw}" stroke-linejoin="round"/>
+                        <!-- Left Hand Entering from Bottom-Left (PALM UP, Spread Fingers) -->
+                        <g transform="translate(-8, 4) rotate(24 88 122)">
+                            <path d="${TOPDOWN_LEFT_HAND_PALM_UP}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                            ${isMini ? "" : `<path d="M 64 114 Q 88 106 112 114 M 66 126 Q 86 118 106 128" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-opacity="0.75"/>`}
                         </g>
-                        <!-- Right Hand Entering from Bottom-Right Interlocking Fingers with Left Hand -->
+                        <!-- Top Hand (Yellow): Right Hand Entering from Bottom-Right Interlocking Fingers -->
                         <g class="${isMini ? "" : "anim-vertical"}">
-                            <g transform="translate(12, 4) rotate(-28 112 122)">
+                            <g transform="translate(12, 4) rotate(-26 112 122)">
                                 <path class="active-hand-fill" d="${TOPDOWN_RIGHT_HAND_SPREAD}" fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
                             </g>
                             ${isMini ? "" : `
@@ -973,33 +991,34 @@
                             </g>
                             `}
                         </g>
-                        ${renderTopDownWristBadges(isMini, true, true)}
+                        ${renderTopDownWristBadges(isMini, false, true)}
                     </svg>`;
 
                 // --------------------------------------------------------------------
                 // STEP 3 (Top-Down POV): Palm to back with fingers interlaced
-                //   - Right over Left (!isMirrored): Left hand underneath (slate), Right hand on top (Highlighted Emerald)
-                //   - Left over Right (isMirrored):  Right hand underneath (slate), Left hand on top (Highlighted Emerald)
+                //   - Top hand is ALWAYS Yellow with its thumb facing center (inward)!
+                //   - Right over Left (!isMirrored): Left hand underneath (slate), Right hand on top (Yellow, thumb facing center/left)
+                //   - Left over Right (isMirrored):  Right hand underneath (slate), Left hand on top (Yellow, thumb facing center/right)
                 // --------------------------------------------------------------------
                 case "dorsum":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
                         <g ${geomMirror}>
-                            <!-- Underneath Base Hand (Left Hand entering from Bottom-Left, Dorsum / Back of Hand) -->
+                            <!-- Underneath Base Hand (Left Hand entering from Bottom-Left, Dorsum / Back of Hand, Thumb facing center) -->
                             <g transform="translate(-8, 6) rotate(12 88 125)">
                                 <path d="${TOPDOWN_LEFT_HAND_SPREAD}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
                                 ${isMini ? "" : `
-                                <!-- Dorsum tendons & fingernails on bottom hand -->
+                                <!-- Dorsum tendons on bottom hand -->
                                 <path d="M 68 110 L 72 138 M 84 108 L 86 140 M 100 110 L 98 138" stroke="#64748b" stroke-width="2.4" stroke-linecap="round"/>
                                 `}
                             </g>
-                            <!-- Lead Top Hand (Right Hand entering from Bottom-Right, Stacked Over Dorsum & Highlighted) -->
+                            <!-- Lead Top Hand (Yellow, Thumb Facing Center): Right Hand entering from Bottom-Right Stacked Over Dorsum -->
                             <g class="${isMini ? "" : "anim-vertical"}">
-                                <g transform="translate(8, -4) rotate(-14 112 118)">
-                                    <path class="active-hand-fill" d="${TOPDOWN_LEFT_HAND_SPREAD}" fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                                <g transform="translate(-6, -4) rotate(-10 108 118)">
+                                    <path class="active-hand-fill" d="${TOPDOWN_RIGHT_HAND_SPREAD}" fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
                                     ${isMini ? "" : `
-                                    <!-- Top Hand Knuckle & Finger Nails Highlight -->
-                                    <path d="M 72 112 L 74 134 M 88 110 L 89 136 M 102 112 L 101 134" stroke="#a7f3d0" stroke-width="2.3" stroke-linecap="round"/>
+                                    <!-- Top Hand Dorsal Tendons Highlight -->
+                                    <path d="M 98 112 L 99 134 M 112 110 L 111 136 M 128 112 L 126 134" stroke="#fef08a" stroke-width="2.3" stroke-linecap="round"/>
                                     `}
                                 </g>
                                 ${isMini ? "" : `
@@ -1017,8 +1036,8 @@
 
                 // --------------------------------------------------------------------
                 // STEP 4 (Top-Down POV): Backs of fingers to opposing palm (Interlocked knuckles)
-                //   - Right over Left (!isMirrored): Left hand underneath (slate), Right hand curled on top (Highlighted Emerald)
-                //   - Left over Right (isMirrored):  Right hand underneath (slate), Left hand curled on top (Highlighted Emerald)
+                //   - Right over Left (!isMirrored): Left hand underneath (slate), Right hand curled on top (Yellow)
+                //   - Left over Right (isMirrored):  Right hand underneath (slate), Left hand curled on top (Yellow)
                 // --------------------------------------------------------------------
                 case "knuckles":
                     return `
@@ -1027,12 +1046,12 @@
                             <!-- Underneath Base Hand (Left Hand entering from Bottom-Left, Cupped Palm Facing Up/Right) -->
                             <path d="M 28 164 L 46 126 C 52 94 68 74 96 72 L 116 72 C 128 72 134 80 134 90 C 134 99 126 105 114 105 L 90 105 C 90 112 100 118 116 118 C 126 118 132 124 130 132 C 128 140 116 144 98 144 L 72 146 L 56 170 Z"
                                   fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
-                            <!-- Lead Top Hand (Right Hand entering from Bottom-Right, Curled Fingers Interlocked on Top & Highlighted) -->
+                            <!-- Lead Top Hand (Yellow): Right Hand entering from Bottom-Right, Curled Fingers Interlocked on Top -->
                             <g class="${isMini ? "" : "anim-horizontal"}">
                                 <path class="active-hand-fill" d="M 172 164 L 154 120 C 148 92 132 62 104 60 L 84 60 C 72 60 66 68 66 78 C 66 87 74 93 86 93 L 110 93 C 110 100 100 106 84 106 C 74 106 68 112 70 120 C 72 128 84 132 102 132 L 128 136 L 144 170 Z"
                                       fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
                                 <!-- 4 Curled Dorsal Finger Knuckle Ridges -->
-                                <path d="M 80 76 H 118 M 78 90 H 120 M 80 104 H 118 M 84 118 H 116" stroke="#a7f3d0" stroke-width="${isMini ? "3.2" : "2.8"}" stroke-linecap="round"/>
+                                <path d="M 80 76 H 118 M 78 90 H 120 M 80 104 H 118 M 84 118 H 116" stroke="#fef08a" stroke-width="${isMini ? "3.2" : "2.8"}" stroke-linecap="round"/>
                                 ${isMini ? "" : `
                                 <!-- Side-to-Side Scrubbing Arrow Above Knuckles -->
                                 <g transform="translate(0, 38)">
@@ -1048,48 +1067,48 @@
 
                 // --------------------------------------------------------------------
                 // STEP 5 (Top-Down POV): Rotational rubbing of thumb clasped in opposing palm
-                //   - First Half (!isMirrored): Left hand base (bottom-left) with thumb extended; Right hand (bottom-right, Highlighted Emerald) clasps & rotates around left thumb
-                //   - Second Half (isMirrored): Right hand base (bottom-right) with thumb extended; Left hand (bottom-left, Highlighted Emerald) clasps & rotates around right thumb
+                //   - First Half (!isMirrored): CLASPED RIGHT THUMB FIRST — Right hand base (bottom-right, slate) extends right thumb inward; Left hand (bottom-left, Top Hand in Yellow) clasps & rotates around right thumb!
+                //   - Second Half (isMirrored): CLASPED LEFT THUMB SECOND — Left hand base (bottom-left, slate) extends left thumb inward; Right hand (bottom-right, Top Hand in Yellow) clasps & rotates around left thumb!
                 // --------------------------------------------------------------------
                 case "thumbs":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
                         <g ${geomMirror}>
-                            <!-- Base Hand (Left Hand entering from Bottom-Left with Thumb Extended Inward to Right) -->
-                            <path d="M 42 168 L 40 136 C 34 124 30 110 30 94 L 30 58 C 30 51 39 51 39 58 L 41 84 L 43 46 C 43 38 53 38 53 46 L 55 82 L 57 42 C 57 34 67 34 67 42 L 69 82 L 71 50 C 71 42 81 42 81 50 L 82 94 L 94 102 L 116 80 C 123 73 134 81 127 91 L 104 122 C 94 136 82 150 72 168 Z"
+                            <!-- Base Hand (Right Hand entering from Bottom-Right with RIGHT THUMB Extended Inward to Left) -->
+                            <path d="M 158 168 L 160 136 C 166 124 170 110 170 94 L 170 58 C 170 51 161 51 161 58 L 159 84 L 157 46 C 157 38 147 38 147 46 L 145 82 L 143 42 C 143 34 133 34 133 42 L 131 82 L 129 50 C 129 42 119 42 119 50 L 118 94 L 106 102 L 84 80 C 77 73 66 81 73 91 L 96 122 C 106 136 118 150 128 168 Z"
                                   fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
-                            <!-- Active Clasping Lead Hand (Right Hand entering from Bottom-Right, Clasping Left Thumb & Highlighted) -->
+                            <!-- Top Clasping Hand (Yellow): Left Hand entering from Bottom-Left, Clasping Right Thumb on Top -->
                             <g class="${isMini ? "" : "anim-twist"}">
-                                <path class="active-hand-fill" d="M 164 166 L 146 126 C 142 104 132 86 116 80 L 96 82 C 86 84 82 92 86 100 C 88 106 84 114 92 120 C 96 126 106 130 118 130 L 130 144 L 138 170 Z"
+                                <path class="active-hand-fill" d="M 36 166 L 54 126 C 58 104 68 86 84 80 L 104 82 C 114 84 118 92 114 100 C 112 106 116 114 108 120 C 104 126 94 130 82 130 L 70 144 L 62 170 Z"
                                       fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
-                                <!-- Wrapped Right-Hand Fingers Around Left Thumb -->
-                                <path d="M 94 92 L 126 90 M 92 104 L 128 102 M 96 116 L 124 115" stroke="#a7f3d0" stroke-width="2.6" stroke-linecap="round"/>
+                                <!-- Wrapped Top-Hand Fingers Around Clasped Right Thumb -->
+                                <path d="M 106 92 L 74 90 M 108 104 L 72 102 M 104 116 L 76 115" stroke="#fef08a" stroke-width="2.6" stroke-linecap="round"/>
                                 ${isMini ? "" : `
-                                <!-- Rotational Arrow Wrapping Around Thumb Axis -->
-                                <path class="motion-arrow" d="M 92 66 A 26 14 0 1 1 138 74" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
-                                <polygon class="motion-arrow" points="142,80 130,74 141,65" fill="#ffffff"/>
+                                <!-- Rotational Arrow Wrapping Around Right Thumb Axis -->
+                                <path class="motion-arrow" d="M 108 66 A 26 14 0 1 0 62 74" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                                <polygon class="motion-arrow" points="58,80 70,74 59,65" fill="#ffffff"/>
                                 `}
                             </g>
                         </g>
-                        ${renderTopDownWristBadges(isMini, leftLead, rightLead)}
+                        ${renderTopDownWristBadges(isMini, !leftLead, !rightLead)}
                     </svg>`;
 
                 // --------------------------------------------------------------------
                 // STEP 6 (Top-Down POV): Rotational rubbing of fingertips in opposing palm
-                //   - First Half (!isMirrored): Left upturned palm (bottom-left, slate); Right clustered fingertips (entering from bottom-right, Highlighted Emerald) scrubbing in left palm
-                //   - Second Half (isMirrored): Right upturned palm (bottom-right, slate); Left clustered fingertips (entering from bottom-left, Highlighted Emerald) scrubbing in right palm
+                //   - First Half (!isMirrored): Left upturned palm (bottom-left, slate); Right clustered fingertips (entering from bottom-right, Top Hand in Yellow) scrubbing in left palm
+                //   - Second Half (isMirrored): Right upturned palm (bottom-right, slate); Left clustered fingertips (entering from bottom-left, Top Hand in Yellow) scrubbing in right palm
                 // --------------------------------------------------------------------
                 case "fingertips":
                     return `
                     <svg viewBox="0 0 200 190" class="w-full h-full overflow-visible">
                         <g ${geomMirror}>
                             <!-- Base Hand (Left Upturned Open Palm Entering from Bottom-Left) -->
-                            <g transform="translate(-14, 4) rotate(12 85 120)">
-                                <path d="${TOPDOWN_LEFT_HAND_SPREAD}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
-                                <!-- Open Palm Target Zone on Left Palm -->
-                                <ellipse cx="88" cy="118" rx="25" ry="17" fill="#0f172a" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3"/>
+                            <g transform="translate(-8, 4) rotate(12 88 120)">
+                                <path d="${TOPDOWN_LEFT_HAND_PALM_UP}" fill="${baseHandFill}" stroke="${baseHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
+                                <!-- Open Palm Target Zone on Upturned Left Palm -->
+                                <ellipse cx="88" cy="118" rx="24" ry="16" fill="#0f172a" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3"/>
                             </g>
-                            <!-- Active Lead Hand (Right Hand Entering from Bottom-Right with Clustered Fingertips Pressing into Left Palm & Highlighted) -->
+                            <!-- Lead Top Hand (Yellow): Right Hand Entering from Bottom-Right with Clustered Fingertips Pressing into Left Palm -->
                             <g class="${isMini ? "" : "anim-circular"}">
                                 <path class="active-hand-fill" d="M 168 164 L 146 122 C 138 106 124 94 106 96 L 84 100 C 74 102 70 110 76 116 C 72 122 78 128 86 126 C 90 132 98 132 104 126 L 126 136 L 142 168 Z"
                                       fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linejoin="round"/>
@@ -1119,7 +1138,7 @@
                                   d="M 38 162 L 38 154 C 32 146 30 134 30 118 L 30 66 C 30 58 41 58 41 66 L 41 98 L 41 48 C 41 39 53 39 53 48 L 53 96 L 53 40 C 53 31 65 31 65 40 L 65 96 L 65 50 C 65 41 77 41 77 50 L 77 106 L 79 78 C 80 68 91 70 90 81 L 88 120 C 87 138 78 148 68 154 L 68 162 Z"
                                   fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
                             <!-- Subtle Palm Creases -->
-                            <path d="M 38 116 Q 56 110 73 118 M 46 132 Q 60 124 70 138" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.75"/>
+                            <path d="M 38 116 Q 56 110 73 118 M 46 132 Q 60 124 70 138" fill="none" stroke="#fef08a" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.75"/>
                             <!-- Inward Squeeze Arrows Indicating Fingers Together -->
                             <line class="motion-arrow" x1="12" y1="72" x2="23" y2="72" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                             <polygon class="motion-arrow" points="26,72 19,67 19,77" fill="#ffffff"/>
@@ -1132,7 +1151,7 @@
                                   d="M 38 162 L 38 154 C 32 146 30 134 30 118 L 30 66 C 30 58 41 58 41 66 L 41 98 L 41 48 C 41 39 53 39 53 48 L 53 96 L 53 40 C 53 31 65 31 65 40 L 65 96 L 65 50 C 65 41 77 41 77 50 L 77 106 L 79 78 C 80 68 91 70 90 81 L 88 120 C 87 138 78 148 68 154 L 68 162 Z"
                                   fill="${activeHandFill}" stroke="${activeHandStroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
                             <!-- Subtle Palm Creases -->
-                            <path d="M 38 116 Q 56 110 73 118 M 46 132 Q 60 124 70 138" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.75"/>
+                            <path d="M 38 116 Q 56 110 73 118 M 46 132 Q 60 124 70 138" fill="none" stroke="#fef08a" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.75"/>
                             <!-- Inward Squeeze Arrows Indicating Fingers Together -->
                             <line class="motion-arrow" x1="12" y1="72" x2="23" y2="72" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                             <polygon class="motion-arrow" points="26,72 19,67 19,77" fill="#ffffff"/>
@@ -1632,6 +1651,8 @@
         // ============================================================================
         let awaitingBothHandsForSwitch = false;
         let switchHandsTriggeredAt = 0;
+        let checkpointHoldFrames = 0;
+        let cameraUnavailableFallback = false;
         let lastCheckpointHint = "✋✋ Show Both Hands Up (Fingers Together)";
         let flipSwapTimeoutId = null;
         let flipEndTimeoutId = null;
@@ -1656,6 +1677,7 @@
         function unlockCheckpointAndRevealStepIcon() {
             if (!awaitingBothHandsForSwitch) return;
             awaitingBothHandsForSwitch = false;
+            checkpointHoldFrames = 0;
             clearFlipAnimationTimers();
 
             const step = WHO_STEPS[currentStepIndex] || WHO_STEPS[0];
@@ -1762,6 +1784,7 @@
             stepRemainingMs = stepDurationMs;
             isSecondHalfPhase = false;
             awaitingBothHandsForSwitch = true;
+            checkpointHoldFrames = 0;
             switchHandsTriggeredAt = performance.now();
             lastCheckpointHint = "✋✋ Show Both Hands Up";
             firstHalfDominantPolarity = 0;
@@ -1812,6 +1835,7 @@
             isSecondHalfPhase = true;
             stepRemainingMs = stepDurationMs / 2;
             awaitingBothHandsForSwitch = true;
+            checkpointHoldFrames = 0;
             switchHandsTriggeredAt = performance.now();
             lastCheckpointHint = "✋✋ Show Both Hands Up";
 
@@ -1872,8 +1896,8 @@
             const dtMs = Math.min(100, Math.max(0, now - lastFrameTime));
             lastFrameTime = now;
 
-            // Check if valid scrubbing occurred within the 300ms micro-pause debounce buffer
-            const runningNow = (now - lastValidScrubTime) <= MOTION_DEBOUNCE_MS;
+            // Never allow timer to run while awaitingBothHandsForSwitch is active!
+            const runningNow = !awaitingBothHandsForSwitch && ((now - lastValidScrubTime) <= MOTION_DEBOUNCE_MS);
 
             if (runningNow !== isScrubbingActive) {
                 isScrubbingActive = runningNow;
@@ -2103,10 +2127,10 @@
             ctx.rect(offsetX, offsetY, 320, 240);
             ctx.clip();
 
-            // 1. Paint tight surgical mask over handToMask's core so adjacent/touching second hand is NOT erased
+            // 1. Paint surgical mask over handToMask's core (wider when only 1 hand is tracked so 1 hand never creates a ghost duplicate)
             ctx.strokeStyle = bgCssColor;
             ctx.fillStyle = bgCssColor;
-            traceHandSkeletonCorridor(ctx, offsetX, offsetY, handToMask, handToProtect ? 0.24 : 0.26);
+            traceHandSkeletonCorridor(ctx, offsetX, offsetY, handToMask, handToProtect ? 0.25 : 0.44);
             ctx.stroke();
 
             // Fill palm core polygon of handToMask
@@ -2157,7 +2181,9 @@
             // so MediaPipe can natively detect both hands whenever separated or lightly touching!
             mpCompositeCtx.drawImage(video, 0, 0, 320, 240);
 
-            if (lastTrackedHands.length >= 1) {
+            // During awaitingBothHandsForSwitch (Show Both Hands checkpoint), NEVER draw Quadrant 2
+            // so a single moving hand can never be duplicated across Q1 and Q2!
+            if (!awaitingBothHandsForSwitch && lastTrackedHands.length >= 1) {
                 const bgCss = sampleFrameCornerBgColor(video);
                 const hA = lastTrackedHands[0];
                 const hB = lastTrackedHands[1] || null;
@@ -2217,9 +2243,11 @@
                     calVideo.play().catch(() => {});
                 }
                 webcamRunning = true;
+                cameraUnavailableFallback = false;
                 requestAnimationFrame(pumpCameraFrame);
             } catch (err) {
                 webcamRunning = false;
+                cameraUnavailableFallback = true;
             }
         }
 
@@ -2818,6 +2846,7 @@
             const scale = Math.max(0.06, (dist2D(h1[0], h1[9]) + dist2D(h2[0], h2[9])) * 0.5);
             const wristDist = dist2D(h1[0], h2[0]) / scale;
             const mcpDist = dist2D(computeMCPCenter(h1), computeMCPCenter(h2)) / scale;
+            const palmDist = dist2D(computePalmCenter(h1), computePalmCenter(h2)) / scale;
 
             let sumAll = 0;
             for (let k = 0; k < 21; k++) {
@@ -2825,8 +2854,11 @@
             }
             const meanAllDist = (sumAll / 21) / scale;
 
-            // Only treat Q1 and Q2 detections as duplicates of the same single hand if nearly all 21 landmarks coincide
-            return (wristDist < 0.18 && mcpDist < 0.16 && meanAllDist < 0.16);
+            // Reject Q2 ghost duplicates of the same single hand (including slightly shifted Q2 skeletons during motion)
+            return (
+                (wristDist < 0.34 && mcpDist < 0.30 && meanAllDist < 0.30) ||
+                (wristDist < 0.28 && palmDist < 0.28)
+            );
         }
 
         // Rotation- and curl-tolerant anatomical hand validator:
@@ -3093,12 +3125,12 @@
         }
 
         // Angle-invariant check (0°–360° rotation & 3D tilt tolerant):
-        // Evaluates whether a hand has its fingers extended and held together at ANY angle
+        // Evaluates whether a hand has all 4 fingers genuinely extended (not curled/scrubbing) and held together at ANY angle
         function checkSingleHandUpFingersTogether(hand) {
             const palmLen = Math.max(0.045, dist2D(hand[0], hand[9]));
             const axis = computeHandAxisVector(hand);
 
-            // 1. Angle-invariant finger extension (works upright, diagonal, horizontal, or tilted toward camera)
+            // 1. Angle-invariant finger extension (works at any 360° rotation, rejects curled/fist/scrubbing hands)
             const extRatio = computeFingerExtensionRatio(hand);
             const fingerChains = [
                 [5, 6, 8],   // Index MCP, PIP, TIP
@@ -3117,17 +3149,17 @@
                 const uy = vy / fLen;
                 fingerDirs.push({ x: ux, y: uy, len: fLen / palmLen });
 
-                // Finger projects forward along palm axis (at any 360° orientation) and tip is beyond MCP/PIP
+                // Finger projects forward along palm axis (at any 360° orientation) and tip is genuinely beyond PIP & MCP
                 const forwardDot = ux * axis.x + uy * axis.y;
                 const tipFromWrist = dist2D(hand[0], hand[tipIdx]);
                 const mcpFromWrist = dist2D(hand[0], hand[mcpIdx]);
                 const pipFromWrist = dist2D(hand[0], hand[pipIdx]);
-                if (forwardDot > 0.20 && tipFromWrist > mcpFromWrist * 1.08 && tipFromWrist > pipFromWrist * 0.96) {
+                if (forwardDot > 0.42 && tipFromWrist > mcpFromWrist * 1.20 && tipFromWrist > pipFromWrist * 1.05) {
                     extendedCount++;
                 }
             }
 
-            const isExtended = (extRatio >= 1.24 && extendedCount >= 3);
+            const isExtended = (extRatio >= 1.34 && extendedCount >= 4);
 
             // 2. Angle- & tilt-invariant "fingers together" check:
             //    (a) Adjacent finger vectors are parallel (not splayed out at wide angles)
@@ -3135,6 +3167,7 @@
             const dot12 = fingerDirs[1].x * fingerDirs[2].x + fingerDirs[1].y * fingerDirs[2].y;
             const dot23 = fingerDirs[2].x * fingerDirs[3].x + fingerDirs[2].y * fingerDirs[3].y;
             const meanParallelDot = (dot01 + dot12 + dot23) / 3;
+            const minParallelDot = Math.min(dot01, dot12, dot23);
 
             //    (b) Adjacent fingertips are close together relative to palm length
             const g8_12 = dist2D(hand[8], hand[12]) / palmLen;
@@ -3142,6 +3175,7 @@
             const g16_20 = dist2D(hand[16], hand[20]) / palmLen;
             const meanTipGap = (g8_12 + g12_16 + g16_20) / 3;
             const maxTipGap = Math.max(g8_12, g12_16, g16_20);
+            const outerTipSpan = dist2D(hand[8], hand[20]) / palmLen;
 
             //    (c) Adjacent PIP (middle) joints are also close together
             const p6_10 = dist2D(hand[6], hand[10]) / palmLen;
@@ -3150,9 +3184,13 @@
             const meanPipGap = (p6_10 + p10_14 + p14_18) / 3;
 
             const fingersTogether =
-                (meanTipGap <= 0.45 && maxTipGap <= 0.56) ||
-                (meanParallelDot >= 0.82 && meanTipGap <= 0.52) ||
-                (meanPipGap <= 0.34 && meanTipGap <= 0.50);
+                (outerTipSpan <= 1.05) &&
+                (minParallelDot >= 0.72) &&
+                (
+                    (meanTipGap <= 0.42 && maxTipGap <= 0.52) ||
+                    (meanParallelDot >= 0.86 && meanTipGap <= 0.46) ||
+                    (meanPipGap <= 0.32 && meanTipGap <= 0.46)
+                );
 
             return {
                 isUpright: isExtended,
@@ -3161,7 +3199,7 @@
             };
         }
 
-        function evaluateBothHandsUpFingersTogether(hands, directHandCount) {
+        function evaluateBothHandsUpFingersTogether(hands, directHandCount, velocityNow) {
             if (!hands || hands.length < 2 || directHandCount < 2) {
                 return {
                     ready: false,
@@ -3171,15 +3209,36 @@
 
             const hA = hands[0];
             const hB = hands[1];
+            const scaleA = Math.max(0.05, dist2D(hA[0], hA[9]));
+            const scaleB = Math.max(0.05, dist2D(hB[0], hB[9]));
+            const scale = (scaleA + scaleB) * 0.5;
+            const scaleRatio = Math.min(scaleA, scaleB) / Math.max(scaleA, scaleB);
+
+            // 1. Require two genuinely distinct, separated palms & wrists (never 1 duplicated hand or 2 overlapping scrubbing hands)
+            const palmDist = dist2D(computePalmCenter(hA), computePalmCenter(hB)) / scale;
+            const mcpDist = dist2D(computeMCPCenter(hA), computeMCPCenter(hB)) / scale;
+            const wristDist = dist2D(hA[0], hB[0]) / scale;
+
+            if (scaleRatio < 0.52 || palmDist < 0.72 || mcpDist < 0.62 || wristDist < 0.58) {
+                return {
+                    ready: false,
+                    hint: "✋✋ Separate & Show Both Hands"
+                };
+            }
+
+            // 2. Reject active scrubbing/waving motion — user must hold both hands steady to verify
+            if (typeof velocityNow === "number" && velocityNow > 0.022) {
+                return {
+                    ready: false,
+                    hint: "✋✋ Hold Both Hands Steady"
+                };
+            }
+
             const resA = checkSingleHandUpFingersTogether(hA);
             const resB = checkSingleHandUpFingersTogether(hB);
 
-            // Also allow continuing when the user brings the fingers of both hands together at any angle
-            const scale = Math.max(0.05, (dist2D(hA[0], hA[9]) + dist2D(hB[0], hB[9])) * 0.5);
-            const interHandTipDist = dist2D(computeFingertipCenter(hA), computeFingertipCenter(hB)) / scale;
-            const bothHandsFingersTouching = (interHandTipDist <= 0.65) && (resA.fingersTogether || resB.fingersTogether);
-
-            if ((resA.ok && resB.ok) || bothHandsFingersTouching) {
+            // 3. Both hands must have all fingers extended and held together (at any 2D rotation angle)
+            if (resA.ok && resB.ok) {
                 return {
                     ready: true,
                     hint: "✓ Both Hands Ready!"
@@ -3216,25 +3275,31 @@
             const directHandCount = unmapped.directHandCount;
             handsInFrameCount = hands.length;
 
-            // Before starting each step and each half-step, require the user to show BOTH hands up with all fingers together!
-            if (appState === "WASHING" && awaitingBothHandsForSwitch) {
-                const check = evaluateBothHandsUpFingersTogether(hands, directHandCount);
-                lastCheckpointHint = check.hint;
-                if ((now - switchHandsTriggeredAt) >= 550 && check.ready) {
-                    unlockCheckpointAndRevealStepIcon();
-                } else {
-                    syncStepPromptDOM();
-                }
-            }
-
             const activeStep = isCalibrating
                 ? (WHO_STEPS[calSelectedStepIndex] || WHO_STEPS[0])
                 : (WHO_STEPS[currentStepIndex] || WHO_STEPS[0]);
             const effectiveThresh = getEffectiveVelocityThreshold(activeStep);
 
             if (hands.length > 0) {
-
                 currentVelocity = calculateEuclideanVelocity(hands);
+
+                // Before starting each step and each half-step, require the user to show BOTH hands steady with all fingers together!
+                if (appState === "WASHING" && awaitingBothHandsForSwitch) {
+                    const check = evaluateBothHandsUpFingersTogether(hands, directHandCount, currentVelocity);
+                    lastCheckpointHint = check.hint;
+                    if ((now - switchHandsTriggeredAt) >= 650 && check.ready) {
+                        checkpointHoldFrames++;
+                        if (checkpointHoldFrames >= 4) {
+                            unlockCheckpointAndRevealStepIcon();
+                        } else {
+                            syncStepPromptDOM();
+                        }
+                    } else {
+                        checkpointHoldFrames = 0;
+                        syncStepPromptDOM();
+                    }
+                }
+
                 isPoseValid = !awaitingBothHandsForSwitch && validateStepGesture(activeStep.id, hands, handednessList, now);
 
                 const validScrub = !awaitingBothHandsForSwitch && isPoseValid && (currentVelocity >= effectiveThresh);
@@ -3289,12 +3354,17 @@
             } else {
                 isPoseValid = false;
                 currentVelocity = 0;
+                checkpointHoldFrames = 0;
                 prevHandLandmarks = [null, null];
                 lastDirectTwoHands = null;
                 lastDirectTwoHandsTime = 0;
                 lastTwoHandContactTime = 0;
                 lastTwoHandContactCenter = null;
                 lastObservedMetrics.isTouching = false;
+                if (appState === "WASHING" && awaitingBothHandsForSwitch) {
+                    lastCheckpointHint = "✋✋ Show Both Hands";
+                    syncStepPromptDOM();
+                }
                 if (appState === "WASHING" && !isScrubbingActive) {
                     updateVisualRunState(false);
                 }
@@ -3359,9 +3429,9 @@
         let lastPointerPos = null;
 
         function setupFallbackScrubListeners() {
-            // Only active when no webcam stream is running (e.g., headless/desktop without camera)
+            // Only active when camera hardware is genuinely unavailable/denied (never during camera startup or when camera is running)
             window.addEventListener("pointermove", (e) => {
-                if (appState !== "WASHING" || webcamRunning) return;
+                if (appState !== "WASHING" || webcamRunning || !cameraUnavailableFallback) return;
 
                 if (lastPointerPos) {
                     const dist = Math.hypot(e.clientX - lastPointerPos.x, e.clientY - lastPointerPos.y);
