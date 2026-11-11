@@ -259,39 +259,56 @@
             }
         }
 
-        /* WHO Hand Gesture Keyframe Animations */
+        /* WHO Hand Gesture Keyframe Animations (100% GPU-Composited Transform + Opacity) */
         @keyframes scrub-circular {
-            0%   { transform: translate(0px, 0px) rotate(0deg); }
-            25%  { transform: translate(9px, -7px) rotate(4deg); }
-            50%  { transform: translate(0px, -13px) rotate(0deg); }
-            75%  { transform: translate(-9px, -7px) rotate(-4deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
+            0%   { transform: translate3d(0px, 0px, 0px) rotate(0deg); }
+            25%  { transform: translate3d(9px, -7px, 0px) rotate(4deg); }
+            50%  { transform: translate3d(0px, -13px, 0px) rotate(0deg); }
+            75%  { transform: translate3d(-9px, -7px, 0px) rotate(-4deg); }
+            100% { transform: translate3d(0px, 0px, 0px) rotate(0deg); }
         }
 
         @keyframes scrub-vertical {
-            0%, 100% { transform: translateY(-10px); }
-            50%      { transform: translateY(10px); }
+            0%, 100% { transform: translate3d(0px, -10px, 0px); }
+            50%      { transform: translate3d(0px, 10px, 0px); }
         }
 
         @keyframes scrub-horizontal {
-            0%, 100% { transform: translateX(-11px); }
-            50%      { transform: translateX(11px); }
+            0%, 100% { transform: translate3d(-11px, 0px, 0px); }
+            50%      { transform: translate3d(11px, 0px, 0px); }
         }
 
         @keyframes scrub-twist {
-            0%, 100% { transform: rotate(-11deg) translateY(-4px); }
-            50%      { transform: rotate(11deg) translateY(4px); }
+            0%, 100% { transform: translate3d(0px, -4px, 0px) rotate(-11deg); }
+            50%      { transform: translate3d(0px, 4px, 0px) rotate(11deg); }
         }
 
         @keyframes amber-pulse {
-            0%, 100% { filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.65)); opacity: 0.92; }
-            50%      { filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.2)); opacity: 0.55; }
+            0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.96; }
+            50%      { transform: translate3d(0, 0, 0) scale(0.965); opacity: 0.58; }
+        }
+
+        .anim-circular,
+        .anim-vertical,
+        .anim-horizontal,
+        .anim-twist {
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         .anim-circular   { animation: scrub-circular 0.95s infinite ease-in-out; transform-origin: center; }
         .anim-vertical   { animation: scrub-vertical 0.8s infinite ease-in-out; transform-origin: center; }
         .anim-horizontal { animation: scrub-horizontal 0.8s infinite ease-in-out; transform-origin: center; }
         .anim-twist      { animation: scrub-twist 0.85s infinite ease-in-out; transform-origin: 95px 110px; }
+
+        #gesture-illustration,
+        .segment-icon-wrap {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+        }
 
         /* Pause & Pulse Amber when Scrubbing Stops (PAUSED State) */
         .motion-paused .anim-circular,
@@ -317,27 +334,27 @@
         /* 3D Horizontal Flip Animation when Switching to the Other Half of a Handwash Step */
         @keyframes icon-flip-3d {
             0% {
-                transform: perspective(650px) rotateY(0deg) scale(1);
-                filter: drop-shadow(0 0 12px rgba(52, 211, 153, 0.45));
+                transform: perspective(650px) rotateY(0deg) scale3d(1, 1, 1);
+                opacity: 1;
             }
             45% {
-                transform: perspective(650px) rotateY(90deg) scale(1.12);
-                filter: drop-shadow(0 0 26px rgba(251, 191, 36, 0.9));
+                transform: perspective(650px) rotateY(88deg) scale3d(1.08, 1.08, 1);
+                opacity: 0.82;
             }
             55% {
-                transform: perspective(650px) rotateY(-90deg) scale(1.12);
-                filter: drop-shadow(0 0 26px rgba(251, 191, 36, 0.9));
+                transform: perspective(650px) rotateY(-88deg) scale3d(1.08, 1.08, 1);
+                opacity: 0.82;
             }
             100% {
-                transform: perspective(650px) rotateY(0deg) scale(1);
-                filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.65));
+                transform: perspective(650px) rotateY(0deg) scale3d(1, 1, 1);
+                opacity: 1;
             }
         }
 
         #gesture-illustration.icon-flip-anim,
         .motion-paused #gesture-illustration.icon-flip-anim,
         .segment-icon-wrap.icon-flip-anim {
-            animation: icon-flip-3d 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+            animation: icon-flip-3d 0.56s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
         }
     </style>
 </head>
@@ -1261,10 +1278,10 @@
         };
 
         const FINGER_CLOSE_TOLERANCE_LEVELS = {
-            1: { level: 1, label: "Strict", value: 0.72 },
-            2: { level: 2, label: "Snug", value: 0.86 },
+            1: { level: 1, label: "Strict", value: 0.68 },
+            2: { level: 2, label: "Snug", value: 0.84 },
             3: { level: 3, label: "Standard", value: 1.00 },
-            4: { level: 4, label: "Relaxed", value: 1.32 }
+            4: { level: 4, label: "Relaxed", value: 1.18 }
         };
 
         const DEFAULT_CALIBRATION = {
@@ -1708,17 +1725,23 @@
             document.getElementById("start-screen").classList.remove("hidden");
         }
 
+        let lastStyledStepIndex = -1;
+        let lastRenderedTimerSec = -1;
+        let lastRenderedPromptKey = "";
+
         function renderProgressSegments() {
             const container = document.getElementById("progress-segments");
             container.innerHTML = "";
+            lastStyledStepIndex = -1;
+            lastRenderedTimerSec = -1;
 
             WHO_STEPS.forEach((step, idx) => {
                 const seg = document.createElement("div");
                 seg.id = `segment-${idx}`;
                 seg.className = "relative rounded-xl border-2 border-slate-700 bg-slate-900/80 overflow-hidden flex items-center justify-center transition-colors duration-200";
                 seg.innerHTML = `
-                    <!-- Continuous Left-to-Right Progress Fill -->
-                    <div id="segment-fill-${idx}" class="absolute inset-y-0 left-0 bg-emerald-500/85 w-0"></div>
+                    <!-- Continuous Left-to-Right GPU-Composited Progress Fill -->
+                    <div id="segment-fill-${idx}" class="absolute inset-y-0 left-0 w-full origin-left bg-emerald-500/85 will-change-transform" style="transform: scaleX(0);"></div>
                     <!-- 50% Halfway Hand-Switch Divider for Steps 2 to 6 -->
                     ${step.requiresHandSwitch ? '<div class="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-slate-950/70 z-10 pointer-events-none"></div>' : ''}
                     <!-- Static Mini Anatomical Hand Icon -->
@@ -1773,11 +1796,11 @@
 
                 flipSwapTimeoutId = setTimeout(() => {
                     gestureEl.innerHTML = getGestureSVG(step.svgType, false, isSecondHalfPhase);
-                }, 290);
+                }, 250);
 
                 flipEndTimeoutId = setTimeout(() => {
                     gestureEl.classList.remove("icon-flip-anim");
-                }, 660);
+                }, 570);
             }
 
             syncStepPromptDOM();
@@ -1785,6 +1808,14 @@
 
         function syncStepPromptDOM() {
             const step = WHO_STEPS[currentStepIndex] || WHO_STEPS[0];
+            const showIdlePill = Boolean(appState === "WASHING" && !awaitingBothHandsForSwitch && !isScrubbingActive && handsInFrameCount < 2 && !isPoseValid);
+            const promptKey = awaitingBothHandsForSwitch
+                ? `CHK|${currentStepIndex}|${isSecondHalfPhase ? 1 : 0}|${lastCheckpointHint}`
+                : `STEP|${currentStepIndex}|${isSecondHalfPhase ? 1 : 0}|${showIdlePill ? 1 : 0}`;
+
+            if (promptKey === lastRenderedPromptKey) return;
+            lastRenderedPromptKey = promptKey;
+
             const captionEl = document.getElementById("gesture-caption");
             const zhEl = document.getElementById("lang-zh");
             const esEl = document.getElementById("lang-es");
@@ -1811,7 +1842,7 @@
             }
 
             if (camPill) {
-                if (appState === "WASHING" && !isScrubbingActive && handsInFrameCount < 2 && !isPoseValid) {
+                if (showIdlePill) {
                     camPill.classList.remove("hidden");
                     const span = camPill.querySelector("span");
                     if (span) span.innerText = "✋✋ Show Both Hands";
@@ -1843,6 +1874,9 @@
             prevHandLandmarks = [null, null];
             lastValidScrubTime = 0;
             isScrubbingActive = false;
+            lastStyledStepIndex = -1;
+            lastRenderedTimerSec = -1;
+            lastRenderedPromptKey = "";
 
             loadStep(0);
             updateVisualRunState(false);
@@ -1902,10 +1936,10 @@
                 gestureEl.classList.add("icon-flip-anim");
                 flipSwapTimeoutId = setTimeout(() => {
                     gestureEl.innerHTML = getGestureSVG("both-hands-up", false, false);
-                }, 290);
+                }, 250);
                 flipEndTimeoutId = setTimeout(() => {
                     gestureEl.classList.remove("icon-flip-anim");
-                }, 660);
+                }, 570);
             }
 
             syncStepPromptDOM();
@@ -1962,12 +1996,12 @@
                 if (segIconEl) {
                     segIconEl.innerHTML = getGestureSVG(step.svgType, true, true);
                 }
-            }, 290);
+            }, 250);
 
             flipEndTimeoutId = setTimeout(() => {
                 if (gestureEl) gestureEl.classList.remove("icon-flip-anim");
                 if (segIconEl) segIconEl.classList.remove("icon-flip-anim");
-            }, 660);
+            }, 570);
 
             syncStepPromptDOM();
             syncTimerAndBarDOM();
@@ -2039,34 +2073,43 @@
         }
 
         function syncTimerAndBarDOM() {
-            // Top-left circular integer countdown
+            // Top-left circular integer countdown (update DOM text ONLY when integer second changes)
             const displaySec = Math.max(1, Math.ceil(stepRemainingMs / 1000));
-            document.getElementById("timer-number").innerText = displaySec;
+            if (displaySec !== lastRenderedTimerSec) {
+                lastRenderedTimerSec = displaySec;
+                const timerNumEl = document.getElementById("timer-number");
+                if (timerNumEl) timerNumEl.innerText = displaySec;
+            }
 
-            // Exact millisecond progress percentage for active bottom segment
-            const progressPct = Math.min(100, Math.max(0, ((stepDurationMs - stepRemainingMs) / stepDurationMs) * 100));
+            // Update segment border/background classes ONLY when active step changes
+            if (currentStepIndex !== lastStyledStepIndex) {
+                lastStyledStepIndex = currentStepIndex;
+                for (let idx = 0; idx < WHO_STEPS.length; idx++) {
+                    const seg = document.getElementById(`segment-${idx}`);
+                    const fill = document.getElementById(`segment-fill-${idx}`);
+                    if (!seg || !fill) continue;
 
-            WHO_STEPS.forEach((_, idx) => {
-                const seg = document.getElementById(`segment-${idx}`);
-                const fill = document.getElementById(`segment-fill-${idx}`);
-
-                if (idx < currentStepIndex) {
-                    // Completed block: solid filled
-                    fill.style.width = "100%";
-                    fill.className = "absolute inset-y-0 left-0 bg-emerald-500";
-                    seg.className = "relative rounded-xl border-2 border-emerald-400 bg-emerald-950/60 overflow-hidden flex items-center justify-center opacity-100";
-                } else if (idx === currentStepIndex) {
-                    // Active block: fills continuously left to right in sync with active timer
-                    fill.style.width = `${progressPct.toFixed(2)}%`;
-                    fill.className = "absolute inset-y-0 left-0 bg-emerald-500/85";
-                    seg.className = "relative rounded-xl border-2 border-white bg-slate-900 overflow-hidden flex items-center justify-center scale-[1.03] shadow-[0_0_18px_rgba(16,185,129,0.28)]";
-                } else {
-                    // Upcoming block: remains outlined
-                    fill.style.width = "0%";
-                    fill.className = "absolute inset-y-0 left-0 bg-emerald-500/85";
-                    seg.className = "relative rounded-xl border-2 border-slate-700 bg-slate-900/50 overflow-hidden flex items-center justify-center opacity-55";
+                    if (idx < currentStepIndex) {
+                        fill.style.transform = "scaleX(1)";
+                        fill.className = "absolute inset-y-0 left-0 w-full origin-left bg-emerald-500 will-change-transform";
+                        seg.className = "relative rounded-xl border-2 border-emerald-400 bg-emerald-950/60 overflow-hidden flex items-center justify-center opacity-100";
+                    } else if (idx === currentStepIndex) {
+                        fill.className = "absolute inset-y-0 left-0 w-full origin-left bg-emerald-500/85 will-change-transform";
+                        seg.className = "relative rounded-xl border-2 border-white bg-slate-900 overflow-hidden flex items-center justify-center scale-[1.03] shadow-[0_0_18px_rgba(16,185,129,0.28)]";
+                    } else {
+                        fill.style.transform = "scaleX(0)";
+                        fill.className = "absolute inset-y-0 left-0 w-full origin-left bg-emerald-500/85 will-change-transform";
+                        seg.className = "relative rounded-xl border-2 border-slate-700 bg-slate-900/50 overflow-hidden flex items-center justify-center opacity-55";
+                    }
                 }
-            });
+            }
+
+            // GPU-composited scaleX transform on the active segment fill (zero layout reflow at 60fps)
+            const activeFill = document.getElementById(`segment-fill-${currentStepIndex}`);
+            if (activeFill) {
+                const progressRatio = Math.min(1, Math.max(0, (stepDurationMs - stepRemainingMs) / stepDurationMs));
+                activeFill.style.transform = `scaleX(${progressRatio.toFixed(4)})`;
+            }
         }
 
         function completeWashSession() {
@@ -2142,22 +2185,17 @@
         // ============================================================================
         // 6.0 DIAGONAL DUAL-QUADRANT ANTI-NMS ENGINE FOR CLOSE / TOUCHING HANDS
         // ============================================================================
-        // Why MediaPipe drops the 2nd hand when two hands get close:
-        // MediaPipe's internal AssociationNormRectCalculator expands each hand's bounding
-        // box by 2.6x and deletes the second hand as soon as the two 2.6x boxes overlap
-        // by >30% IoU (even before the hands actually touch!).
-        //
-        // Fix: We feed MediaPipe a 640x480 (4:3) composite canvas containing TWO diagonally
-        // separated 320x240 viewports:
-        //   - Quadrant 1 (Top-Left [0..320, 0..240]): Dedicated to Hand A (with Hand B masked out when close)
-        //   - Quadrant 2 (Bottom-Right [320..640, 240..480]): Dedicated to Hand B (with Hand A masked out)
-        // Because Quadrant 1 and Quadrant 2 are in opposite corners of the 640x480 frame,
-        // their 2.6x ROI boxes have 0.00 IoU overlap in MediaPipe, so the second hand is NEVER
-        // suppressed when hands are brought close together or touching!
+        // High-FPS 480x360 composite canvas containing TWO diagonally separated 240x180 viewports:
+        //   - Quadrant 1 (Top-Left [0..240, 0..180]): Clean camera frame
+        //   - Quadrant 2 (Bottom-Right [240..480, 180..360]): Dedicated to Hand B (with Hand A masked out when close)
+        const COMP_W = 480;
+        const COMP_H = 360;
+        const QUAD_W = 240;
+        const QUAD_H = 180;
         const mpCompositeCanvas = document.createElement("canvas");
-        mpCompositeCanvas.width = 640;
-        mpCompositeCanvas.height = 480;
-        const mpCompositeCtx = mpCompositeCanvas.getContext("2d");
+        mpCompositeCanvas.width = COMP_W;
+        mpCompositeCanvas.height = COMP_H;
+        const mpCompositeCtx = mpCompositeCanvas.getContext("2d", { alpha: false });
 
         let lastTrackedHands = [];
         let lastTrackedHandedness = [];
@@ -2165,117 +2203,95 @@
         let lastDirectTwoHandsHandedness = null;
         let lastDirectTwoHandsTime = 0;
 
-        function sampleFrameCornerBgColor(video) {
+        // Per-frame cached 64x48 probe buffer so we NEVER run multiple GPU->CPU getImageData readbacks on the same frame
+        let currentCameraFrameId = 0;
+        let cachedProbeFrameId = -1;
+        let cachedProbeData = null;
+        let cachedCornerBgRgb = { r: 15, g: 23, b: 42, css: "rgb(15, 23, 42)" };
+
+        function getProbeFramePixels() {
+            if (cachedProbeFrameId === currentCameraFrameId && cachedProbeData) {
+                return cachedProbeData;
+            }
             try {
+                const video = document.getElementById("webcam-video");
+                if (!video || video.readyState < 2) return cachedProbeData;
                 touchProbeCtx.drawImage(video, 0, 0, 64, 48);
-                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+                cachedProbeData = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+                cachedProbeFrameId = currentCameraFrameId;
+
                 const coords = [[2, 2], [61, 2], [2, 45], [61, 45]];
                 let r = 0, g = 0, b = 0;
                 for (const [x, y] of coords) {
                     const off = (y * 64 + x) * 4;
-                    r += img[off];
-                    g += img[off + 1];
-                    b += img[off + 2];
+                    r += cachedProbeData[off];
+                    g += cachedProbeData[off + 1];
+                    b += cachedProbeData[off + 2];
                 }
-                return `rgb(${Math.round(r / 4)}, ${Math.round(g / 4)}, ${Math.round(b / 4)})`;
+                r = Math.round(r / 4);
+                g = Math.round(g / 4);
+                b = Math.round(b / 4);
+                cachedCornerBgRgb = { r, g, b, css: `rgb(${r}, ${g}, ${b})` };
+                return cachedProbeData;
             } catch (e) {
-                return "#1e293b";
+                return null;
             }
         }
 
-        function traceHandSkeletonCorridor(ctx, offsetX, offsetY, hand, radiusScale) {
-            const palmScale = Math.max(0.06, dist2D(hand[0], hand[9]));
-            const pxRadius = palmScale * 320 * radiusScale;
-            ctx.lineWidth = pxRadius * 2;
+        function maskHandInQuadrant(ctx, offsetX, offsetY, handToMask, handToProtect, bgCssColor) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(offsetX, offsetY, QUAD_W, QUAD_H);
+            ctx.clip();
+
+            const palmScale = Math.max(0.06, dist2D(handToMask[0], handToMask[9]));
+            const radiusScale = handToProtect ? 0.24 : 0.42;
+            ctx.strokeStyle = bgCssColor;
+            ctx.fillStyle = bgCssColor;
+            ctx.lineWidth = palmScale * QUAD_W * radiusScale * 2;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
 
             ctx.beginPath();
             for (let i = 0; i < HAND_FOOTPRINT_SEGMENTS.length; i++) {
                 const [iA, iB] = HAND_FOOTPRINT_SEGMENTS[i];
-                ctx.moveTo(offsetX + hand[iA].x * 320, offsetY + hand[iA].y * 240);
-                ctx.lineTo(offsetX + hand[iB].x * 320, offsetY + hand[iB].y * 240);
-            }
-            // Also include a short forearm extension behind wrist [0] so the masked hand's wrist is fully hidden
-            const axis = computeHandAxisVector(hand);
-            const wristExX = hand[0].x - axis.x * palmScale * 0.45;
-            const wristExY = hand[0].y - axis.y * palmScale * 0.45;
-            ctx.moveTo(offsetX + hand[0].x * 320, offsetY + hand[0].y * 240);
-            ctx.lineTo(offsetX + wristExX * 320, offsetY + wristExY * 240);
-        }
-
-        function maskHandInQuadrant(ctx, video, offsetX, offsetY, handToMask, handToProtect, bgCssColor) {
-            ctx.save();
-            // Clip to the target 320x240 quadrant
-            ctx.beginPath();
-            ctx.rect(offsetX, offsetY, 320, 240);
-            ctx.clip();
-
-            // 1. Paint surgical mask over handToMask's core (wider when only 1 hand is tracked so 1 hand never creates a ghost duplicate)
-            ctx.strokeStyle = bgCssColor;
-            ctx.fillStyle = bgCssColor;
-            traceHandSkeletonCorridor(ctx, offsetX, offsetY, handToMask, handToProtect ? 0.25 : 0.44);
-            ctx.stroke();
-
-            // Fill palm core polygon of handToMask
-            const palmIndices = [0, 1, 2, 5, 9, 13, 17];
-            ctx.beginPath();
-            ctx.moveTo(offsetX + handToMask[0].x * 320, offsetY + handToMask[0].y * 240);
-            for (let i = 1; i < palmIndices.length; i++) {
-                const pt = handToMask[palmIndices[i]];
-                ctx.lineTo(offsetX + pt.x * 320, offsetY + pt.y * 240);
-            }
-            ctx.closePath();
-            ctx.fill();
-
-            // 2. If handToProtect is known (both hands are close together), restore 100% of handToProtect's
-            // real camera pixels inside its skeleton corridor so handToProtect remains completely intact!
-            if (handToProtect) {
-                const palmScale = Math.max(0.06, dist2D(handToProtect[0], handToProtect[9]));
-                ctx.save();
-                ctx.beginPath();
-                const rPx = palmScale * 320 * 0.30;
-                for (let i = 0; i < 21; i++) {
-                    if (dist2D(handToProtect[i], handToMask[0]) < palmScale * 0.18 && dist2D(handToProtect[0], handToMask[0]) > palmScale * 0.25) {
+                if (handToProtect) {
+                    const mx = (handToMask[iA].x + handToMask[iB].x) * 0.5;
+                    const my = (handToMask[iA].y + handToMask[iB].y) * 0.5;
+                    if (minDistPointToHandSkeleton({ x: mx, y: my }, handToProtect) < palmScale * 0.26) {
                         continue;
                     }
-                    ctx.moveTo(offsetX + handToProtect[i].x * 320 + rPx, offsetY + handToProtect[i].y * 240);
-                    ctx.arc(offsetX + handToProtect[i].x * 320, offsetY + handToProtect[i].y * 240, rPx, 0, Math.PI * 2);
                 }
-                for (let i = 0; i < HAND_FOOTPRINT_SEGMENTS.length; i++) {
-                    const [iA, iB] = HAND_FOOTPRINT_SEGMENTS[i];
-                    const mx = (handToProtect[iA].x + handToProtect[iB].x) * 0.5;
-                    const my = (handToProtect[iA].y + handToProtect[iB].y) * 0.5;
-                    ctx.moveTo(offsetX + mx * 320 + rPx, offsetY + my * 240);
-                    ctx.arc(offsetX + mx * 320, offsetY + my * 240, rPx, 0, Math.PI * 2);
-                }
-                ctx.clip();
-                ctx.drawImage(video, offsetX, offsetY, 320, 240);
-                ctx.restore();
+                ctx.moveTo(offsetX + handToMask[iA].x * QUAD_W, offsetY + handToMask[iA].y * QUAD_H);
+                ctx.lineTo(offsetX + handToMask[iB].x * QUAD_W, offsetY + handToMask[iB].y * QUAD_H);
             }
+            const axis = computeHandAxisVector(handToMask);
+            const wristExX = handToMask[0].x - axis.x * palmScale * 0.45;
+            const wristExY = handToMask[0].y - axis.y * palmScale * 0.45;
+            ctx.moveTo(offsetX + handToMask[0].x * QUAD_W, offsetY + handToMask[0].y * QUAD_H);
+            ctx.lineTo(offsetX + wristExX * QUAD_W, offsetY + wristExY * QUAD_H);
+            ctx.stroke();
 
             ctx.restore();
         }
 
         function prepareDualQuadrantFrame(video) {
             mpCompositeCtx.fillStyle = "#0f172a";
-            mpCompositeCtx.fillRect(0, 0, 640, 480);
+            mpCompositeCtx.fillRect(0, 0, COMP_W, COMP_H);
 
-            // Quadrant 1 (Top-Left: 0, 0, 320, 240) is ALWAYS the clean, unmasked camera frame
-            // so MediaPipe can natively detect both hands whenever separated or lightly touching!
-            mpCompositeCtx.drawImage(video, 0, 0, 320, 240);
+            // Quadrant 1 (Top-Left: 0, 0, 240, 180) is ALWAYS the clean, unmasked camera frame
+            mpCompositeCtx.drawImage(video, 0, 0, QUAD_W, QUAD_H);
 
-            // During awaitingBothHandsForSwitch (Show Both Hands checkpoint), NEVER draw Quadrant 2
-            // so a single moving hand can never be duplicated across Q1 and Q2!
+            // Only draw Quadrant 2 when NOT awaiting both-hands checkpoint and when hands are close or 1 hand is tracked
             if (!awaitingBothHandsForSwitch && lastTrackedHands.length >= 1) {
-                const bgCss = sampleFrameCornerBgColor(video);
                 const hA = lastTrackedHands[0];
                 const hB = lastTrackedHands[1] || null;
-
-                // Quadrant 2 (Bottom-Right: 320, 240, 320, 240) has Hand A surgically masked out
-                // so MediaPipe independently detects Hand B at IoU = 0.00 even when hands overlap!
-                mpCompositeCtx.drawImage(video, 320, 240, 320, 240);
-                maskHandInQuadrant(mpCompositeCtx, video, 320, 240, hA, hB, bgCss);
+                const needQ2 = !hB || dist2D(computePalmCenter(hA), computePalmCenter(hB)) <= 0.42;
+                if (needQ2) {
+                    getProbeFramePixels();
+                    mpCompositeCtx.drawImage(video, QUAD_W, QUAD_H, QUAD_W, QUAD_H);
+                    maskHandInQuadrant(mpCompositeCtx, QUAD_W, QUAD_H, hA, hB, cachedCornerBgRgb.css);
+                }
             }
             return mpCompositeCanvas;
         }
@@ -2286,11 +2302,10 @@
                 handsDetector = new Hands({
                     locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
                 });
-                // Balanced detection/tracking confidence for responsive 2-hand tracking
-                // while geometric validation filters out faces and non-hand shapes
+                // modelComplexity: 0 runs ~3x faster on mobile/desktop WebGL so UI & animations stay at 60fps
                 handsDetector.setOptions({
                     maxNumHands: 2,
-                    modelComplexity: 1,
+                    modelComplexity: 0,
                     minDetectionConfidence: 0.48,
                     minTrackingConfidence: 0.42
                 });
@@ -2314,8 +2329,8 @@
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: "user",
-                        width: { ideal: 640 },
-                        height: { ideal: 480 },
+                        width: { ideal: 480 },
+                        height: { ideal: 360 },
                         frameRate: { ideal: 30 }
                     },
                     audio: false
@@ -2335,16 +2350,40 @@
             }
         }
 
-        async function pumpCameraFrame() {
+        let mpBusy = false;
+        let lastMpSentAt = 0;
+        let lastProcessedVideoTime = -1;
+
+        function pumpCameraFrame(now) {
             if (!webcamRunning) return;
-            const video = document.getElementById("webcam-video");
-            if ((appState === "WASHING" || appState === "CALIBRATING") && handsDetector && video.readyState >= 2) {
-                try {
-                    const compositeInput = prepareDualQuadrantFrame(video);
-                    await handsDetector.send({ image: compositeInput });
-                } catch (e) {}
-            }
             requestAnimationFrame(pumpCameraFrame);
+
+            if (mpBusy || (appState !== "WASHING" && appState !== "CALIBRATING") || !handsDetector) {
+                return;
+            }
+
+            const ts = now || performance.now();
+            // Pace MediaPipe inference to ~30fps max and skip duplicate unchanged webcam frames
+            // so the main UI thread always has headroom for smooth 60/120fps animations
+            if ((ts - lastMpSentAt) < 28) return;
+
+            const video = document.getElementById("webcam-video");
+            if (!video || video.readyState < 2) return;
+
+            const vTime = video.currentTime;
+            if (vTime === lastProcessedVideoTime && (ts - lastMpSentAt) < 55) {
+                return;
+            }
+
+            lastProcessedVideoTime = vTime;
+            lastMpSentAt = ts;
+            currentCameraFrameId++;
+            mpBusy = true;
+
+            const compositeInput = prepareDualQuadrantFrame(video);
+            handsDetector.send({ image: compositeInput })
+                .then(() => { mpBusy = false; })
+                .catch(() => { mpBusy = false; });
         }
 
         // ============================================================================
@@ -2542,11 +2581,8 @@
         // Verifies there is no background air gap between the closest points of Hand A and Hand B
         function hasVisualContactBridge(ptA, ptB, hA, hB) {
             try {
-                const video = document.getElementById("webcam-video");
-                if (!video || video.readyState < 2) return true;
-
-                touchProbeCtx.drawImage(video, 0, 0, 64, 48);
-                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+                const img = getProbeFramePixels();
+                if (!img) return true;
 
                 const sampleHand = [hA[0], hA[5], hA[9], hB[0], hB[5], hB[9]];
                 let sr = 0, sg = 0, sb = 0;
@@ -2684,13 +2720,10 @@
                     return { isTouching: false, extraMassRatio: 0 };
                 }
 
-                const video = document.getElementById("webcam-video");
-                if (!video || video.readyState < 2) {
+                const img = getProbeFramePixels();
+                if (!img) {
                     return { isTouching: false, extraMassRatio: 0 };
                 }
-
-                touchProbeCtx.drawImage(video, 0, 0, 64, 48);
-                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
 
                 // Sample reference hand skin/glove color across palm & knuckle landmarks
                 const sampleIndices = [0, 1, 5, 9, 13, 17, 6, 10, 14];
@@ -2706,16 +2739,10 @@
                 }
                 sr /= count; sg /= count; sb /= count;
 
-                // Sample corner background color so uniform walls aren't mistaken for skin
-                const bgCoords = [[2, 2], [61, 2], [2, 45], [61, 45]];
-                let br = 0, bg = 0, bb = 0;
-                for (const [bx, by] of bgCoords) {
-                    const off = (by * 64 + bx) * 4;
-                    br += img[off];
-                    bg += img[off + 1];
-                    bb += img[off + 2];
-                }
-                br /= 4; bg /= 4; bb /= 4;
+                // Use cached corner background color so uniform walls aren't mistaken for skin
+                const br = cachedCornerBgRgb.r;
+                const bg = cachedCornerBgRgb.g;
+                const bb = cachedCornerBgRgb.b;
 
                 const axis = computeHandAxisVector(hand);
                 const searchRadius = Math.min(0.36, palmScale * 2.0);
@@ -3030,11 +3057,8 @@
 
         function verifyHandSkinStillPresent(candidateHand, visibleHand) {
             try {
-                const video = document.getElementById("webcam-video");
-                if (!video || video.readyState < 2) return false;
-
-                touchProbeCtx.drawImage(video, 0, 0, 64, 48);
-                const img = touchProbeCtx.getImageData(0, 0, 64, 48).data;
+                const img = getProbeFramePixels();
+                if (!img) return false;
 
                 // Sample reference skin color from the visible hand
                 const refIndices = [0, 5, 9, 13, 17];
@@ -3208,85 +3232,207 @@
             };
         }
 
-        // Angle-invariant check (0°–360° rotation & 3D tilt tolerant):
-        // Evaluates whether a hand has all 4 fingers genuinely extended (not curled/scrubbing) and held together at ANY angle,
-        // scaled by calibrationConfig.fingerCloseTolerance (0.72 Strict -> 1.00 Standard -> 1.32 Relaxed).
+        // Strict, angle- & tilt-invariant finger-closing verification:
+        // Measures lateral (perpendicular) finger-gap-to-knuckle-gap ratios across PIP, DIP, and TIP joints,
+        // inter-finger parallel angles, bone straightness, and thumb adduction against the index finger.
         function checkSingleHandUpFingersTogether(hand) {
             const palmLen = Math.max(0.045, dist2D(hand[0], hand[9]));
             const axis = computeHandAxisVector(hand);
-            const fTol = (typeof calibrationConfig !== "undefined" && calibrationConfig && typeof calibrationConfig.fingerCloseTolerance === "number")
-                ? calibrationConfig.fingerCloseTolerance
-                : 1.00;
+            const fLvl = (typeof calibrationConfig !== "undefined" && calibrationConfig && calibrationConfig.fingerCloseLevel) || 3;
 
-            // 1. Angle-invariant finger extension (works at any 360° rotation, rejects curled/fist/scrubbing hands)
+            // Level-specific strictness presets (even Level 4 Relaxed requires fingers narrower than knuckles)
+            const presetTable = {
+                1: { // Strict
+                    maxLatTipSpan: 0.72,
+                    maxLatDipSpan: 0.78,
+                    maxLatPipSpan: 0.86,
+                    maxPairLatTip: 0.78,
+                    maxPairLatDip: 0.82,
+                    minParallel: 0.982,
+                    outerParallel: 0.955,
+                    maxThumbGap: 0.36,
+                    minThumbDot: 0.76,
+                    minExtRatio: 1.48,
+                    minStraight: 0.91
+                },
+                2: { // Snug
+                    maxLatTipSpan: 0.79,
+                    maxLatDipSpan: 0.84,
+                    maxLatPipSpan: 0.91,
+                    maxPairLatTip: 0.85,
+                    maxPairLatDip: 0.88,
+                    minParallel: 0.972,
+                    outerParallel: 0.938,
+                    maxThumbGap: 0.44,
+                    minThumbDot: 0.70,
+                    minExtRatio: 1.45,
+                    minStraight: 0.90
+                },
+                3: { // Standard
+                    maxLatTipSpan: 0.86,
+                    maxLatDipSpan: 0.90,
+                    maxLatPipSpan: 0.95,
+                    maxPairLatTip: 0.92,
+                    maxPairLatDip: 0.94,
+                    minParallel: 0.960,
+                    outerParallel: 0.915,
+                    maxThumbGap: 0.52,
+                    minThumbDot: 0.64,
+                    minExtRatio: 1.42,
+                    minStraight: 0.89
+                },
+                4: { // Relaxed
+                    maxLatTipSpan: 0.95,
+                    maxLatDipSpan: 0.97,
+                    maxLatPipSpan: 1.00,
+                    maxPairLatTip: 1.00,
+                    maxPairLatDip: 1.00,
+                    minParallel: 0.940,
+                    outerParallel: 0.885,
+                    maxThumbGap: 0.64,
+                    minThumbDot: 0.55,
+                    minExtRatio: 1.38,
+                    minStraight: 0.87
+                }
+            };
+            const cfg = presetTable[fLvl] || presetTable[3];
+
+            // 1. Verify all 4 fingers are genuinely straight & extended (rejects curled, bent, or scrubbing hands)
             const extRatio = computeFingerExtensionRatio(hand);
             const fingerChains = [
-                [5, 6, 8],   // Index MCP, PIP, TIP
-                [9, 10, 12], // Middle MCP, PIP, TIP
-                [13, 14, 16],// Ring MCP, PIP, TIP
-                [17, 18, 20] // Pinky MCP, PIP, TIP
+                [5, 6, 7, 8],   // Index MCP, PIP, DIP, TIP
+                [9, 10, 11, 12],// Middle MCP, PIP, DIP, TIP
+                [13, 14, 15, 16],// Ring MCP, PIP, DIP, TIP
+                [17, 18, 19, 20]// Pinky MCP, PIP, DIP, TIP
             ];
 
             let extendedCount = 0;
             const fingerDirs = [];
-            for (const [mcpIdx, pipIdx, tipIdx] of fingerChains) {
+            for (const [mcpIdx, pipIdx, dipIdx, tipIdx] of fingerChains) {
                 const vx = hand[tipIdx].x - hand[mcpIdx].x;
                 const vy = hand[tipIdx].y - hand[mcpIdx].y;
-                const fLen = Math.max(0.001, Math.hypot(vx, vy));
-                const ux = vx / fLen;
-                const uy = vy / fLen;
-                fingerDirs.push({ x: ux, y: uy, len: fLen / palmLen });
+                const chordLen = Math.max(0.001, Math.hypot(vx, vy));
+                const boneSum = Math.max(
+                    0.001,
+                    dist2D(hand[mcpIdx], hand[pipIdx]) +
+                    dist2D(hand[pipIdx], hand[dipIdx]) +
+                    dist2D(hand[dipIdx], hand[tipIdx])
+                );
+                const straightness = chordLen / boneSum;
+                const ux = vx / chordLen;
+                const uy = vy / chordLen;
+                fingerDirs.push({ x: ux, y: uy, len: chordLen / palmLen });
 
-                // Finger projects forward along palm axis (at any 360° orientation) and tip is genuinely beyond PIP & MCP
                 const forwardDot = ux * axis.x + uy * axis.y;
                 const tipFromWrist = dist2D(hand[0], hand[tipIdx]);
-                const mcpFromWrist = dist2D(hand[0], hand[mcpIdx]);
+                const dipFromWrist = dist2D(hand[0], hand[dipIdx]);
                 const pipFromWrist = dist2D(hand[0], hand[pipIdx]);
-                if (forwardDot > 0.42 && tipFromWrist > mcpFromWrist * 1.20 && tipFromWrist > pipFromWrist * 1.05) {
+                const mcpFromWrist = dist2D(hand[0], hand[mcpIdx]);
+
+                if (
+                    forwardDot > 0.52 &&
+                    straightness >= cfg.minStraight &&
+                    tipFromWrist > dipFromWrist * 1.04 &&
+                    dipFromWrist > pipFromWrist * 1.04 &&
+                    pipFromWrist > mcpFromWrist * 1.08
+                ) {
                     extendedCount++;
                 }
             }
 
-            const minExtRatio = fTol >= 1.20 ? 1.28 : 1.34;
-            const minExtCount = fTol >= 1.25 ? 3 : 4;
-            const isExtended = (extRatio >= minExtRatio && extendedCount >= minExtCount);
+            const isExtended = (extRatio >= cfg.minExtRatio && extendedCount === 4);
 
-            // 2. Angle- & tilt-invariant "fingers together" check (scaled by fTol):
-            //    (a) Adjacent finger vectors are parallel (not splayed out at wide angles)
+            // 2. Inter-finger parallelism (rejects any fanned/splayed fingers)
             const dot01 = fingerDirs[0].x * fingerDirs[1].x + fingerDirs[0].y * fingerDirs[1].y;
             const dot12 = fingerDirs[1].x * fingerDirs[2].x + fingerDirs[1].y * fingerDirs[2].y;
             const dot23 = fingerDirs[2].x * fingerDirs[3].x + fingerDirs[2].y * fingerDirs[3].y;
-            const meanParallelDot = (dot01 + dot12 + dot23) / 3;
+            const outerParallelDot = fingerDirs[0].x * fingerDirs[3].x + fingerDirs[0].y * fingerDirs[3].y;
             const minParallelDot = Math.min(dot01, dot12, dot23);
 
-            //    (b) Adjacent fingertips are close together relative to palm length
-            const g8_12 = dist2D(hand[8], hand[12]) / palmLen;
-            const g12_16 = dist2D(hand[12], hand[16]) / palmLen;
-            const g16_20 = dist2D(hand[16], hand[20]) / palmLen;
-            const meanTipGap = (g8_12 + g12_16 + g16_20) / 3;
-            const maxTipGap = Math.max(g8_12, g12_16, g16_20);
-            const outerTipSpan = dist2D(hand[8], hand[20]) / palmLen;
+            // 3. Lateral (perpendicular) width across MCP knuckles vs PIP, DIP, and TIP joints
+            //    Measuring perpendicular to the finger direction eliminates natural finger-length differences
+            //    (e.g., Middle vs Pinky) and isolates the true air gap between fingers!
+            let meanUx = (fingerDirs[0].x + fingerDirs[1].x + fingerDirs[2].x + fingerDirs[3].x) * 0.25;
+            let meanUy = (fingerDirs[0].y + fingerDirs[1].y + fingerDirs[2].y + fingerDirs[3].y) * 0.25;
+            const meanULen = Math.max(0.001, Math.hypot(meanUx, meanUy));
+            meanUx /= meanULen;
+            meanUy /= meanULen;
+            // Lateral normal vector perpendicular to the 4 fingers
+            const normX = -meanUy;
+            const normY = meanUx;
 
-            //    (c) Adjacent PIP (middle) joints are also close together
-            const p6_10 = dist2D(hand[6], hand[10]) / palmLen;
-            const p10_14 = dist2D(hand[10], hand[14]) / palmLen;
-            const p14_18 = dist2D(hand[14], hand[18]) / palmLen;
-            const meanPipGap = (p6_10 + p10_14 + p14_18) / 3;
+            const latDist = (idxA, idxB) =>
+                Math.abs((hand[idxB].x - hand[idxA].x) * normX + (hand[idxB].y - hand[idxA].y) * normY);
 
-            const reqMinParallel = Math.max(0.56, Math.min(0.84, 0.72 - (fTol - 1.0) * 0.35));
-            const reqMeanParallel = Math.max(0.75, Math.min(0.92, 0.86 - (fTol - 1.0) * 0.25));
+            const latMcp01 = Math.max(0.012, latDist(5, 9));
+            const latMcp12 = Math.max(0.012, latDist(9, 13));
+            const latMcp23 = Math.max(0.012, latDist(13, 17));
+            const latMcpSpan = Math.max(0.036, latDist(5, 17), (latMcp01 + latMcp12 + latMcp23) * 0.92);
 
-            const fingersTogether =
-                (outerTipSpan <= 1.05 * fTol) &&
-                (minParallelDot >= reqMinParallel) &&
-                (
-                    (meanTipGap <= 0.42 * fTol && maxTipGap <= 0.52 * fTol) ||
-                    (meanParallelDot >= reqMeanParallel && meanTipGap <= 0.46 * fTol) ||
-                    (meanPipGap <= 0.32 * fTol && meanTipGap <= 0.46 * fTol)
-                );
+            const latPip01 = latDist(6, 10);
+            const latPip12 = latDist(10, 14);
+            const latPip23 = latDist(14, 18);
+            const latPipSpan = Math.max(latDist(6, 18), latPip01 + latPip12 + latPip23);
+
+            const latDip01 = latDist(7, 11);
+            const latDip12 = latDist(11, 15);
+            const latDip23 = latDist(15, 19);
+            const latDipSpan = Math.max(latDist(7, 19), latDip01 + latDip12 + latDip23);
+
+            const latTip01 = latDist(8, 12);
+            const latTip12 = latDist(12, 16);
+            const latTip23 = latDist(16, 20);
+            const latTipSpan = Math.max(latDist(8, 20), latTip01 + latTip12 + latTip23);
+
+            const latTipSpanRatio = latTipSpan / latMcpSpan;
+            const latDipSpanRatio = latDipSpan / latMcpSpan;
+            const latPipSpanRatio = latPipSpan / latMcpSpan;
+
+            const maxPairLatTipRatio = Math.max(
+                latTip01 / latMcp01,
+                latTip12 / latMcp12,
+                latTip23 / latMcp23
+            );
+            const maxPairLatDipRatio = Math.max(
+                latDip01 / latMcp01,
+                latDip12 / latMcp12,
+                latDip23 / latMcp23
+            );
+
+            const fourFingersClosed =
+                (minParallelDot >= cfg.minParallel) &&
+                (outerParallelDot >= cfg.outerParallel) &&
+                (latTipSpanRatio <= cfg.maxLatTipSpan) &&
+                (latDipSpanRatio <= cfg.maxLatDipSpan) &&
+                (latPipSpanRatio <= cfg.maxLatPipSpan) &&
+                (maxPairLatTipRatio <= cfg.maxPairLatTip) &&
+                (maxPairLatDipRatio <= cfg.maxPairLatDip);
+
+            // 4. Thumb adduction check: Thumb [3, 4] must be closed/tucked near the Index finger edge [5..8]
+            const thumbTipToIndexSeg = distToSegment2D(
+                hand[4].x, hand[4].y,
+                hand[5].x, hand[5].y,
+                hand[8].x, hand[8].y
+            ) / latMcpSpan;
+            const thumbIpToIndexSeg = distToSegment2D(
+                hand[3].x, hand[3].y,
+                hand[2].x, hand[2].y,
+                hand[6].x, hand[6].y
+            ) / latMcpSpan;
+            const thumbGapRatio = Math.min(thumbTipToIndexSeg, thumbIpToIndexSeg * 1.15);
+
+            const tvx = hand[4].x - hand[2].x;
+            const tvy = hand[4].y - hand[2].y;
+            const tLen = Math.max(0.001, Math.hypot(tvx, tvy));
+            const thumbDot = (tvx / tLen) * fingerDirs[0].x + (tvy / tLen) * fingerDirs[0].y;
+
+            const thumbClosed = (thumbGapRatio <= cfg.maxThumbGap) && (thumbDot >= cfg.minThumbDot);
+            const fingersTogether = fourFingersClosed && thumbClosed;
 
             return {
                 isUpright: isExtended,
+                fourFingersClosed,
+                thumbClosed,
                 fingersTogether,
                 ok: isExtended && fingersTogether
             };
@@ -3312,7 +3458,7 @@
             const mcpDist = dist2D(computeMCPCenter(hA), computeMCPCenter(hB)) / scale;
             const wristDist = dist2D(hA[0], hB[0]) / scale;
 
-            if (scaleRatio < 0.52 || palmDist < 0.72 || mcpDist < 0.62 || wristDist < 0.58) {
+            if (scaleRatio < 0.54 || palmDist < 0.76 || mcpDist < 0.65 || wristDist < 0.60) {
                 return {
                     ready: false,
                     hint: "✋✋ Separate & Show Both Hands"
@@ -3320,7 +3466,7 @@
             }
 
             // 2. Reject active scrubbing/waving motion — user must hold both hands steady to verify
-            if (typeof velocityNow === "number" && velocityNow > 0.022) {
+            if (typeof velocityNow === "number" && velocityNow > 0.019) {
                 return {
                     ready: false,
                     hint: "✋✋ Hold Both Hands Steady"
@@ -3330,7 +3476,7 @@
             const resA = checkSingleHandUpFingersTogether(hA);
             const resB = checkSingleHandUpFingersTogether(hB);
 
-            // 3. Both hands must have all fingers extended and held together (at any 2D rotation angle)
+            // 3. Both hands must have all fingers extended and tightly closed together (including thumbs)
             if (resA.ok && resB.ok) {
                 return {
                     ready: true,
@@ -3341,13 +3487,20 @@
             if (!resA.isUpright || !resB.isUpright) {
                 return {
                     ready: false,
-                    hint: "✋✋ Extend Fingers on Both Hands"
+                    hint: "✋✋ Straighten Fingers on Both Hands"
+                };
+            }
+
+            if (resA.fourFingersClosed && resB.fourFingersClosed && (!resA.thumbClosed || !resB.thumbClosed)) {
+                return {
+                    ready: false,
+                    hint: "✋✋ Tuck Thumbs In • Close All Fingers"
                 };
             }
 
             return {
                 ready: false,
-                hint: "✋✋ Keep All Fingers Together"
+                hint: "✋✋ Press All Fingers Tightly Together"
             };
         }
 
@@ -3355,9 +3508,9 @@
             const isCalibrating = (appState === "CALIBRATING");
             const canvas = document.getElementById(isCalibrating ? "cal-canvas" : "output-canvas");
             const ctx = canvas.getContext("2d");
-            canvas.width = 320;
-            canvas.height = 240;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (canvas.width !== 320) canvas.width = 320;
+            if (canvas.height !== 240) canvas.height = 240;
+            ctx.clearRect(0, 0, 320, 240);
 
             const now = performance.now();
             const rawHands = results.multiHandLandmarks || [];
@@ -3380,16 +3533,13 @@
                 if (appState === "WASHING" && awaitingBothHandsForSwitch) {
                     const check = evaluateBothHandsUpFingersTogether(hands, directHandCount, currentVelocity);
                     lastCheckpointHint = check.hint;
-                    if ((now - switchHandsTriggeredAt) >= 650 && check.ready) {
+                    if ((now - switchHandsTriggeredAt) >= 750 && check.ready) {
                         checkpointHoldFrames++;
-                        if (checkpointHoldFrames >= 4) {
+                        if (checkpointHoldFrames >= 6) {
                             unlockCheckpointAndRevealStepIcon();
-                        } else {
-                            syncStepPromptDOM();
                         }
                     } else {
                         checkpointHoldFrames = 0;
-                        syncStepPromptDOM();
                     }
                 }
 
@@ -3540,7 +3690,7 @@
                     const dist = Math.hypot(e.clientX - lastPointerPos.x, e.clientY - lastPointerPos.y);
                     if (dist > 6) {
                         if (awaitingBothHandsForSwitch) {
-                            if ((performance.now() - switchHandsTriggeredAt) >= 650) {
+                            if ((performance.now() - switchHandsTriggeredAt) >= 750) {
                                 unlockCheckpointAndRevealStepIcon();
                             }
                         } else {
@@ -3567,8 +3717,9 @@
             canvas.height = 160;
 
             function renderPiPFallback(now) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                if (appState === "WASHING" && !webcamRunning) {
+                if (webcamRunning) return;
+                if (appState === "WASHING" && cameraUnavailableFallback) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                     const t = isScrubbingActive ? now * 0.009 : 0;
                     const dx = isScrubbingActive ? Math.sin(t) * 14 : 0;
                     const dy = isScrubbingActive ? Math.cos(t * 1.3) * 8 : 0;
